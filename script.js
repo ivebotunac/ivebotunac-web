@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (emailButton) {
         emailButton.addEventListener('click', function(e) {
             e.preventDefault();
-            const email = 'removed@example.invalid'; // Replace with your actual email
+            const email = 'removed@example.invalid'; // Updated with Ive's actual email
             navigator.clipboard.writeText(email)
                 .then(() => {
                     // Change button text temporarily to show success
