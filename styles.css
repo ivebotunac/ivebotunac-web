@@ -97,7 +97,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
   position: relative; z-index: 1;
   max-width: var(--maxw); margin: 0 auto; padding: 0 40px;
   display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); gap: var(--gap);
-  align-items: start;
+  align-items: stretch; /* rail cell fills row height so its sticky child can travel */
 }
 
 /* ---------- left rail ---------- */
@@ -184,6 +184,32 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .bullets { margin: 9px 0 0; padding: 0; list-style: none; }
 .bullets li { position: relative; padding-left: 20px; margin: 0 0 6px; color: var(--ink-2); font-size: .9rem; line-height: 1.55; }
 .bullets li::before { content: "\2014"; position: absolute; left: 0; top: 0; color: var(--accent); }
+
+/* ---------- experience: companies (LinkedIn-style) ---------- */
+.orgs { list-style: none; margin: 0; padding: 0; }
+.org { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; padding: 0 0 26px; }
+.org + .org { padding-top: 26px; border-top: 1px solid var(--rule); }
+
+.org__logo { width: 48px; height: 48px; border: 1px solid var(--rule-2); border-radius: 8px; background: #fff; display: grid; place-items: center; overflow: hidden; text-decoration: none; }
+.org__logo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.logo-mono { width: 100%; height: 100%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+
+.org__name { margin: 0 0 2px; font-size: 1.04rem; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.org__name.mono { font-weight: 500; font-size: .8rem; color: var(--muted); letter-spacing: .01em; }
+.org__meta { margin: 0; font-size: .74rem; color: var(--muted); }
+.org__loc { color: var(--faint); }
+
+.orglink { color: inherit; text-decoration: none; }
+.orglink:hover { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+
+.roles { list-style: none; margin: 14px 0 0; padding: 0 0 0 22px; position: relative; }
+.roles::before { content: ""; position: absolute; left: 3px; top: 9px; bottom: 11px; width: 1px; background: var(--rule-2); }
+.role { position: relative; padding: 0 0 16px; }
+.role:last-child { padding-bottom: 0; }
+.role::before { content: ""; position: absolute; left: -22px; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--accent); }
+.role__title { margin: 0 0 2px; font-size: 1rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.005em; }
+.role__when { margin: 0 0 6px; font-size: .72rem; color: var(--faint); }
+.role__desc { margin: 0; font-size: .9rem; line-height: 1.55; color: var(--ink-2); }
 
 /* ---------- publications ---------- */
 .pubs { list-style: none; margin: 0; padding: 0; counter-reset: pub; }
