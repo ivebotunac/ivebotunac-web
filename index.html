@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<!--
+  Ive Botunac — curriculum vitae. Hand-maintained, no build step.
+  Photo: drop a square headshot at assets/ive-botunac.jpg (a monogram shows until then).
+  To add an entry (talk / role / project), copy one block and edit it.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ive Botunac, PhD — AI Research Scientist &amp; Founder</title>
+  <meta name="description" content="Ive Botunac, PhD — AI Research Scientist, consultant and founder based in Zadar, Croatia. Experience, projects, publications, talks and more." />
+  <meta name="author" content="Ive Botunac" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Ive Botunac, PhD — AI Research Scientist &amp; Founder" />
+  <meta property="og:description" content="AI Research Scientist, consultant and founder based in Zadar, Croatia." />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23201f1c%22/><text x=%2250%22 y=%2270%22 font-family=%22monospace%22 font-size=%2256%22 fill=%22%23f6f4ee%22 text-anchor=%22middle%22>ib</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#about">Skip to content</a>
+
+  <!-- thin document masthead -->
+  <div class="masthead">
+    <div class="masthead__inner">
+      <span class="masthead__id">IVE&nbsp;BOTUNAC</span>
+      <span class="masthead__doc">CURRICULUM&nbsp;VITÆ — ZADAR, HR</span>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ===================== LEFT RAIL ===================== -->
+    <aside class="rail">
+      <div class="rail__sticky">
+        <div class="id">
+          <div class="id__photo">
+            <img src="assets/ive-botunac.jpg" alt="Ive Botunac" width="84" height="84"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+            <span class="id__monogram" aria-hidden="true" style="display:none;">ib</span>
+          </div>
+          <h1 class="id__name">Ive Botunac<span class="id__phd">, PhD</span></h1>
+          <p class="id__role">AI Research Scientist<br />Consultant &amp; Founder</p>
+          <p class="id__loc">Zadar, Croatia · 45°N</p>
+        </div>
+
+        <ul class="contacts">
+          <li><a href="mailto:removed@example.invalid">removed@example.invalid</a></li>
+          <li><a href="https://www.linkedin.com/in/ivebotunac" target="_blank" rel="noopener" class="ext">LinkedIn</a></li>
+          <li><a href="https://scholar.google.com/citations?user=Yr-Z7D0AAAAJ" target="_blank" rel="noopener" class="ext">Google&nbsp;Scholar</a></li>
+          <li><a href="https://www.croris.hr/osobe/profil/39063" target="_blank" rel="noopener" class="ext">CroRIS</a></li>
+        </ul>
+
+        <button class="rail__toggle" aria-expanded="false" aria-controls="railnav">Index <span>↓</span></button>
+        <nav id="railnav" class="railnav" aria-label="Sections">
+          <a href="#about"><i>01</i> About</a>
+          <a href="#experience"><i>02</i> Experience</a>
+          <a href="#projects"><i>03</i> Projects</a>
+          <a href="#publications"><i>04</i> Publications</a>
+          <a href="#talks"><i>05</i> Talks</a>
+          <a href="#education"><i>06</i> Education</a>
+          <a href="#certifications"><i>07</i> Certifications</a>
+          <a href="#skills"><i>08</i> Skills</a>
+          <a href="#volunteering"><i>09</i> Volunteering</a>
+        </nav>
+
+        <p class="rail__foot">Last updated<br />June&nbsp;2026</p>
+      </div>
+    </aside>
+
+    <!-- ===================== CONTENT ===================== -->
+    <main class="content">
+
+      <!-- editorial lead -->
+      <p class="lead">
+        AI research scientist and founder. I build machine-learning products, lead R&amp;D, and
+        publish — from <em>LLM-driven trading systems</em> to a mental-health app with
+        <em>1.3&nbsp;million&#43; downloads</em>.
+      </p>
+
+      <!-- featured (editorial, not a card) -->
+      <section class="featured" aria-label="Featured project">
+        <div class="featured__label mono">Featured</div>
+        <h2 class="featured__title">
+          <a href="https://sintelly.com" target="_blank" rel="noopener" class="ext">Sintelly</a>
+        </h2>
+        <p class="featured__meta mono">2017 — present · 1.3M&#43; downloads · Founder / Head of Development / Data Scientist</p>
+        <p class="featured__text">
+          An AI psychotherapist in your pocket — a mobile app that pairs large language models with
+          cognitive behavioral therapy to make mental-health support accessible to everyone. Grown
+          from an idea to a product used by over 1.3 million people.
+        </p>
+        <p class="stack mono">Angular · Ionic · Python · FastAPI · TensorFlow · Transformers · LangChain · Firebase · GCP</p>
+      </section>
+
+      <!-- 01 / About -->
+      <section id="about" class="section">
+        <h2 class="shead"><span class="shead__num mono">01</span><span class="shead__name">About</span></h2>
+        <p class="prose">
+          Expert in informatics and artificial intelligence with over ten years of practical
+          experience. My career is defined by the development of advanced machine learning models,
+          the publication of scientific papers, and participation in numerous projects. I specialize
+          in applying advanced machine learning techniques to solve complex problems, automate
+          processes, and support decision-making. I have built strong skills in leading
+          multidisciplinary teams and integrating AI-based solutions into software products. My
+          passion lies in using artificial intelligence to drive innovation and create measurable
+          value across various industries.
+        </p>
+      </section>
+
+      <!-- 02 / Experience -->
+      <section id="experience" class="section">
+        <h2 class="shead"><span class="shead__num mono">02</span><span class="shead__name">Experience</span></h2>
+        <ol class="entries">
+          <li class="entry">
+            <p class="entry__when mono">2025 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Director of Partnerships</h3>
+              <p class="entry__org">Alfatec Group Ltd. <span class="mono entry__place">Zadar, HR</span></p>
+              <ul class="bullets">
+                <li>Develop and manage strategic partnerships that drive the company's growth and innovation.</li>
+                <li>Develop and implement a partnership strategy aligned with the company's business goals.</li>
+                <li>Identify and evaluate potential strategic partners in the technology and business sectors.</li>
+                <li>Lead negotiations and conclude partnership agreements with domestic and international partners.</li>
+                <li>Maintain relationships with existing partners to maximize the value of cooperation.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2025 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Founder</h3>
+              <p class="entry__org">Primo Technology Ltd. <span class="mono entry__place">Zadar, HR</span></p>
+              <p class="entry__summary">My AI consulting agency and indie dev studio — helping companies adopt AI through strategy, implementation and education, while building my own AI-powered products.</p>
+              <ul class="bullets">
+                <li>AI consulting and digital transformation strategy.</li>
+                <li>Design and implementation of multi-agent systems.</li>
+                <li>Fine-tuning of large language models (LLMs) and RAG systems.</li>
+                <li>AI education and team training.</li>
+                <li>Indie development of AI-powered mobile and web applications.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2017 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Founder &amp; CEO</h3>
+              <p class="entry__org">Sintelly Ltd. <span class="mono entry__place">Zadar, HR</span></p>
+              <p class="entry__summary">Led development of a mobile app integrating AI with cognitive behavioral therapy (CBT) to improve well-being — reaching over 1.3 million downloads.</p>
+              <ul class="bullets">
+                <li>Oversaw company operations and led the development team.</li>
+                <li>Designed and implemented app features using state-of-the-art AI solutions.</li>
+                <li>Innovated AI-driven CBT tools to support users' mental health.</li>
+                <li>Transformed mental well-being through accessible AI applications.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2021 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Director of Research and Development</h3>
+              <p class="entry__org">Alfatec Group Ltd. <span class="mono entry__place">Zadar, HR</span></p>
+              <p class="entry__summary">Led the application of AI across innovative solutions, collaborating with global partners and ensuring project success.</p>
+              <ul class="bullets">
+                <li>Led the R&amp;D department with a focus on AI-driven innovation.</li>
+                <li>Managed projects applying AI technologies with international partners.</li>
+                <li>Developed advanced machine learning models for various applications.</li>
+                <li>Oversaw the implementation and management of MLOps practices.</li>
+                <li>Shaped recruitment strategies and built product teams.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2020 — 2021</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Data Scientist</h3>
+              <p class="entry__org">Alfatec Group Ltd. <span class="mono entry__place">Zadar, HR</span></p>
+              <ul class="bullets">
+                <li>Created innovative machine learning solutions tailored to clients' needs.</li>
+                <li>Led the formation of a team dedicated to creating in-house products.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2009 — 2017</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Technician</h3>
+              <p class="entry__org">Ministry of Defence (MORH) / Croatian Air Force <span class="mono entry__place">Zadar, HR</span></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 03 / Projects -->
+      <section id="projects" class="section">
+        <h2 class="shead"><span class="shead__num mono">03</span><span class="shead__name">Projects</span></h2>
+        <ul class="entries">
+          <li class="entry">
+            <p class="entry__when mono">2017 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title"><a href="https://sintelly.com" target="_blank" rel="noopener" class="ext">Sintelly</a></h3>
+              <p class="entry__org mono">Founder · Head of Development · Data Scientist</p>
+              <p class="entry__summary">An AI psychotherapist mobile app, using LLMs to deliver CBT techniques for everyday mental health.</p>
+              <p class="stack mono">Angular · Ionic · Python · FastAPI · TensorFlow · Transformers · LangChain · Firebase · GCP</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2024 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title"><a href="https://primoinvesting.com" target="_blank" rel="noopener" class="ext">Primo Investing</a></h3>
+              <p class="entry__org mono">Founder · Programmer · Data Scientist</p>
+              <p class="entry__summary">A web platform built on my doctoral dissertation — using LLMs and reinforcement learning to analyze markets and execute trading strategies.</p>
+              <p class="stack mono">Angular · Python · FastAPI · TensorFlow · Transformers · LangChain · Firebase · GCP</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2021 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title"><a href="https://alfatec.ai/elarion" target="_blank" rel="noopener" class="ext">Elarion Hospitality</a></h3>
+              <p class="entry__org mono">Head of Development · Data Scientist</p>
+              <p class="entry__summary">An AI platform for the hospitality industry, using ML models to analyze guest reviews.</p>
+              <p class="stack mono">Python · FastAPI · TensorFlow · Transformers · Angular · Ionic · AWS · PostgreSQL · DynamoDB · Elasticsearch</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2016 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title"><a href="https://primonautic.com" target="_blank" rel="noopener" class="ext">Primo Nautic</a></h3>
+              <p class="entry__org mono">Founder · Programmer · Data Scientist</p>
+              <p class="entry__summary">An educational maritime app with a RAG chatbot for calculations, vessel tracking, weather forecasts and more.</p>
+              <p class="stack mono">Angular · Ionic · Python · FastAPI · TensorFlow · Transformers · LangChain · Firebase · GCP</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2023 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title"><a href="https://alfatec.ai/hybrid" target="_blank" rel="noopener" class="ext">HYBRID</a></h3>
+              <p class="entry__org mono">Programmer · Data Scientist</p>
+              <p class="entry__summary">Hydrogen Battlefield Reconnaissance and Intelligence Drone — an European Defence Fund (EDF) project. I develop AI models analyzing drone-collected reconnaissance data.</p>
+              <p class="stack mono">Python · FastAPI · TensorFlow · Transformers · YOLO</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 04 / Publications -->
+      <section id="publications" class="section">
+        <h2 class="shead"><span class="shead__num mono">04</span><span class="shead__name">Publications</span></h2>
+        <ol class="pubs">
+          <li class="pub">
+            <span class="pub__year mono">2025</span>
+            <div class="pub__body">
+              <p class="pub__title">Automated Trading Framework Using LLM Driven Features and Deep Reinforcement Learning</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Tomislav Petković, Jurica Bosna</p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2025</span>
+            <div class="pub__body">
+              <p class="pub__title">Implementation of a Multi-Agent AI System for Financial Trading Decision Making</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong> — <em>Oeconomica Jadertina</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2024</span>
+            <div class="pub__body">
+              <p class="pub__title">Comparing Fine-Tuning and Prompt Engineering for Multi-Class Classification in Hospitality Review Analysis</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Marija Brkić Bakarić, Maja Matetić — <em>Applied Sciences (CC)</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2024</span>
+            <div class="pub__body">
+              <p class="pub__title">Opportunities of Gen AI in the Banking Industry with regards to the AI Act, GDPR, Data Act and DORA</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Natalija Parlov, Jurica Bosna — <em>13th Mediterranean Conference on Embedded Computing (MECO), SCOPUS</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2024</span>
+            <div class="pub__body">
+              <p class="pub__title">Optimization of Traditional Stock Market Strategies Using the LSTM Hybrid Approach</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Jurica Bosna, Maja Matetić — <em>Information 15.3 (2024): 136, SCI index</em> · <a href="https://doi.org/10.3390/info15030136" target="_blank" rel="noopener" class="ext">doi</a></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2024</span>
+            <div class="pub__body">
+              <p class="pub__title">Artificial Intelligence, ESG Innovations in Tourism, and Personal Data Management</p>
+              <p class="pub__meta">Natalija Parlov, Nada Bašić, <strong>Ive Botunac</strong> — <em>Acta Economica Et Turistica</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2020</span>
+            <div class="pub__body">
+              <p class="pub__title">The Effect of Feature Selection on the Performance of LSTM Neural Networks in Stock Market Predictions</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Ante Panjkota, Maja Matetić — <em>31st DAAAM International Symposium, SCOPUS</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2019</span>
+            <div class="pub__body">
+              <p class="pub__title">The Importance of Time Series Data Filtering for Predicting Stock Market Movement Using Neural Networks</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Ante Panjkota, Maja Matetić — <em>30th DAAAM International Symposium, SCOPUS</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2017</span>
+            <div class="pub__body">
+              <p class="pub__title">Analysis of the Security Challenge in Maritime Cloud Computing</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Juraj Poljak, Dino Županović — <em>7th International Maritime Science Conference, Split (TRID)</em></p>
+            </div>
+          </li>
+          <li class="pub">
+            <span class="pub__year mono">2017</span>
+            <div class="pub__body">
+              <p class="pub__title">Analysis of Software Threats to the Automatic Identification System</p>
+              <p class="pub__meta"><strong>Ive Botunac</strong>, Marijan Gržan — <em>Brodogradnja 68(1): 97–105, SCI index</em></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 05 / Talks & Speaking — to add a talk, copy one <li class="entry"> block -->
+      <section id="talks" class="section">
+        <h2 class="shead"><span class="shead__num mono">05</span><span class="shead__name">Talks &amp; Speaking</span></h2>
+        <ul class="entries">
+          <li class="entry">
+            <p class="entry__when mono">2024 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">“AI se educiraj” — lecturer</h3>
+              <p class="entry__org">Educator training · with CroAI &amp; the National Foundation for Civil Society Development</p>
+              <p class="entry__summary">Lectures introducing teachers and educators to AI and its responsible use in education.</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2024</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Gen AI in the Banking Industry — conference talk</h3>
+              <p class="entry__org">13th Mediterranean Conference on Embedded Computing (MECO)</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2019 / 2020</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Stock-market prediction with neural networks — conference talks</h3>
+              <p class="entry__org">30th &amp; 31st DAAAM International Symposium</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2017</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Security challenges in maritime cloud computing — conference talk</h3>
+              <p class="entry__org">7th International Maritime Science Conference, Split</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 06 / Education -->
+      <section id="education" class="section">
+        <h2 class="shead"><span class="shead__num mono">06</span><span class="shead__name">Education</span></h2>
+        <ol class="entries">
+          <li class="entry">
+            <p class="entry__when mono">2017 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">PhD, Informatics <span class="entry__sub">(Intelligent Computer Systems)</span></h3>
+              <p class="entry__org">University of Rijeka, Faculty of Informatics and Digital Technologies <span class="mono entry__place">EQF 8</span></p>
+              <p class="entry__summary">Thesis: <em>An Automated Stock Market Trading System Based On Deep Reinforcement Learning</em>.</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2015 — 2017</p>
+            <div class="entry__body">
+              <h3 class="entry__title">MSc, Management</h3>
+              <p class="entry__org">University of Zadar, Department of Economics <span class="mono entry__place">EQF 7</span></p>
+              <p class="entry__summary">Thesis: <em>Applying machine learning methods to predict the movement of the stock market index</em>.</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2012 — 2015</p>
+            <div class="entry__body">
+              <h3 class="entry__title">BSc, Nautical Studies &amp; Maritime Transport Technology</h3>
+              <p class="entry__org">University of Zadar, Maritime Department <span class="mono entry__place">EQF 6</span></p>
+              <p class="entry__summary">Thesis: <em>Evolution of the cyber threat in the maritime industry</em>.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 07 / Certifications -->
+      <section id="certifications" class="section">
+        <h2 class="shead"><span class="shead__num mono">07</span><span class="shead__name">Certifications</span></h2>
+        <ul class="certs">
+          <li><span class="certs__yr mono">—</span><a href="https://www.coursera.org/account/accomplishments/verify/5SES9VBUM99C" target="_blank" rel="noopener" class="ext">Generative AI with Large Language Models</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">—</span><a href="https://www.coursera.org/account/accomplishments/specialization/PWNBSHGXM7WC" target="_blank" rel="noopener" class="ext">Machine Learning Specialization</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">—</span><a href="https://www.virtualbadge.io/certificate-validator?credential=cer-865d8b9d-cd94-4a00-957d-380b851e" target="_blank" rel="noopener" class="ext">Product Owner Training (Certified Product Owner)</a><span class="certs__by mono">VirtualBadge</span></li>
+          <li><span class="certs__yr mono">—</span><a href="https://www.coursera.org/account/accomplishments/specialization/certificate/469VHEERYHVM" target="_blank" rel="noopener" class="ext">Natural Language Processing Specialization</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">—</span><a href="https://www.coursera.org/account/accomplishments/specialization/ZHQSHWS7NBPQ" target="_blank" rel="noopener" class="ext">Reinforcement Learning Specialization</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">—</span><a href="https://www.coursera.org/account/accomplishments/specialization/certificate/TQNP7KWKS7EF" target="_blank" rel="noopener" class="ext">Data Engineering, Big Data &amp; ML on GCP</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2021</span><a href="https://www.coursera.org/account/accomplishments/professional-cert/56S9ABE5SVLG" target="_blank" rel="noopener" class="ext">Google Cloud: Cloud Data Engineer (prep)</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2019</span><a href="https://www.coursera.org/account/accomplishments/specialization/3Y3WYXK9NSA3" target="_blank" rel="noopener" class="ext">DeepLearning.AI TensorFlow Developer</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2019</span><a href="https://www.coursera.org/account/accomplishments/specialization/certificate/U8SLLEQX9JN8" target="_blank" rel="noopener" class="ext">Advanced Machine Learning on Google Cloud</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2018</span><a href="https://www.coursera.org/account/accomplishments/specialization/6KT4ZMP2CBHV" target="_blank" rel="noopener" class="ext">Machine Learning on Google Cloud</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2018</span><a href="https://www.coursera.org/account/accomplishments/specialization/53X8QYCNC3ZT" target="_blank" rel="noopener" class="ext">Deep Learning Specialization</a><span class="certs__by mono">Coursera</span></li>
+          <li><span class="certs__yr mono">2016</span><a href="https://www.coursera.org/account/accomplishments/certificate/C8WQMJXQZLLN" target="_blank" rel="noopener" class="ext">Machine Learning</a><span class="certs__by mono">Coursera</span></li>
+        </ul>
+      </section>
+
+      <!-- 08 / Skills & Languages -->
+      <section id="skills" class="section">
+        <h2 class="shead"><span class="shead__num mono">08</span><span class="shead__name">Skills &amp; Languages</span></h2>
+        <dl class="skills">
+          <dt class="mono">AI / ML</dt>
+          <dd>Deep understanding of AI &amp; ML concepts and algorithms; neural networks (CNN, RNN, Transformers); generative AI models.</dd>
+          <dt class="mono">Programming</dt>
+          <dd>Python — TensorFlow, Transformers, LangChain, Scikit-learn, Django, FastAPI, Pandas.</dd>
+          <dt class="mono">Web</dt>
+          <dd>HTML / CSS / JS / TS, Angular, Ionic, Vue.js, Node.js (Express.js).</dd>
+          <dt class="mono">Cloud</dt>
+          <dd>Amazon AWS, Google Cloud Platform, Firebase.</dd>
+          <dt class="mono">Other</dt>
+          <dd>SQL, Docker, MLOps.</dd>
+          <dt class="mono">Languages</dt>
+          <dd>Croatian — native. English — B2 (listening, reading, spoken, writing).</dd>
+        </dl>
+      </section>
+
+      <!-- 09 / Volunteering -->
+      <section id="volunteering" class="section">
+        <h2 class="shead"><span class="shead__num mono">09</span><span class="shead__name">Volunteering</span></h2>
+        <ol class="entries">
+          <li class="entry">
+            <p class="entry__when mono">2025 — now</p>
+            <div class="entry__body">
+              <h3 class="entry__title">President of the Board</h3>
+              <p class="entry__org">Croatian Artificial Intelligence Association (CroAI)</p>
+              <p class="entry__summary">After serving as Vice President and acting President, I now officially lead CroAI into its next chapter — new statute, Management &amp; Supervisory Boards, and the direction of Croatia's AI community.</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2024 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">Vice President (Acting President)</h3>
+              <p class="entry__org">Croatian Artificial Intelligence Association (CroAI)</p>
+              <p class="entry__summary">Shaping Croatia's AI ecosystem — strategic initiatives, educator training, AI education programs, and dialogue between industry, academia and policymakers at national and European level.</p>
+            </div>
+          </li>
+          <li class="entry">
+            <p class="entry__when mono">2021 — 2025</p>
+            <div class="entry__body">
+              <h3 class="entry__title">President</h3>
+              <p class="entry__org">Zadar Developers Hub (ZDDEVHUB) <span class="mono entry__place">Zadar, HR</span></p>
+              <p class="entry__summary">Led the ZadarConnect project — building a strong local IT community and promoting technological literacy in Zadar.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <footer class="foot">
+        <p class="mono">© <span id="year">2026</span> Ive Botunac · hand-coded in Zadar · <a href="#top">back to top ↑</a></p>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
