@@ -83,8 +83,14 @@
   var trends = ["Agentic AI", "Reasoning models", "World models", "Multi-agent", "MCP", "Computer use", "Test-time compute", "Vision-Language-Action", "On-device AI", "Physical AI", "Voice agents", "Long context", "Mixture-of-Experts", "Synthetic data", "RAG 2.0", "Inference scaling"];
 
   var W = innerWidth, H = innerHeight;
+  // display scale: only a hair smaller on phones/tablets — the robot must stay big and
+  // clearly visible (min 0.9). Baked into ctx.scale so it stays crisp at any size.
+  function dispScale() { return Math.max(0.9, Math.min(1, W / 720)); }
+  var DS = dispScale();
+  var coarse = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);  // touch → bigger tap targets
+  var tapPad = coarse ? 18 : 8;
   function sizeFx() { if (fx) { fx.width = W; fx.height = H; } }
-  addEventListener("resize", function () { W = innerWidth; H = innerHeight; sizeFx(); }, { passive: true });
+  addEventListener("resize", function () { W = innerWidth; H = innerHeight; DS = dispScale(); sizeFx(); }, { passive: true });
   sizeFx();
 
   var pos = { x: W * 0.8, y: H * 0.48 }, tgt = { x: pos.x, y: pos.y };
@@ -133,7 +139,7 @@
       var sp = Math.hypot(cx - pmX, cy - pmY);
       if (sp > 26) {
         // fast swipe through the robot → knock it down
-        if (knockT <= 0 && hitCD <= 0 && segDist(pos.x, pos.y, pmX, pmY, cx, cy) < 36 + 18 * scale) {
+        if (knockT <= 0 && hitCD <= 0 && segDist(pos.x, pos.y, pmX, pmY, cx, cy) < (36 + 18 * scale) * DS) {
           mouseX = cx; mouseY = cy; lastMove = t; knockRobot((cx - pmX) * 0.45);
         }
         // fast swipe through the trend → destroy it
@@ -174,20 +180,29 @@
     kvx = Math.max(-7, Math.min(7, dirx)); kvy = -4; krot = 0;
     emit(16, 16); say(pick(knockLines)); feedback(pos.x, pos.y, "POW!", "#0b6bcb");
   }
-  addEventListener("click", function (e) {
-    // click the trend → destroy it
+  // tap / click on the trend → destroy it; on the robot → knock it down (works for mouse + touch)
+  function tryTapHit(x, y, e) {
     if (trend && !trendEl.hidden) {
-      var r = trendEl.getBoundingClientRect(), pad = 12;
-      if (e.clientX >= r.left - pad && e.clientX <= r.right + pad && e.clientY >= r.top - pad && e.clientY <= r.bottom + pad) {
-        e.preventDefault(); e.stopPropagation();
-        mouseX = e.clientX; mouseY = e.clientY; lastMove = t; humanGrab(); return;
+      var r = trendEl.getBoundingClientRect(), pad = coarse ? 16 : 12;
+      if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        mouseX = x; mouseY = y; lastMove = t; humanGrab(); return true;
       }
     }
-    // click the robot → knock it down
-    if (knockT <= 0 && hitCD <= 0 && Math.hypot(e.clientX - pos.x, e.clientY - pos.y) < 30 * scale + 8) {
-      e.preventDefault(); e.stopPropagation(); knockRobot((Math.random() - 0.5) * 9);
+    if (knockT <= 0 && hitCD <= 0 && Math.hypot(x - pos.x, y - pos.y) < 30 * scale * DS + tapPad) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      mouseX = x; mouseY = y; lastMove = t; knockRobot((Math.random() - 0.5) * 9); return true;
     }
-  }, true);
+    return false;
+  }
+  addEventListener("click", function (e) { tryTapHit(e.clientX, e.clientY, e); }, true);
+  // touch: a tap on the robot/trend hits it; we only swallow the event when it actually lands,
+  // so taps elsewhere still scroll/click the page normally
+  addEventListener("touchstart", function (e) {
+    if (!e.touches || !e.touches.length) return;
+    var tch = e.touches[0];
+    tryTapHit(tch.clientX, tch.clientY, e);
+  }, { passive: false });
 
   function drawRobot(state, blink, moving) {
     pxl(3, 8, 1, 3, col.body2); pxl(12, 8, 1, 3, col.body2);
@@ -312,14 +327,16 @@
     if (spd > 2.4 && t % 5 === 0) emit(1, 6);
 
     pet.style.transform = "translate(" + (pos.x - HALF) + "px," + (pos.y - HALF) + "px)";  // position only — size is drawn in-canvas
-    bubble.style.bottom = (112 + 30 * scale) + "px";          // keep the speech bubble above the (scaled) robot
+    // keep the bubble a fixed gap above the robot's actual top (antenna at ~24px above
+    // center, scaled) so it never sits over the robot at any size
+    bubble.style.bottom = (132 + 24 * scale * DS) + "px";
 
     // draw robot — growth baked into the canvas (ctx.scale) so it never blurs
     ctx.clearRect(0, 0, 220, 220);
     var bob = mode === "knock" ? 0 : Math.sin(t * 0.05) * (spd > 1 ? 1.1 : 2);
     var lean = mode === "knock" ? 0 : Math.max(-0.18, Math.min(0.18, dx * 0.02));
     ctx.save();
-    ctx.translate(CX, CY + bob); ctx.rotate(lean + krot); ctx.scale(dir * scale, scale); ctx.translate(-24, -24);
+    ctx.translate(CX, CY + bob); ctx.rotate(lean + krot); ctx.scale(dir * scale * DS, scale * DS); ctx.translate(-24, -24);
     var st = mode === "knock" ? "knock" : (angryT > 0 ? "mad" : (mode === "attack" || beamAt > 0 ? "attack" : (mode === "chase" || /studio/i.test((document.querySelector(".railnav a.active") || {}).textContent || "") ? "happy" : "idle")));
     drawRobot(st, (t % 200 < 7), spd > 1 && mode !== "knock");
     ctx.restore();

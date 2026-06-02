@@ -32,6 +32,11 @@
 
 html { scroll-behavior: smooth; scroll-padding-top: 60px; -webkit-text-size-adjust: 100%; }
 
+/* the ambient game uses fixed elements that fly off-screen (robot canvas, trend tags);
+   clip horizontally so they never add a horizontal scrollbar. `clip` (not `hidden`)
+   does NOT create a scroll container, so the sticky left rail keeps working. */
+html, body { overflow-x: clip; max-width: 100%; }
+
 body {
   margin: 0;
   background: var(--paper);
@@ -323,6 +328,15 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 }
 
 /* ---------- responsive ---------- */
+/* tablet / small-laptop: tighten the rail + gap before the layout collapses */
+@media (max-width: 1024px) and (min-width: 861px) {
+  :root { --rail: 196px; --gap: 44px; }
+  .page { padding: 0 32px; }
+  .masthead__inner { padding: 11px 32px; }
+  .entry { grid-template-columns: 84px minmax(0, 1fr); gap: 22px; }
+  .pub { grid-template-columns: 84px minmax(0, 1fr); gap: 22px; }
+}
+
 @media (max-width: 860px) {
   :root { --gap: 0px; }
   .masthead__inner { padding: 11px 22px; }
@@ -363,6 +377,46 @@ a.ext:hover, .pub a:hover, .certs a:hover,
   .skills dt { padding-bottom: 0; border-bottom: 0; }
   .skills dd { padding-top: 4px; border-top: 0; }
   .skills dt + dd { border-bottom: 0; }
+}
+
+/* small phones: trim padding + type so nothing feels cramped or overflows */
+@media (max-width: 540px) {
+  body { font-size: 14.5px; }
+  .masthead__inner { padding: 10px 16px; font-size: .6rem; letter-spacing: .14em; }
+  .page { padding: 0 16px; }
+  .content { padding: 24px 0 0; }
+  .id__photo img, .id__monogram { width: 58px; height: 58px; }
+  .id__name { font-size: 1.22rem; }
+  .id__photo { margin: 2px 14px 0 0; }
+  .lead { margin-bottom: 28px; }
+  .section { padding-top: 38px; }
+  .shead { margin-bottom: 22px; }
+  .org { grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding-bottom: 22px; }
+  .org + .org { padding-top: 22px; }
+  .org__logo { width: 40px; height: 40px; }
+  .roles { padding-left: 18px; }
+  .studio { gap: 14px; }
+  .card { grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 14px; }
+  .card__icon { width: 40px; height: 40px; }
+  .card:hover { transform: none; box-shadow: 4px 4px 0 0 #d3deee; border-color: var(--rule-2); }
+  .certs li { grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px; }
+  .foot { margin: 48px 0 56px; }
+}
+
+/* shrink the ambient game on phones/tablets so it stays subtle (robot size is
+   also scaled in-canvas via JS so it never blurs) */
+@media (max-width: 700px) {
+  .trend { font-size: .68rem; padding: 4px 8px; box-shadow: 2px 2px 0 0 #c6d8ec; }
+  .trend::before, .trend::after { border-top-width: 6px; border-bottom-width: 6px; }
+  .trend::before { left: -9px; border-right-width: 9px; }
+  .trend::after  { right: -9px; border-left-width: 9px; }
+  .pet__bubble { font-size: .56rem; max-width: 150px; padding: 4px 7px; }
+}
+
+/* touch devices have no hover — neutralise hover-only transforms */
+@media (hover: none) {
+  .card:hover { transform: none; }
+  .org__logo:hover, .orglink:hover { text-decoration: none; }
 }
 
 /* ---------- print: clean CV ---------- */
