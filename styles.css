@@ -156,6 +156,33 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 
 .stack { font-family: var(--mono); font-size: .72rem; color: var(--faint); letter-spacing: .01em; margin: 10px 0 0; }
 
+/* ---------- my indie dev studio (old-school ruled grid) ---------- */
+.studio__intro { margin: -10px 0 26px; font-size: .8rem; color: var(--muted); }
+.studio__group {
+  display: flex; align-items: center; gap: 12px; margin: 22px 0 12px;
+  font-family: var(--mono); font-size: .68rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .18em; color: var(--faint);
+}
+.studio__group::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+.studio {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule);
+}
+.card { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 16px; background: var(--paper); transition: background .15s ease; }
+.card:hover { background: var(--paper-2); }
+.card__icon { width: 44px; height: 44px; border: 1px solid var(--rule-2); border-radius: 9px; background: #fff; overflow: hidden; display: grid; place-items: center; }
+.card__icon img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+.card__icon .logo-mono { border-radius: 0; font-size: 1.05rem; }
+.card__body { min-width: 0; }
+.card__title { margin: 0 0 2px; font-size: .98rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+.card__desc { margin: 0 0 9px; font-size: .84rem; color: var(--muted); line-height: 1.4; }
+.card__links { margin: 0; font-size: .72rem; }
+.card__links a { color: var(--link); }
+.card__links a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.card__links a + a::before { content: "·"; color: var(--faint); margin: 0 7px; text-decoration: none; }
+
 /* ---------- sections ---------- */
 .section { padding: 46px 0 0; }
 .shead {
@@ -283,6 +310,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 
   .entry, .pub { grid-template-columns: 1fr; gap: 3px; }
   .entry__when, .pub__year { color: var(--accent); padding-top: 0; }
+  .studio { grid-template-columns: 1fr; }
   .certs li { grid-template-columns: 44px 1fr; }
   .certs__by { grid-column: 2; }
   .skills { grid-template-columns: 1fr; }
