@@ -6,19 +6,22 @@
    ============================================================ */
 
 :root {
-  --paper:   #f3f1ea;   /* warm paper */
-  --paper-2: #eceae1;   /* slightly deeper paper for fills */
-  --ink:     #211f1b;   /* warm near-black */
-  --ink-2:   #3b3833;
-  --muted:   #6c665b;
-  --faint:   #9b9486;
-  --rule:    #d6d1c4;   /* hairline */
-  --rule-2:  #c8c2b2;
-  --accent:  #9c3b2b;   /* oxblood / rust */
-  --accent-2:#7e2e20;
+  /* Light blueprint */
+  --paper:   #f5f9fd;   /* very light blue — background */
+  --paper-2: #e9f1f9;   /* fills */
+  --ink:     #0c2236;   /* deep navy — headings / strong */
+  --ink-2:   #213b54;   /* dark slate — body text */
+  --muted:   #506a83;   /* secondary */
+  --faint:   #93a8bc;   /* de-emphasized */
+  --rule:    #dde8f3;   /* hairline */
+  --rule-2:  #c6d7e7;
+  --accent:  #ff5a1f;   /* vivid orange — numbers, markers, cursor */
+  --accent-2:#e8460d;
+  --link:    #0b6bcb;   /* blue — hyperlinks */
+  --link-2:  #0a559e;
 
-  --serif: "Newsreader", Georgia, "Times New Roman", serif;
-  --mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --display: "Space Mono", "IBM Plex Mono", ui-monospace, monospace;
 
   --maxw: 1180px;
   --rail: 248px;
@@ -33,11 +36,10 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--serif);
-  font-size: 18px;
+  font-family: var(--mono);
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.62;
-  font-optical-sizing: auto;
+  line-height: 1.66;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -52,11 +54,15 @@ body::before {
 
 ::selection { background: var(--accent); color: var(--paper); }
 
-.mono { font-family: var(--mono); font-feature-settings: "ss01"; }
+.mono { font-family: var(--mono); }
+
+.cursor { color: var(--accent); font-weight: 400; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
 
 /* ---------- links ---------- */
 a { color: inherit; text-decoration: none; }
-.content a:not(.ext):not([class*="__"]) { color: var(--accent); }
+.content a:not(.ext):not([class*="__"]) { color: var(--link); }
 a.ext, .pub a, .certs a, .featured__title a, .entry__title a {
   color: inherit;
   text-decoration: underline;
@@ -67,11 +73,11 @@ a.ext, .pub a, .certs a, .featured__title a, .entry__title a {
 }
 a.ext:hover, .pub a:hover, .certs a:hover,
 .featured__title a:hover, .entry__title a:hover {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
+  color: var(--link);
+  text-decoration-color: var(--link);
 }
 .ext::after { content: "\2197"; font-size: .7em; vertical-align: super; color: var(--faint); margin-left: 1px; }
-.ext:hover::after { color: var(--accent); }
+.ext:hover::after { color: var(--link); }
 
 .skip-link { position: absolute; left: -9999px; top: 0; background: var(--ink); color: var(--paper); padding: 10px 16px; z-index: 100; font-family: var(--mono); font-size: .8rem; }
 .skip-link:focus { left: 10px; top: 10px; }
@@ -107,7 +113,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
   display: grid; place-items: center; background: var(--ink); color: var(--paper);
   font-family: var(--mono); font-size: 2rem; letter-spacing: .02em; filter: none;
 }
-.id__name { margin: 0 0 6px; font-size: 1.28rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; }
+.id__name { margin: 0 0 8px; font-family: var(--display); font-size: 1.34rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; }
 .id__phd { color: var(--muted); font-weight: 500; }
 .id__role { margin: 0 0 6px; font-family: var(--mono); font-size: .72rem; line-height: 1.55; color: var(--muted); }
 .id__loc  { margin: 0; font-family: var(--mono); font-size: .68rem; color: var(--faint); letter-spacing: .02em; }
@@ -116,7 +122,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .contacts li { margin: 0 0 7px; }
 .contacts li:last-child { margin-bottom: 0; }
 .contacts a { color: var(--muted); }
-.contacts a:hover { color: var(--accent); }
+.contacts a:hover { color: var(--link); }
 
 .rail__toggle { display: none; }
 
@@ -135,17 +141,18 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .content { padding: 56px 0 0; max-width: 720px; }
 
 .lead {
-  margin: 0 0 44px; font-size: clamp(1.4rem, 1rem + 1.4vw, 1.8rem);
-  line-height: 1.36; font-weight: 400; color: var(--ink-2); letter-spacing: -0.005em;
+  margin: 0 0 44px; font-family: var(--display);
+  font-size: clamp(1.15rem, .9rem + .9vw, 1.45rem);
+  line-height: 1.5; font-weight: 400; color: var(--ink-2); letter-spacing: -0.02em;
 }
 .lead em { font-style: italic; color: var(--accent); }
 
 /* featured (editorial, no card) */
 .featured { margin: 0 0 8px; padding: 0 0 38px; border-bottom: 1px solid var(--rule); }
 .featured__label { font-size: .68rem; text-transform: uppercase; letter-spacing: .22em; color: var(--accent); margin: 0 0 10px; }
-.featured__title { margin: 0 0 8px; font-size: clamp(2rem, 1.4rem + 2vw, 2.7rem); font-weight: 500; line-height: 1.02; letter-spacing: -0.02em; }
+.featured__title { margin: 0 0 10px; font-family: var(--display); font-size: clamp(1.8rem, 1.3rem + 1.7vw, 2.4rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.04em; }
 .featured__meta { font-size: .74rem; color: var(--muted); margin: 0 0 16px; letter-spacing: .01em; }
-.featured__text { margin: 0 0 14px; font-size: 1.12rem; line-height: 1.55; }
+.featured__text { margin: 0 0 14px; font-size: 1rem; line-height: 1.6; }
 
 .stack { font-family: var(--mono); font-size: .72rem; color: var(--faint); letter-spacing: .01em; margin: 10px 0 0; }
 
@@ -159,7 +166,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .shead__num { color: var(--accent); }
 .shead::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
 
-.prose { margin: 0; font-size: 1.06rem; line-height: 1.66; color: var(--ink-2); }
+.prose { margin: 0; font-size: .98rem; line-height: 1.68; color: var(--ink-2); }
 
 /* ---------- entries (experience / projects / talks / education / volunteering) ---------- */
 .entries { list-style: none; margin: 0; padding: 0; }
@@ -167,15 +174,15 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .entry:last-child { padding-bottom: 0; }
 .entry__when { margin: 0; font-size: .72rem; color: var(--faint); padding-top: .4em; letter-spacing: .01em; white-space: nowrap; }
 .entry__body { min-width: 0; }
-.entry__title { margin: 0 0 3px; font-size: 1.18rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.005em; }
+.entry__title { margin: 0 0 4px; font-size: 1.02rem; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
 .entry__sub { font-weight: 400; color: var(--muted); }
-.entry__org { margin: 0 0 9px; font-size: .98rem; color: var(--muted); }
+.entry__org { margin: 0 0 9px; font-size: .86rem; color: var(--muted); }
 .entry__org.mono { font-size: .74rem; letter-spacing: .01em; }
 .entry__place { color: var(--faint); font-size: .68rem; margin-left: 6px; }
-.entry__summary { margin: 0 0 9px; color: var(--ink-2); }
+.entry__summary { margin: 0 0 9px; font-size: .92rem; color: var(--ink-2); }
 
 .bullets { margin: 9px 0 0; padding: 0; list-style: none; }
-.bullets li { position: relative; padding-left: 20px; margin: 0 0 5px; color: var(--ink-2); font-size: 1rem; line-height: 1.5; }
+.bullets li { position: relative; padding-left: 20px; margin: 0 0 6px; color: var(--ink-2); font-size: .9rem; line-height: 1.55; }
 .bullets li::before { content: "\2014"; position: absolute; left: 0; top: 0; color: var(--accent); }
 
 /* ---------- publications ---------- */
@@ -183,8 +190,8 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .pub { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 28px; padding: 0 0 20px; }
 .pub:last-child { padding-bottom: 0; }
 .pub__year { font-size: .72rem; color: var(--accent); padding-top: .35em; }
-.pub__title { margin: 0 0 3px; font-size: 1.05rem; font-weight: 600; line-height: 1.32; }
-.pub__meta { margin: 0; font-size: .9rem; color: var(--muted); }
+.pub__title { margin: 0 0 4px; font-size: .95rem; font-weight: 600; line-height: 1.4; }
+.pub__meta { margin: 0; font-size: .82rem; color: var(--muted); }
 .pub__meta strong { color: var(--ink); font-weight: 600; }
 .pub__meta em { font-style: italic; }
 
@@ -204,7 +211,7 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 /* ---------- footer ---------- */
 .foot { margin: 64px 0 80px; padding: 22px 0 0; border-top: 1px solid var(--rule); font-size: .72rem; color: var(--faint); }
 .foot a { color: var(--muted); }
-.foot a:hover { color: var(--accent); }
+.foot a:hover { color: var(--link); }
 
 /* ---------- load / reveal motion ---------- */
 @media (prefers-reduced-motion: no-preference) {
