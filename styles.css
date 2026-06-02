@@ -274,6 +274,44 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 .foot a { color: var(--muted); }
 .foot a:hover { color: var(--link); }
 
+/* ---------- ambient pixel AI-familiar + mini-game ---------- */
+.pet { position: fixed; top: 0; left: 0; z-index: 60; pointer-events: none; will-change: transform; transform-origin: center; }
+.pet__canvas { display: block; width: 220px; height: 220px; image-rendering: pixelated; image-rendering: crisp-edges; }
+.pet__bubble {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--paper); color: var(--ink); border: 1px solid var(--ink);
+  box-shadow: 3px 3px 0 0 #c6d8ec; padding: 5px 8px; border-radius: 3px;
+  font-size: .62rem; line-height: 1.3; white-space: normal; width: max-content; max-width: 190px; text-align: center;
+}
+.pet__bubble::after {
+  content: ""; position: absolute; bottom: -5px; left: 50%; margin-left: -4px;
+  width: 8px; height: 8px; background: var(--paper);
+  border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); transform: rotate(45deg);
+}
+.pet__bubble[hidden] { display: none; }
+
+/* full-screen effects layer (lasers, bursts) */
+.fx { position: fixed; inset: 0; z-index: 58; pointer-events: none; width: 100vw; height: 100vh; }
+
+/* flying "AI trend" tag */
+.trend {
+  position: fixed; top: 0; left: 0; z-index: 59; pointer-events: none; will-change: transform;
+  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+  font-size: .8rem; padding: 5px 10px; border-radius: 4px; white-space: nowrap; box-shadow: 3px 3px 0 0 #c6d8ec;
+}
+.trend::before, .trend::after {
+  content: ""; position: absolute; top: 50%; width: 0; height: 0;
+  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  transform: translateY(-50%); animation: flap .34s ease-in-out infinite;
+}
+.trend::before { left: -12px; border-right: 12px solid #36c6e0; transform-origin: right center; }
+.trend::after  { right: -12px; border-left: 12px solid #36c6e0; transform-origin: left center; }
+@keyframes flap { 0%, 100% { transform: translateY(-50%) scaleY(1); } 50% { transform: translateY(-50%) scaleY(0.4); } }
+.trend[hidden] { display: none; }
+
+@media print { .pet, .trend, .fx { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .pet, .trend, .fx { display: none !important; } }
+
 /* ---------- load / reveal motion ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .rail__sticky, .lead, .featured { animation: rise .7s cubic-bezier(.2,.7,.3,1) both; }
