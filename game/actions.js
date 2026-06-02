@@ -130,6 +130,11 @@
     g.kvx = Math.max(-7, Math.min(7, dirx)); g.kvy = -4; g.krot = 0;
     g.angryT = Math.min(900, g.angryT + 240);   // the more you knock it, the angrier — YOU become the target
     FX.emit(g, 16, 16); g.say(pick(T.knockLines)); FX.feedback(g, g.pos.x, g.pos.y, "POW!", "#0b6bcb");
+    // 3 quick knocks (each within ~5s of the last) → peak fury → whole-screen orange rage flash.
+    // (gated on a knock streak, not angryT, which decays too fast between knockdowns to ever peak)
+    g.knockStreak = (g.t - g.lastKnock < 300) ? g.knockStreak + 1 : 1;
+    g.lastKnock = g.t;
+    if (g.knockStreak >= 3) { g.rage(); g.knockStreak = 0; }
   }
   // idle wandering target. Returns lerp.
   function idleTarget(g) {

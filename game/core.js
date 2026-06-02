@@ -22,6 +22,8 @@
     this.trendEl = document.getElementById("trend");
     this.fx = document.getElementById("fx");
     this.fxc = (this.fx && this.fx.getContext) ? this.fx.getContext("2d") : null;
+    this.rageEl = document.getElementById("rage");   // full-screen orange flash at peak anger
+    this._rageTO = 0;
 
     // a pxl bound to THIS ctx (handed to the pure forms each frame)
     var ctx = this.ctx, U = cfg.U;
@@ -55,9 +57,21 @@
     this.atkPhase = "approach"; this.atkTimer = 0; this.fired = false;
     // knock / anger
     this.krot = 0; this.kvx = 0; this.kvy = 0; this.knockT = 0; this.hitCD = 0; this.angryT = 0;
+    this.knockStreak = 0; this.lastKnock = -999;   // rapid-knock counter → peak-rage flash
     // form cycle (robot is the TRUE form; magic morphs robot ↔ critter)
     this.curForm = "robot"; this.morphFlash = 0; this.formCD = 300 + (Robot.rand(0, 240) | 0);
   }
+
+  // peak-anger screen flash: orange tint + faint blur over the whole viewport for ~1.6s
+  Game.prototype.rage = function () {
+    var el = this.rageEl; if (!el) return;
+    el.classList.remove("rage--on");
+    void el.offsetWidth;             // reflow → restart the animation if re-triggered
+    el.classList.add("rage--on");
+    var self = this;
+    clearTimeout(this._rageTO);
+    this._rageTO = setTimeout(function () { el.classList.remove("rage--on"); }, 2600);
+  };
 
   Game.prototype.say = function (txt, dur) {
     this.bubble.textContent = txt; this.bubble.hidden = false;

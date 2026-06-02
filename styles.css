@@ -314,8 +314,26 @@ a.ext:hover, .pub a:hover, .certs a:hover,
 @keyframes flap { 0%, 100% { transform: translateY(-50%) scaleY(1); } 50% { transform: translateY(-50%) scaleY(0.4); } }
 .trend[hidden] { display: none; }
 
-@media print { .pet, .trend, .fx { display: none !important; } }
-@media (prefers-reduced-motion: reduce) { .pet, .trend, .fx { display: none !important; } }
+/* rage flash: when you knock it to maximum anger, the whole screen briefly takes an orange
+   tint + faint blur (sits under the robot/fx so the robot stays vivid), then fades back */
+.rage {
+  position: fixed; inset: 0; z-index: 57; pointer-events: none; opacity: 0;
+  /* orange wash over the whole screen, deepening toward the edges */
+  background: radial-gradient(125% 125% at 50% 45%, rgba(255, 90, 31, 0.20) 0%, rgba(255, 90, 31, 0.40) 58%, rgba(232, 70, 13, 0.62) 100%);
+}
+.rage--on {
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  animation: rageFlash 2.5s ease-out both;
+}
+@keyframes rageFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  45% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
+@media print { .pet, .trend, .fx, .rage { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .pet, .trend, .fx, .rage { display: none !important; } }
 
 /* ---------- load / reveal motion ---------- */
 @media (prefers-reduced-motion: no-preference) {
