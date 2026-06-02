@@ -1,3 +1,8 @@
+# Local-only tooling to generate the CV — not part of the website, stays out of our repo.
+# rendercv/ is the upstream RenderCV repo (their own git repo); we only use it to render the CV.
+rendercv/
+.venv/
+
 # Logs
 logs
 *.log
