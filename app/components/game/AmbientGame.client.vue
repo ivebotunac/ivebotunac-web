@@ -276,6 +276,13 @@ html.robot-grabbing * {
   cursor: grabbing !important;
 }
 
+/* A letter the AGI burnt out (scorch.ts): the glyph keeps its width, a soot mark sits where it was. */
+.ib-burnt {
+  color: transparent !important;
+  text-shadow: none !important;
+  background: radial-gradient(circle at 50% 55%, rgba(12, 34, 54, .55) 0 22%, rgba(255, 90, 31, .28) 38%, transparent 68%);
+}
+
 /* Over a sub-agent waiting to be recruited. */
 html.robot-point,
 html.robot-point * {

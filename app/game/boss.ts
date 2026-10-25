@@ -1,9 +1,10 @@
 // The AGI boss: a glitchy floating core that enters from the top, takes clicks, taps and team fire, and fires slow dodgeable orbs.
-import { bossHalfLines, bossLeaveLines, bossStartLines, bossWinLines, pick, rand } from './config'
+import { bossBurnLines, bossHalfLines, bossLeaveLines, bossStartLines, bossWinLines, pick, rand } from './config'
 import { explode, feedback, fireBeam, fxBurst } from './effects'
 import { clearTrend } from './actions'
 import { confetti, speak, syncQuest } from './quest'
 import { deployRocket } from './team'
+import { repairAll, scorch, textTarget } from './scorch'
 import { saveMemory } from './guide'
 import { track } from '~/utils/track'
 import type { Memory } from './guide'
@@ -35,6 +36,8 @@ export function withBoss(m: Memory): GameMemory {
 }
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+// Once a fight, when its first shot burns letters.
+let burnSaid = false;
 const cool = (a: number, b: number) => (a + rand(0, b)) | 0;
 // Screen pixels per sprite cell; the sprite is 24 cells wide.
 const cell = (g: Game) => (g.W < 520 ? 3 : 4);
@@ -58,6 +61,7 @@ export function startBoss(g: Game): void {
   };
   if (g.trend) clearTrend(g);
   g.attackT = 0; g.beamAt = 0; g.angryT = 0; g.wake();
+  burnSaid = false;
   for (const m of g.team) m.cd = cool(60, 90);
   track('boss_start');
   speak(g, pick(bossStartLines));
@@ -157,7 +161,9 @@ function attack(g: Game, b: Boss): void {
   const far = Math.hypot(g.mouseX - b.x, g.mouseY - b.y) > bossR(g) + 90;
   if (!g.coarse && far && g.t - g.lastMove < 90 && Math.random() < 0.45) { b.tele = { kind: 'spread', x: b.x, y: b.y, life: 0, max: 40 }; return; }
   const aim = g.mouseX > -900 && g.t - g.lastMove < 600;
-  const x = aim ? g.mouseX : rand(g.W * 0.2, g.W * 0.8), y = aim ? g.mouseY : rand(g.H * 0.45, g.H * 0.8);
+  // two shots in five, and every shot with no cursor to chase, go for the CV's text, so the fight leaves marks
+  const page = !aim || Math.random() < 0.4 ? textTarget(g) : null;
+  const x = page ? page.x : aim ? g.mouseX : rand(g.W * 0.2, g.W * 0.8), y = page ? page.y : aim ? g.mouseY : rand(g.H * 0.45, g.H * 0.8);
   b.tele = { kind: 'lock', x: clamp(x, 20, g.W - 20), y: clamp(y, 20, g.H - 20), life: 0, max: 56 };
 }
 
@@ -171,12 +177,15 @@ function tickOrbs(g: Game, b: Boss): void {
       if (o.life >= o.max) {
         fxBurst(g, o.tx, o.ty, 14, '#ff5a1f'); g.rings.push({ x: o.tx, y: o.ty, life: 0, max: 22, c: '#ff5a1f' });
         if (cursorNear(g, o.tx, o.ty, 40)) landHit(g, b);
+        if (scorch(g, o.tx, o.ty) && !burnSaid) { burnSaid = true; speak(g, pick(bossBurnLines)); }
         b.orbs.splice(i, 1);
       }
       continue;
     }
     o.x += o.vx; o.y += o.vy;
     if (!g.coarse && cursorNear(g, o.x, o.y, 18)) { landHit(g, b); fxBurst(g, o.x, o.y, 10, '#ff5a1f'); b.orbs.splice(i, 1); continue; }
+    // a spread orb that runs out on screen lands where it is
+    if (o.life >= o.max) scorch(g, o.x, o.y);
     if (o.life >= o.max || o.x < -20 || o.x > g.W + 20 || o.y < -20 || o.y > g.H + 20) b.orbs.splice(i, 1);
   }
 }
@@ -188,6 +197,7 @@ function defeat(g: Game, b: Boss): void {
   g.rings.push({ x, y, life: 0, max: 40, c: '#ff5a1f' }, { x, y, life: 0, max: 32, c: '#36c6e0' }, { x, y, life: 0, max: 24, c: '#0c2236' });
   confetti(g, 60, x, y);
   g.rage(true); g.buzz([40, 30, 80, 30, 120]);
+  repairAll(g);
   if (record) { g.mem.bossMs = ms; saveMemory(g); }
   const py = Math.max(140, g.H * 0.46);
   g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + fmtMs(ms), life: 0, max: 220, c: '#ff5a1f', size: g.W < 520 ? 20 : 26 });
@@ -201,6 +211,7 @@ function defeat(g: Game, b: Boss): void {
 
 function leave(g: Game, b: Boss): void {
   b.phase = 'leave'; b.t = 0; b.tele = null; b.orbs.length = 0;
+  repairAll(g);
   speak(g, pick(bossLeaveLines));
   g.bridge?.announce('AGI left. Fight it again from the team button.');
 }

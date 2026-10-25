@@ -7,6 +7,7 @@ import { bossFighting, drawBoss, drawBossOver, tickBoss } from './boss'
 import { deployRocket, drawCrew, drawPlanPath, teamBehaviour, tickCrew } from './team'
 import { track } from '~/utils/track'
 import { startRun } from './stats-client'
+import { healNow, tickScorch } from './scorch'
 import type { Game } from './core'
 import type { Peek, Role } from './types'
 
@@ -201,6 +202,7 @@ export function tickQuest(g: Game): void {
     if (q.life >= q.max || q.y > g.H + 10) g.confetti.splice(i, 1);
   }
   tickBoss(g);
+  tickScorch(g);
   tickCrew(g);
 }
 
@@ -238,8 +240,8 @@ export function restartGame(g: Game): void {
 // The toggle event does not bubble, so it is caught on the way down.
 export function bindQuest(g: Game): () => void {
   const onToggle = (e: Event) => { if (e.target instanceof HTMLDetailsElement) rowToggled(g, e.target); };
-  const onRestart = () => restartGame(g);
-  const onBefore = () => { g.printing = true; };
+  const onRestart = () => { healNow(); restartGame(g); };
+  const onBefore = () => { g.printing = true; healNow(); };
   // the page closes its print-opened rows after printing, and their toggles land a moment later
   const onAfter = () => { setTimeout(() => { g.printing = false; }, 400); };
   document.addEventListener('toggle', onToggle, true);
@@ -247,6 +249,7 @@ export function bindQuest(g: Game): () => void {
   window.addEventListener('beforeprint', onBefore);
   window.addEventListener('afterprint', onAfter);
   return () => {
+    healNow();
     document.removeEventListener('toggle', onToggle, true);
     window.removeEventListener('game:restart', onRestart);
     window.removeEventListener('beforeprint', onBefore);

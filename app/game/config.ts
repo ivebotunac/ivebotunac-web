@@ -128,6 +128,8 @@ export const bossReviewLines: string[] = ['changes requested', 'REJECTED', 'bloc
 // The AGI boss.
 export const bossStartLines: string[] = ['AGI incoming. team, assemble!', 'it\'s here. everyone, attack!', 'AGI arrived early. fight it!']
 export const bossHalfLines: string[] = ['it\'s adapting. keep hitting!', 'half way. don\'t stop now.', 'it\'s scaling. so are we.']
+// The robot, the first time a fight burns letters out of the CV.
+export const bossBurnLines: string[] = ['it\'s burning the CV! hit it!', 'hey! that was a whole job title.', 'it\'s rewriting your CV. stop it!']
 export const bossWinLines: string[] = ['AGI defeated. back to being a CV.', 'we beat AGI. put that on the CV.', 'alignment achieved. by force.']
 export const bossLeaveLines: string[] = ['AGI got bored and left. the HUD can call it back.', 'it wandered off. fight it again from the HUD.']
 export const CONFETTI: string[] =['#ff5a1f', '#36c6e0', '#0b6bcb', '#9b6bff', '#ffd23b', '#3b7cc0']
