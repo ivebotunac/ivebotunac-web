@@ -1,0 +1,312 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { Cv } from '~/types/cv'
+import { CV_SECTIONS } from '~/components/layout/nav'
+import { useActiveSection } from '~/composables/useActiveSection'
+import { formatUpdated } from '~/utils/cv-dates'
+import CvMonoImage from './CvMonoImage.vue'
+
+const props = defineProps<{ cv: Cv }>()
+
+const active = useActiveSection()
+const navOpen = ref(false)
+
+const displayName = computed(() => props.cv.name.toLowerCase().replace(/ /g, ' '))
+const fullName = computed(() => [props.cv.name, props.cv.credential].filter(Boolean).join(', '))
+const updated = computed(() => formatUpdated(props.cv.updated))
+
+// Scrolls without the router, keeps the hash in the address bar, and hands focus to the section.
+const goTo = (id: string) => {
+  navOpen.value = false
+  const el = document.getElementById(id)
+  if (!el) return
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  history.replaceState(history.state, '', `#${id}`)
+  el.focus({ preventScroll: true })
+  active.value = id
+}
+</script>
+
+<template>
+  <div class="rail__sticky">
+    <div class="id">
+      <div class="id__photo">
+        <CvMonoImage
+          class="id__img"
+          :src="cv.photo"
+          :monogram="cv.monogram"
+          :width="84"
+          :height="84"
+          eager
+        />
+      </div>
+      <h1 class="id__name" :aria-label="fullName">{{ displayName }}<span class="cursor" aria-hidden="true">_</span></h1>
+      <p class="id__role">
+        <template v-for="(line, i) in cv.role" :key="line"><br v-if="i">{{ line }}</template>
+      </p>
+      <p class="id__loc">{{ cv.location }}</p>
+    </div>
+
+    <ul class="contacts">
+      <li v-for="c in cv.contacts" :key="c.href">
+        <a
+          :href="c.href"
+          :class="{ 'cv-ext': c.external }"
+          :target="c.external ? '_blank' : undefined"
+          :rel="c.external ? 'noopener' : undefined"
+        >{{ c.label }}</a>
+      </li>
+    </ul>
+
+    <button
+      type="button"
+      class="rail__toggle"
+      :aria-expanded="navOpen"
+      aria-controls="railnav"
+      @click="navOpen = !navOpen"
+    >
+      Index <span aria-hidden="true">↓</span>
+    </button>
+    <nav id="railnav" class="railnav" :class="{ open: navOpen }" aria-label="Sections">
+      <a
+        v-for="s in CV_SECTIONS"
+        :key="s.id"
+        :href="`#${s.id}`"
+        :class="{ active: active === s.id }"
+        :aria-current="active === s.id ? 'location' : undefined"
+        @click.exact.prevent="goTo(s.id)"
+      ><span class="railnav__num">{{ s.num }}</span> {{ s.label }}</a>
+    </nav>
+
+    <p class="rail__foot">Last updated<br>{{ updated }}</p>
+  </div>
+</template>
+
+<style scoped>
+.rail__sticky {
+  position: sticky;
+  top: 36px;
+  padding: 56px 0 40px;
+}
+
+/* Identity */
+.id__photo { margin: 0 0 18px; }
+
+.id__img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--pn-border-brand);
+  border-radius: 2px;
+}
+
+img.id__img { filter: grayscale(0.25) contrast(1.02); }
+
+.id__img.mono-img--fallback {
+  display: grid;
+  place-items: center;
+  font-family: var(--pn-font);
+  font-weight: 400;
+  font-size: 2rem;
+  letter-spacing: .02em;
+}
+
+.id__name {
+  margin: 0 0 8px;
+  font-family: var(--pn-font-display);
+  font-size: 1.34rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.cursor {
+  color: var(--pn-accent-ui);
+  font-weight: 400;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.id__role {
+  margin: 0 0 6px;
+  font-family: var(--pn-font);
+  font-size: .72rem;
+  line-height: 1.55;
+  color: var(--pn-text-muted);
+}
+
+.id__loc {
+  margin: 0;
+  font-family: var(--pn-font);
+  font-size: .68rem;
+  color: var(--pn-text-faint);
+  letter-spacing: .02em;
+}
+
+/* Contacts */
+.contacts {
+  list-style: none;
+  margin: 20px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--pn-border);
+  border-bottom: 1px solid var(--pn-border);
+  font-family: var(--pn-font);
+  font-size: .74rem;
+}
+
+.contacts li { margin: 0 0 7px; }
+.contacts li:last-child { margin-bottom: 0; }
+.contacts a { color: var(--pn-text-muted); }
+.contacts a:hover { color: var(--pn-link); }
+
+/* Index */
+.rail__toggle { display: none; }
+
+.railnav {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--pn-font);
+  font-size: .82rem;
+}
+
+.railnav a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 0;
+  color: var(--pn-text-muted);
+  position: relative;
+}
+
+.railnav__num {
+  font-style: normal;
+  color: var(--pn-text-faint);
+  font-size: .72rem;
+  min-width: 18px;
+}
+
+.railnav a:hover { color: var(--pn-text); }
+.railnav a:hover .railnav__num { color: var(--pn-accent-ui); }
+
+.railnav a.active {
+  color: var(--pn-text);
+  font-weight: 500;
+}
+
+.railnav a.active .railnav__num { color: var(--pn-accent-ui); }
+
+/* The active dot sits in the gutter left of the number. */
+.railnav a.active::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background-color: var(--pn-accent-ui);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.rail__foot {
+  margin: 24px 0 0;
+  font-family: var(--pn-font);
+  font-size: .68rem;
+  line-height: 1.5;
+  color: var(--pn-text-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail__sticky { animation: rise .7s cubic-bezier(.2, .7, .3, 1) both; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* One column: the rail becomes a header block and the index folds behind a toggle. */
+@media (max-width: 860px) {
+  .rail__sticky {
+    position: static;
+    padding: 36px 0 0;
+  }
+
+  .id__photo {
+    float: left;
+    margin: 4px 18px 0 0;
+  }
+
+  .id__img { width: 64px; height: 64px; }
+  .id__name { font-size: 1.4rem; }
+  .id__role { font-size: .8rem; }
+
+  .contacts {
+    clear: both;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+
+  .contacts li { margin: 0; }
+
+  .rail__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--pn-border);
+    border-bottom: 1px solid var(--pn-border);
+    padding: 12px 0;
+    margin: 4px 0 0;
+    cursor: pointer;
+    font-family: var(--pn-font);
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--pn-text-muted);
+  }
+
+  .rail__toggle span { transition: transform .2s ease; }
+  .rail__toggle[aria-expanded="true"] span { transform: rotate(180deg); }
+
+  /* Hidden, not just clipped, while closed, so its links leave the tab order. */
+  .railnav {
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: max-height .3s ease, visibility 0s linear .3s;
+  }
+
+  .railnav.open {
+    max-height: 520px;
+    padding: 10px 0;
+    visibility: visible;
+    transition: max-height .3s ease;
+  }
+
+  .railnav a { padding: 7px 0; }
+  .railnav a.active::before { display: none; }
+  .rail__foot { display: none; }
+}
+
+@media (max-width: 540px) {
+  .id__img { width: 58px; height: 58px; }
+  .id__name { font-size: 1.22rem; }
+  .id__photo { margin: 2px 14px 0 0; }
+}
+
+@media print {
+  .rail__sticky { position: static; padding: 0 0 16px; }
+  .rail__toggle { display: none !important; }
+}
+</style>

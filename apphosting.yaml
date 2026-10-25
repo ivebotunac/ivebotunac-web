@@ -1,0 +1,14 @@
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+runConfig:
+  minInstances: 0
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  # The buildpack reads Node from this; build and run must share one major.
+  - variable: GOOGLE_RUNTIME_VERSION
+    value: "22"
+    availability:
+      - BUILD

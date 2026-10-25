@@ -1,8 +1,3 @@
-# Local-only tooling to generate the CV — not part of the website, stays out of our repo.
-# rendercv/ is the upstream RenderCV repo (their own git repo); we only use it to render the CV.
-rendercv/
-.venv/
-
 # Logs
 logs
 *.log
@@ -12,6 +7,9 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 .DS_Store
+.output/
+.data/
+.nitro/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -79,11 +77,14 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+# Wildcards, not an enumeration: .env.production and .env.staging were not
+# covered by the original five-line list and would have been committed.
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
+# Service account keys must never land in the repo
+*-service-account*.json
+serviceAccountKey*.json
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -140,3 +141,24 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# SQLite WAL files
+*.db-shm
+*.db-wal
+
+# Local MCP server config (contains API keys)
+.mcp.json
+
+# Playwright CLI session artifacts (screenshots, snapshots, console logs)
+.playwright-cli/
+
+# Firebase CLI local cache
+.firebase/
+firebase-debug*.log
+
+# Share image working files: inputs tracked, renders ignored
+/context/art-assets/**
+!/context/art-assets/**/
+!/context/art-assets/**/*.json
+rendercv/
+.venv/

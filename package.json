@@ -1,0 +1,34 @@
+{
+  "name": "ivebotunac-web",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "@nuxt/fonts": "^0.14.0",
+    "@nuxt/image": "^1.11.0",
+    "@nuxtjs/robots": "^5.7.1",
+    "@nuxtjs/sitemap": "^7.6.0",
+    "nuxt": "~4.4.8",
+    "nuxt-schema-org": "^5.0.10",
+    "nuxt-vitalizer": "^2.0.0",
+    "vue": "^3.5.7"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "eslint": "^9.39.5",
+    "typescript": "~5.9.3",
+    "vue-tsc": "^3.3.11"
+  }
+}

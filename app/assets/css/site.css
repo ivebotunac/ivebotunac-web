@@ -1,0 +1,97 @@
+/* The site's own global rules, on tokens. The look is the pre-Nuxt static CV's, value for value. */
+
+/* The game's fixed layers fly off-screen; clip, not hidden, so no scroll container traps the sticky rail. */
+html, body { overflow-x: clip; max-width: 100%; }
+html { scroll-padding-top: var(--pn-header-offset); }
+
+body { text-rendering: optimizeLegibility; }
+
+/* Paper grain over the whole page, under every layer that takes taps. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--pn-z-base);
+  pointer-events: none;
+  background-image: var(--pn-grain);
+  opacity: var(--pn-grain-opacity);
+  mix-blend-mode: multiply;
+}
+
+::selection { background-color: var(--pn-accent-ui); color: var(--pn-text-on-ink); }
+
+/* Kit rules the old page never had: balanced and pretty wrapping, capped images, no faux italic. */
+.cv :is(h1, h2, h3, h4, p) { text-wrap: wrap; }
+.cv img { max-width: none; }
+.cv { font-synthesis-style: auto; }
+
+/* Links: plain by default, as on the old page; zero specificity so every component rule wins. */
+:where(.cv, .masthead, .foot) a {
+  color: inherit;
+  text-decoration: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+}
+:where(.cv, .masthead, .foot) a:hover { color: inherit; }
+/* Plain links in the content column are blue; the old selector skipped .ext and every BEM-named link. */
+.cv .content a:not(.cv-ext):not([class*="__"]) { color: var(--pn-link); }
+
+/* The browser's own focus ring, not the kit's, as on the old page; script-focused containers get none. */
+:where(.cv, .masthead, .foot) :where(a, button, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: revert;
+  outline-offset: revert;
+  border-radius: revert;
+}
+:where(.cv, .masthead) [tabindex="-1"]:focus { outline: none; }
+
+/* External link: hairline underline and a small arrow, both turning link blue on hover. */
+.cv-ext {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--pn-border-brand);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color .15s ease, text-decoration-color .15s ease;
+}
+.cv-ext:hover {
+  color: var(--pn-link);
+  text-decoration-color: var(--pn-link);
+}
+.cv-ext::after {
+  content: "\2197";
+  font-size: .7em;
+  vertical-align: super;
+  color: var(--pn-text-faint);
+  margin-left: 1px;
+}
+.cv-ext:hover::after { color: var(--pn-link); }
+
+/* Visually hidden, still read aloud. */
+.cv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The kit's reduced-motion block zeroes every transition; the old page kept these and its smooth scroll. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: smooth !important; }
+  .cv-ext { transition-duration: .15s !important; }
+  .rail__toggle span { transition-duration: .2s !important; }
+  .railnav { transition-duration: .3s, 0s !important; }
+}
+
+/* Small phones: the old page's tighter body type; .pn-layout repeats the body's size, so both. */
+@media (max-width: 540px) {
+  body, .pn-layout { font-size: 14.5px; }
+}
+
+@media print {
+  body, .pn-layout { font-size: 10.5pt; }
+  body::before { display: none !important; }
+  a { text-decoration: none !important; color: var(--pn-text) !important; }
+  .cv-ext::after { content: ""; }
+}
