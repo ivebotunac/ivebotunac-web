@@ -36,8 +36,8 @@ const goTo = (id: string) => {
           class="id__img"
           :src="cv.photo"
           :monogram="cv.monogram"
-          :width="84"
-          :height="84"
+          :width="128"
+          :height="128"
           eager
         />
       </div>
@@ -91,7 +91,7 @@ const goTo = (id: string) => {
 }
 
 /* A rail taller than the window scrolls on its own, or its last links are never reachable. */
-@media (min-width: 861px) and (max-height: 778px) {
+@media (min-width: 861px) and (max-height: 840px) {
   .rail__sticky {
     max-height: calc(100vh - 36px);
     overflow-y: auto;
@@ -103,18 +103,18 @@ const goTo = (id: string) => {
 }
 
 /* Identity */
-.id__photo { margin: 0 0 18px; }
+.id__photo { margin: 0 0 22px; }
 
+/* The photo sits like the CV's cards: hairline and a hard offset shadow. */
 .id__img {
-  width: 84px;
-  height: 84px;
+  width: 128px;
+  height: 128px;
   object-fit: cover;
   display: block;
   border: 1px solid var(--pn-border-brand);
   border-radius: 2px;
+  box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
 }
-
-img.id__img { filter: grayscale(0.25) contrast(1.02); }
 
 .id__img.mono-img--fallback {
   display: grid;
@@ -128,7 +128,7 @@ img.id__img { filter: grayscale(0.25) contrast(1.02); }
 .id__name {
   margin: 0 0 8px;
   font-family: var(--pn-font-display);
-  font-size: 1.34rem;
+  font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.04em;
@@ -256,8 +256,8 @@ img.id__img { filter: grayscale(0.25) contrast(1.02); }
     margin: 4px 18px 0 0;
   }
 
-  .id__img { width: 64px; height: 64px; }
-  .id__name { font-size: 1.4rem; }
+  .id__img { width: 88px; height: 88px; }
+  .id__name { font-size: 1.6rem; }
   .id__role { font-size: .8rem; }
 
   .contacts {
@@ -312,8 +312,8 @@ img.id__img { filter: grayscale(0.25) contrast(1.02); }
 }
 
 @media (max-width: 540px) {
-  .id__img { width: 58px; height: 58px; }
-  .id__name { font-size: 1.22rem; }
+  .id__img { width: 76px; height: 76px; }
+  .id__name { font-size: 1.45rem; }
   .id__photo { margin: 2px 14px 0 0; }
 }
 

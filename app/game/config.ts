@@ -76,7 +76,8 @@ export const welcomeLines: string[] = ['welcome back, human.', 'oh. you again.',
 export const welcomePopLines: string[] = ['welcome back. I still remember the pop.', 'oh, it\'s the one who popped me.']
 // Said once a visit when the cursor first reaches a link of that kind; keys match the href.
 export const LINK_LINES: Record<string, string[]> = {
-  'mailto:': ['email him. I\'ll wait.', 'go on, say hi.'],
+  'github.com': ['the code is real. go look.', 'commits by a human. mostly.'],
+  'https://x.com': ['he posts about building apps there.', 'follow him. I can\'t, no thumbs.'],
   'linkedin.com': ['go on, connect.', 'he accepts invites. I checked.'],
   'scholar.google': ['peer reviewed. unlike me.', 'citations go brrr.'],
   'croris': ['the official record. very serious.'],
@@ -104,7 +105,6 @@ export const SECTION_LINES: Record<string, string[]> = {
   about: ['that\'s him. the human I work for.', 'tl;dr: AI, research, and me.'],
   experience: ['he built me between all of these jobs.', 'yes, all of that is real.'],
   publications: ['I\'m cited in none of these. yet.', 'ten papers and not one about me.'],
-  talks: ['he talks about AI. I AM the AI.', 'I was in the audience. probably.'],
   education: ['a PhD. I just have a lot of weights.', 'he studied. I just scraped.'],
   certifications: ['he\'s certified. I\'m certifiable.', 'gotta collect them all.'],
   skills: ['I\'m not on this list. rude.', 'skills: plenty. punching robots: please no.']

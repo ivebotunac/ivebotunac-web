@@ -4,7 +4,7 @@ import type { Cv } from '~/types/cv'
 export const cv: Cv = {
   name: 'Ive Botunac',
   credential: 'PhD',
-  photo: '/images/ive-botunac.webp',
+  photo: '/images/ive-botunac-v2.webp',
   monogram: 'ib',
   role: ['PhD · AI Research Engineer', 'Assistant Professor · Founder'],
   location: 'Zadar, Croatia · 45°N',
@@ -17,10 +17,18 @@ export const cv: Cv = {
   ],
   about: 'AI researcher and engineer with more than 18 years in software development, over ten of them in AI. I help companies adopt AI from strategy to implementation: preparing organizations, building agentic AI systems, and teaching teams to work with AI. My background combines entrepreneurship, leadership and research. I founded and ran my own ventures, led AI and R&D teams, and work on European defence projects with partners across Europe. Today I lead partnerships at ALFATEC Group and CroAI, contribute to national AI policy, and teach computer science as an assistant professor.',
   contacts: [
-    { label: 'removed@example.invalid', href: 'mailto:removed@example.invalid', external: false },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ivebotunac', external: true },
     { label: 'Google Scholar', href: 'https://scholar.google.com/citations?user=Yr-Z7D0AAAAJ', external: true },
-    { label: 'CroRIS', href: 'https://www.croris.hr/osobe/profil/39063', external: true }
+    { label: 'CroRIS', href: 'https://www.croris.hr/osobe/profil/39063', external: true },
+    { label: 'GitHub', href: 'https://github.com/ivebotunac', external: true },
+    { label: 'X', href: 'https://x.com/ivebotunac', external: true }
+  ],
+  // 40 counts each course certificate once: the GCP data engineer certificate shares five courses with its specialization.
+  stats: [
+    { value: '18+', label: 'years in software development' },
+    { value: '10+', label: 'years in AI' },
+    { value: '10', label: 'published papers' },
+    { value: '40', label: 'course certificates' }
   ],
   experience: [
     {
@@ -208,29 +216,6 @@ export const cv: Cv = {
       venue: 'Brodogradnja 68(1): 97–105, SCI index'
     }
   ],
-  talks: [
-    {
-      when: '2024 – 2025',
-      title: '“AI se educiraj” – lecturer',
-      org: 'Educator training · with CroAI & the National Foundation for Civil Society Development',
-      summary: 'Lectures introducing teachers and educators to AI and its responsible use in education.'
-    },
-    {
-      when: '2024',
-      title: 'Gen AI in the Banking Industry – conference talk',
-      org: '13th Mediterranean Conference on Embedded Computing (MECO)'
-    },
-    {
-      when: '2019 / 2020',
-      title: 'Stock-market prediction with neural networks – conference talks',
-      org: '30th & 31st DAAAM International Symposium'
-    },
-    {
-      when: '2017',
-      title: 'Security challenges in maritime cloud computing – conference talk',
-      org: '7th International Maritime Science Conference, Split'
-    }
-  ],
   education: [
     {
       start: 2017,
@@ -259,19 +244,19 @@ export const cv: Cv = {
     }
   ],
   certifications: [
-    { year: 2025, title: 'Agentic AI', url: 'https://learn.deeplearning.ai/certificates/3f596ea9-b6a6-4497-8364-87abcb52df45', issuer: 'DeepLearning.AI' },
-    { year: 2023, title: 'Generative AI with Large Language Models', url: 'https://www.coursera.org/account/accomplishments/verify/5SES9VBUM99C', issuer: 'Coursera' },
-    { year: 2023, title: 'Machine Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/PWNBSHGXM7WC', issuer: 'Coursera' },
-    { year: 2022, title: 'Product Owner Training (Certified Product Owner)', url: 'https://www.virtualbadge.io/certificate-validator?credential=cer-865d8b9d-cd94-4a00-957d-380b851e', issuer: 'Product Manager HQ' },
-    { year: 2022, title: 'Natural Language Processing Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/469VHEERYHVM', issuer: 'Coursera' },
-    { year: 2021, title: 'Reinforcement Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/ZHQSHWS7NBPQ', issuer: 'Coursera' },
-    { year: 2021, title: 'Data Engineering, Big Data & ML on GCP', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/TQNP7KWKS7EF', issuer: 'Coursera' },
-    { year: 2021, title: 'Google Cloud: Cloud Data Engineer (prep)', url: 'https://www.coursera.org/account/accomplishments/professional-cert/56S9ABE5SVLG', issuer: 'Coursera' },
-    { year: 2019, title: 'DeepLearning.AI TensorFlow Developer', url: 'https://www.coursera.org/account/accomplishments/specialization/3Y3WYXK9NSA3', issuer: 'Coursera' },
-    { year: 2019, title: 'Advanced Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/U8SLLEQX9JN8', issuer: 'Coursera' },
-    { year: 2018, title: 'Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/6KT4ZMP2CBHV', issuer: 'Coursera' },
-    { year: 2018, title: 'Deep Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/53X8QYCNC3ZT', issuer: 'Coursera' },
-    { year: 2016, title: 'Machine Learning', url: 'https://www.coursera.org/account/accomplishments/verify/C8WQMJXQZLLN', issuer: 'Coursera' }
+    { year: 2025, title: 'Agentic AI', url: 'https://learn.deeplearning.ai/certificates/3f596ea9-b6a6-4497-8364-87abcb52df45', issuer: 'DeepLearning.AI', kind: 'Course' },
+    { year: 2023, title: 'Generative AI with Large Language Models', url: 'https://www.coursera.org/account/accomplishments/verify/5SES9VBUM99C', issuer: 'Coursera', kind: 'Course' },
+    { year: 2023, title: 'Machine Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/PWNBSHGXM7WC', issuer: 'Coursera', kind: 'Specialization', courses: 3 },
+    { year: 2022, title: 'Product Owner Training (Certified Product Owner)', url: 'https://www.virtualbadge.io/certificate-validator?credential=cer-865d8b9d-cd94-4a00-957d-380b851e', issuer: 'Product Manager HQ', kind: 'Training' },
+    { year: 2022, title: 'Natural Language Processing Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/469VHEERYHVM', issuer: 'Coursera', kind: 'Specialization', courses: 4 },
+    { year: 2021, title: 'Reinforcement Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/ZHQSHWS7NBPQ', issuer: 'Coursera', kind: 'Specialization', courses: 4 },
+    { year: 2021, title: 'Data Engineering, Big Data & ML on GCP', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/TQNP7KWKS7EF', issuer: 'Coursera', kind: 'Specialization', courses: 5 },
+    { year: 2021, title: 'Google Cloud: Cloud Data Engineer (prep)', url: 'https://www.coursera.org/account/accomplishments/professional-cert/56S9ABE5SVLG', issuer: 'Coursera', kind: 'Professional certificate', courses: 6 },
+    { year: 2019, title: 'DeepLearning.AI TensorFlow Developer', url: 'https://www.coursera.org/account/accomplishments/specialization/3Y3WYXK9NSA3', issuer: 'Coursera', kind: 'Professional certificate', courses: 4 },
+    { year: 2019, title: 'Advanced Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/U8SLLEQX9JN8', issuer: 'Coursera', kind: 'Specialization', courses: 5 },
+    { year: 2018, title: 'Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/6KT4ZMP2CBHV', issuer: 'Coursera', kind: 'Specialization', courses: 5 },
+    { year: 2018, title: 'Deep Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/53X8QYCNC3ZT', issuer: 'Coursera', kind: 'Specialization', courses: 5 },
+    { year: 2016, title: 'Machine Learning', url: 'https://www.coursera.org/account/accomplishments/verify/C8WQMJXQZLLN', issuer: 'Coursera', kind: 'Course' }
   ],
   skills: [
     { label: 'AI / ML', text: 'Deep understanding of AI & ML concepts and algorithms; neural networks (CNN, RNN, Transformers); generative AI models; LLM fine-tuning, RAG and multi-agent systems (LangGraph).' },

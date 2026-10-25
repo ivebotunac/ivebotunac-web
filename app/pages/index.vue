@@ -9,10 +9,10 @@ import { toYearMonth } from '~/utils/cv-dates'
 import { CV_REVEAL_KEY } from '~/components/cv/reveal'
 import CvRail from '~/components/cv/CvRail.vue'
 import CvLead from '~/components/cv/CvLead.vue'
+import CvStats from '~/components/cv/CvStats.vue'
 import CvSection from '~/components/cv/CvSection.vue'
 import CvExperience from '~/components/cv/CvExperience.vue'
 import CvPublications from '~/components/cv/CvPublications.vue'
-import CvTalks from '~/components/cv/CvTalks.vue'
 import CvEducation from '~/components/cv/CvEducation.vue'
 import CvCertifications from '~/components/cv/CvCertifications.vue'
 import CvSkills from '~/components/cv/CvSkills.vue'
@@ -29,10 +29,13 @@ useHead({ script: [{ key: 'cv-js', innerHTML: 'document.documentElement.classLis
 const { loadGoogleAnalytics } = useGoogleAnalytics()
 onMounted(loadGoogleAnalytics)
 
-const head = (id: CvSectionId) => {
+const head = (id: CvSectionId, count?: string) => {
   const s = CV_SECTIONS.find(x => x.id === id)!
-  return { id: s.id, num: s.num, title: s.title }
+  return { id: s.id, num: s.num, title: s.title, count }
 }
+
+const scholar = cv.contacts.find(c => c.href.includes('scholar.google'))?.href
+const degrees = cv.education.map(e => e.degree.split(',')[0]).join(', ')
 
 // Tenures run to this month: the prerendered build month, then the visitor's once mounted.
 const now = useState<YearMonth>('cv-now', () => toYearMonth(new Date()))
@@ -44,8 +47,28 @@ provide(CV_REVEAL_KEY, { seen })
 let revealObserver: IntersectionObserver | null = null
 let spyObserver: IntersectionObserver | null = null
 
+// A printed CV carries every detail: closed rows open for the print and close again after.
+let openedForPrint: HTMLDetailsElement[] = []
+const openForPrint = () => {
+  openedForPrint = [...document.querySelectorAll<HTMLDetailsElement>('.cv details:not([open])')]
+  for (const d of openedForPrint) d.open = true
+}
+const closeAfterPrint = () => {
+  for (const d of openedForPrint) d.open = false
+  openedForPrint = []
+}
+
+// The page ends before the last section can reach the spy band, so the bottom of the page marks it.
+const lastId = CV_SECTIONS[CV_SECTIONS.length - 1]!.id
+const markLastAtBottom = () => {
+  if (window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) active.value = lastId
+}
+
 onMounted(() => {
   now.value = toYearMonth(new Date())
+  window.addEventListener('beforeprint', openForPrint)
+  window.addEventListener('afterprint', closeAfterPrint)
+  window.addEventListener('scroll', markLastAtBottom, { passive: true })
 
   const sections = CV_SECTIONS
     .map(s => document.getElementById(s.id))
@@ -78,6 +101,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('beforeprint', openForPrint)
+  window.removeEventListener('afterprint', closeAfterPrint)
+  window.removeEventListener('scroll', markLastAtBottom)
   revealObserver?.disconnect()
   spyObserver?.disconnect()
   revealObserver = null
@@ -94,28 +120,25 @@ onUnmounted(() => {
 
       <div id="content" class="content" tabindex="-1">
         <CvLead :lead="cv.lead" />
+        <CvStats :stats="cv.stats" />
 
         <CvSection v-bind="head('about')">
           <p class="prose">{{ cv.about }}</p>
         </CvSection>
 
-        <CvSection v-bind="head('experience')">
+        <CvSection v-bind="head('experience', `${cv.experience.length} organisations`)">
           <CvExperience :orgs="cv.experience" :now="now" />
         </CvSection>
 
-        <CvSection v-bind="head('publications')">
-          <CvPublications :publications="cv.publications" :self="cv.name" />
+        <CvSection v-bind="head('publications', `${cv.publications.length} papers`)">
+          <CvPublications :publications="cv.publications" :self="cv.name" :scholar="scholar" />
         </CvSection>
 
-        <CvSection v-bind="head('talks')">
-          <CvTalks :talks="cv.talks" />
-        </CvSection>
-
-        <CvSection v-bind="head('education')">
+        <CvSection v-bind="head('education', degrees)">
           <CvEducation :education="cv.education" />
         </CvSection>
 
-        <CvSection v-bind="head('certifications')">
+        <CvSection v-bind="head('certifications', `${cv.certifications.length} programmes`)">
           <CvCertifications :certifications="cv.certifications" />
         </CvSection>
 

@@ -1,9 +1,9 @@
 <template>
-  <NuxtLink to="/" class="app-logo" aria-label="Ive Botunac, home">Ive&nbsp;Botunac</NuxtLink>
+  <NuxtLink to="/" class="app-logo" aria-label="Assistant Professor Ive Botunac, PhD, home">Asst.&nbsp;Prof. Ive&nbsp;Botunac,&nbsp;PhD</NuxtLink>
 </template>
 
 <style scoped>
-/* The masthead's name, styled as the old page's plain span. */
+/* The masthead's name with its titles; the rail shows the plain name. */
 .app-logo {
   color: inherit;
   text-decoration: none;

@@ -30,13 +30,6 @@ export interface Publication {
   doi?: string
 }
 
-export interface Talk {
-  when: string
-  title: string
-  org: string
-  summary?: string
-}
-
 export interface Education {
   start: number
   end: number
@@ -52,11 +45,19 @@ export interface Certification {
   title: string
   url?: string
   issuer: string
+  // "Specialization", "Professional certificate", "Course" or "Training".
+  kind: string
+  courses?: number
 }
 
 export interface Skill {
   label: string
   text: string
+}
+
+export interface Stat {
+  value: string
+  label: string
 }
 
 export interface Contact {
@@ -76,9 +77,9 @@ export interface Cv {
   lead: Inline[]
   about: string
   contacts: Contact[]
+  stats: Stat[]
   experience: Org[]
   publications: Publication[]
-  talks: Talk[]
   education: Education[]
   certifications: Certification[]
   skills: Skill[]

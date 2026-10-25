@@ -66,6 +66,28 @@ body::before {
 }
 .cv-ext:hover::after { color: var(--pn-link); }
 
+/* Disclosure rows: a summary line that opens its details, marked by a small +/− box on the right. */
+.cv summary { list-style: none; cursor: pointer; }
+.cv summary::-webkit-details-marker { display: none; }
+.cv-tog {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--pn-border-brand);
+  background-color: var(--pn-surface);
+  color: var(--pn-link);
+  font-family: var(--pn-font);
+  font-size: .8rem;
+  line-height: 1;
+  transition: border-color .15s ease;
+}
+.cv-tog::before { content: "+"; }
+details[open] > summary .cv-tog { border-color: var(--pn-link); }
+details[open] > summary .cv-tog::before { content: "\2212"; }
+.cv summary:hover .cv-tog { border-color: var(--pn-link); }
+
 /* Visually hidden, still read aloud. */
 .cv-sr-only {
   position: absolute;
@@ -94,4 +116,5 @@ body::before {
   body::before { display: none !important; }
   a { text-decoration: none !important; color: var(--pn-text) !important; }
   .cv-ext::after { content: ""; }
+  .cv-tog { display: none; }
 }

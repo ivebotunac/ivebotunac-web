@@ -13,7 +13,6 @@ useSchemaOrg([
     honorificSuffix: 'PhD',
     jobTitle: 'AI Research Engineer & Assistant Professor',
     url: siteUrl,
-    email: 'removed@example.invalid',
     address: {
       '@type': 'PostalAddress' as const,
       addressLocality: 'Zadar',
@@ -22,7 +21,9 @@ useSchemaOrg([
     sameAs: [
       'https://www.linkedin.com/in/ivebotunac',
       'https://scholar.google.com/citations?user=Yr-Z7D0AAAAJ',
-      'https://www.croris.hr/osobe/profil/39063'
+      'https://www.croris.hr/osobe/profil/39063',
+      'https://github.com/ivebotunac',
+      'https://x.com/ivebotunac'
     ],
     worksFor: [
       { '@type': 'Organization' as const, name: 'Primo Technology Ltd.', url: 'https://techprimo.ai' },

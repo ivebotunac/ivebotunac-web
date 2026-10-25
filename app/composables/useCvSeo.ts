@@ -6,7 +6,7 @@ export const CV_TITLE = 'Ive Botunac, PhD · AI Research Engineer & Assistant Pr
 export function useCvSeo(): void {
   const site = useSiteConfig()
   const siteUrl = site.url
-  const description = 'Ive Botunac, PhD · AI Research Engineer, assistant professor and founder based in Zadar, Croatia. Experience, projects, publications, talks and more.'
+  const description = 'Ive Botunac, PhD · AI Research Engineer, assistant professor and founder based in Zadar, Croatia. Experience, projects, publications, education and more.'
   const shareDescription = 'AI Research Engineer, assistant professor and founder based in Zadar, Croatia.'
   const image = CV_SHARE_IMAGE ? `${siteUrl}${CV_SHARE_IMAGE}` : undefined
 

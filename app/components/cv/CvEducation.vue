@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import type { Education } from '~/types/cv'
-import CvEntry from './CvEntry.vue'
+import CvItem from './CvItem.vue'
 
 defineProps<{ education: Education[] }>()
 </script>
 
 <template>
-  <ol class="entries">
-    <CvEntry
+  <ol class="list">
+    <CvItem
       v-for="e in education"
       :key="e.degree"
       :when="`${e.start} – ${e.end}`"
       :title="e.degree"
-      :sub="e.sub"
-      :org="e.institution"
-      :place="e.eqf ? `EQF ${e.eqf}` : undefined"
+      :sub="e.institution"
     >
-      <template v-if="e.thesis">Thesis: <em>{{ e.thesis }}</em>.</template>
-    </CvEntry>
+      <template v-if="e.sub"><dt>Focus</dt><dd>{{ e.sub }}</dd></template>
+      <template v-if="e.eqf"><dt>Level</dt><dd>EQF {{ e.eqf }}</dd></template>
+      <template v-if="e.thesis"><dt>Thesis</dt><dd><em>{{ e.thesis }}</em></dd></template>
+    </CvItem>
   </ol>
 </template>
 
 <style scoped>
-.entries {
+.list {
   list-style: none;
   margin: 0;
   padding: 0;

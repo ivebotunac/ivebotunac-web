@@ -6,6 +6,7 @@ const props = defineProps<{
   id: string
   num: string
   title: string
+  count?: string
 }>()
 
 const reveal = inject(CV_REVEAL_KEY, null)
@@ -18,6 +19,7 @@ const shown = computed(() => !!reveal?.seen.has(props.id))
     <h2 :id="`${id}-title`" class="shead">
       <span class="shead__num">{{ num }}</span>
       <span class="shead__name">{{ title }}</span>
+      <span v-if="count" class="shead__count">{{ count }}</span>
     </h2>
     <slot />
   </section>
@@ -42,9 +44,18 @@ const shown = computed(() => !!reveal?.seen.has(props.id))
 
 .shead__num { color: var(--pn-accent-text); }
 
+/* After the rule, in the section's quiet grey. */
+.shead__count {
+  order: 3;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--pn-text-faint);
+}
+
 /* The hairline rule runs from the title to the column edge. */
 .shead::after {
   content: "";
+  order: 2;
   flex: 1;
   height: 1px;
   background-color: var(--pn-border);
