@@ -4,17 +4,18 @@ import type { Cv } from '~/types/cv'
 export const cv: Cv = {
   name: 'Ive Botunac',
   credential: 'PhD',
+  photo: '/images/ive-botunac.webp',
   monogram: 'ib',
-  role: ['PhD · AI Research Scientist', 'Consultant & Founder'],
+  role: ['PhD · AI Research Engineer', 'Assistant Professor · Founder'],
   location: 'Zadar, Croatia · 45°N',
   lead: [
-    'AI research scientist and founder. I build machine-learning products, lead R&D, and publish – from ',
+    'AI research engineer, assistant professor and founder. I build agentic AI systems, lead partnerships, and publish – from ',
     { em: 'LLM-driven trading systems' },
     ' to a mental-health app with ',
-    { em: '1.3 million+ downloads' },
+    { em: '1.5 million+ downloads' },
     '.'
   ],
-  about: 'Expert in informatics and artificial intelligence with over ten years of practical experience. My career is defined by the development of advanced machine learning models, the publication of scientific papers, and participation in numerous projects. I specialize in applying advanced machine learning techniques to solve complex problems, automate processes, and support decision-making. I have built strong skills in leading multidisciplinary teams and integrating AI-based solutions into software products. My passion lies in using artificial intelligence to drive innovation and create measurable value across various industries.',
+  about: 'AI researcher and engineer with more than 18 years in software development, over ten of them in AI. I help companies adopt AI from strategy to implementation: preparing organizations, building agentic AI systems, and teaching teams to work with AI. My background combines entrepreneurship, leadership and research. I founded and ran my own ventures, led AI and R&D teams, and work on European defence projects with partners across Europe. Today I lead partnerships at ALFATEC Group and CroAI, contribute to national AI policy, and teach computer science as an assistant professor.',
   contacts: [
     { label: 'removed@example.invalid', href: 'mailto:removed@example.invalid', external: false },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ivebotunac', external: true },
@@ -23,9 +24,9 @@ export const cv: Cv = {
   ],
   experience: [
     {
-      org: 'Alfatec Group',
+      org: 'ALFATEC Group',
       url: 'https://alfatec.ai',
-      logo: '/images/logos/alfatec.webp',
+      logo: '/images/logos/alfatec-v2.webp',
       monogram: 'A',
       kind: 'Full-time',
       location: 'Zagreb, Croatia',
@@ -34,7 +35,7 @@ export const cv: Cv = {
           title: 'Director of Partnerships',
           start: '2025-07',
           end: 'present',
-          desc: 'Lead strategic partnerships and acquisitions – finding the right partners, building lasting relationships, and growing our presence in EU-funded projects.'
+          desc: 'Lead strategic partnerships and acquisitions – partner relations and AI coordination across international consortia on European Defence Fund projects such as HYBRID and LODESTAR II.'
         },
         {
           title: 'Director of Research & Development',
@@ -51,9 +52,25 @@ export const cv: Cv = {
       ]
     },
     {
+      org: 'University of Zadar',
+      url: 'https://www.unizd.hr',
+      logo: '/images/logos/unizd.webp',
+      monogram: 'U',
+      kind: 'Part-time',
+      location: 'Zadar, Croatia',
+      roles: [
+        {
+          title: 'Assistant Professor',
+          start: '2026-07',
+          end: 'present',
+          desc: 'Teaching computer science at the new Department of Mechatronics and Robotics and helping build its study programme.'
+        }
+      ]
+    },
+    {
       org: 'CroAI – Croatian AI Association',
       url: 'https://croai.org',
-      logo: '/images/logos/croai.webp',
+      logo: '/images/logos/croai-v2.webp',
       monogram: 'C',
       kind: 'Nonprofit',
       location: 'Zagreb, Croatia',
@@ -65,16 +82,17 @@ export const cv: Cv = {
           desc: 'Leading CroAI into its next chapter – new statute, Management & Supervisory Boards, and the direction of Croatia\'s AI community.'
         },
         {
-          title: 'Vice President',
+          title: 'Vice President (acting President)',
           start: '2024-12',
           end: '2025-12',
-          desc: 'Shaped Croatia\'s AI ecosystem – strategic initiatives, educator training, and dialogue between industry, academia and policymakers.'
+          desc: 'Shaped Croatia\'s AI ecosystem – 3,600+ educators trained through “AI se educiraj”, and a seat in the working group for Croatia\'s AI Strategy 2026–2032.'
         }
       ]
     },
     {
       org: 'Primo Technology Ltd.',
-      logo: '/images/logos/primo.webp',
+      url: 'https://techprimo.ai',
+      logo: '/images/logos/primo-v2.webp',
       monogram: 'P',
       kind: 'Self-employed',
       location: 'Zadar, Croatia',
@@ -90,7 +108,7 @@ export const cv: Cv = {
     {
       org: 'Sintelly',
       url: 'https://sintelly.com',
-      logo: '/images/logos/sintelly.webp',
+      logo: '/images/logos/sintelly-v2.webp',
       monogram: 'S',
       kind: 'Full-time',
       location: 'Zadar, Croatia',
@@ -99,13 +117,13 @@ export const cv: Cv = {
           title: 'Founder & CEO',
           start: '2017-05',
           end: '2025-12',
-          desc: 'Founded and led Sintelly, an AI + CBT mental-health app that reached over 1.3M downloads.'
+          desc: 'Founded and led Sintelly, an AI + CBT mental-health app that reached over 1.5M downloads.'
         }
       ]
     },
     {
       org: 'Zadar Developers Hub · ZadarConnect',
-      logo: '/images/logos/zddevhub.webp',
+      logo: '/images/logos/zddevhub-v2.webp',
       monogram: 'Z',
       location: 'Zadar, Croatia',
       roles: [
@@ -113,14 +131,14 @@ export const cv: Cv = {
           title: 'President',
           start: '2022-09',
           end: '2025-06',
-          desc: 'Led the ZadarConnect project – building a strong local IT community and promoting technological literacy in Zadar.'
+          desc: 'Led the ZadarConnect project – meetups and the SheepAI Hackathon (88 participants, €35,000 prize pool), growing Zadar\'s tech community.'
         }
       ]
     },
     {
       org: 'Ministry of Defence (MORH) / Croatian Air Force',
       url: 'https://www.morh.hr',
-      logo: '/images/logos/morh.webp',
+      logo: '/images/logos/morh-v2.webp',
       monogram: 'M',
       location: 'Zadar, Croatia',
       roles: [
@@ -221,7 +239,7 @@ export const cv: Cv = {
       sub: 'Intelligent Computer Systems',
       institution: 'University of Rijeka, Faculty of Informatics and Digital Technologies',
       eqf: 8,
-      thesis: 'An Automated Stock Market Trading System Based On Deep Reinforcement Learning'
+      thesis: 'An Automated Stock Market Trading System Based on Deep Reinforcement Learning'
     },
     {
       start: 2015,
@@ -241,21 +259,22 @@ export const cv: Cv = {
     }
   ],
   certifications: [
-    { title: 'Generative AI with Large Language Models', url: 'https://www.coursera.org/account/accomplishments/verify/5SES9VBUM99C', issuer: 'Coursera' },
-    { title: 'Machine Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/PWNBSHGXM7WC', issuer: 'Coursera' },
-    { title: 'Product Owner Training (Certified Product Owner)', url: 'https://www.virtualbadge.io/certificate-validator?credential=cer-865d8b9d-cd94-4a00-957d-380b851e', issuer: 'VirtualBadge' },
-    { title: 'Natural Language Processing Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/469VHEERYHVM', issuer: 'Coursera' },
-    { title: 'Reinforcement Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/ZHQSHWS7NBPQ', issuer: 'Coursera' },
-    { title: 'Data Engineering, Big Data & ML on GCP', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/TQNP7KWKS7EF', issuer: 'Coursera' },
+    { year: 2025, title: 'Agentic AI', url: 'https://learn.deeplearning.ai/certificates/3f596ea9-b6a6-4497-8364-87abcb52df45', issuer: 'DeepLearning.AI' },
+    { year: 2023, title: 'Generative AI with Large Language Models', url: 'https://www.coursera.org/account/accomplishments/verify/5SES9VBUM99C', issuer: 'Coursera' },
+    { year: 2023, title: 'Machine Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/PWNBSHGXM7WC', issuer: 'Coursera' },
+    { year: 2022, title: 'Product Owner Training (Certified Product Owner)', url: 'https://www.virtualbadge.io/certificate-validator?credential=cer-865d8b9d-cd94-4a00-957d-380b851e', issuer: 'Product Manager HQ' },
+    { year: 2022, title: 'Natural Language Processing Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/469VHEERYHVM', issuer: 'Coursera' },
+    { year: 2021, title: 'Reinforcement Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/ZHQSHWS7NBPQ', issuer: 'Coursera' },
+    { year: 2021, title: 'Data Engineering, Big Data & ML on GCP', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/TQNP7KWKS7EF', issuer: 'Coursera' },
     { year: 2021, title: 'Google Cloud: Cloud Data Engineer (prep)', url: 'https://www.coursera.org/account/accomplishments/professional-cert/56S9ABE5SVLG', issuer: 'Coursera' },
     { year: 2019, title: 'DeepLearning.AI TensorFlow Developer', url: 'https://www.coursera.org/account/accomplishments/specialization/3Y3WYXK9NSA3', issuer: 'Coursera' },
     { year: 2019, title: 'Advanced Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/certificate/U8SLLEQX9JN8', issuer: 'Coursera' },
     { year: 2018, title: 'Machine Learning on Google Cloud', url: 'https://www.coursera.org/account/accomplishments/specialization/6KT4ZMP2CBHV', issuer: 'Coursera' },
     { year: 2018, title: 'Deep Learning Specialization', url: 'https://www.coursera.org/account/accomplishments/specialization/53X8QYCNC3ZT', issuer: 'Coursera' },
-    { year: 2016, title: 'Machine Learning', url: 'https://www.coursera.org/account/accomplishments/certificate/C8WQMJXQZLLN', issuer: 'Coursera' }
+    { year: 2016, title: 'Machine Learning', url: 'https://www.coursera.org/account/accomplishments/verify/C8WQMJXQZLLN', issuer: 'Coursera' }
   ],
   skills: [
-    { label: 'AI / ML', text: 'Deep understanding of AI & ML concepts and algorithms; neural networks (CNN, RNN, Transformers); generative AI models.' },
+    { label: 'AI / ML', text: 'Deep understanding of AI & ML concepts and algorithms; neural networks (CNN, RNN, Transformers); generative AI models; LLM fine-tuning, RAG and multi-agent systems (LangGraph).' },
     { label: 'Programming', text: 'Python – TensorFlow, Transformers, LangChain, Scikit-learn, Django, FastAPI, Pandas.' },
     { label: 'Web', text: 'HTML / CSS / JS / TS, Angular, Ionic, Vue.js, Node.js (Express.js).' },
     { label: 'Cloud', text: 'Amazon AWS, Google Cloud Platform, Firebase.' },

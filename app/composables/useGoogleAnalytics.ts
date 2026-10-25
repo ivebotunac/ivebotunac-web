@@ -6,7 +6,7 @@ declare global {
 }
 
 // The one site-specific line; everything below is the same on every site.
-const GA_ID = ''
+const GA_ID = 'G-SVD3MBDG0R'
 
 let googleAnalyticsLoaded = false
 

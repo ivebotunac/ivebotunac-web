@@ -1,13 +1,13 @@
 // The share card's path once it exists, as /images/share-<n>.jpg; while unset, no image tags are written.
 export const CV_SHARE_IMAGE: string | undefined = undefined
 
-export const CV_TITLE = 'Ive Botunac, PhD · AI Research Scientist & Founder'
+export const CV_TITLE = 'Ive Botunac, PhD · AI Research Engineer & Assistant Professor'
 
 export function useCvSeo(): void {
   const site = useSiteConfig()
   const siteUrl = site.url
-  const description = 'Ive Botunac, PhD · AI Research Scientist, consultant and founder based in Zadar, Croatia. Experience, projects, publications, talks and more.'
-  const shareDescription = 'AI Research Scientist, consultant and founder based in Zadar, Croatia.'
+  const description = 'Ive Botunac, PhD · AI Research Engineer, assistant professor and founder based in Zadar, Croatia. Experience, projects, publications, talks and more.'
+  const shareDescription = 'AI Research Engineer, assistant professor and founder based in Zadar, Croatia.'
   const image = CV_SHARE_IMAGE ? `${siteUrl}${CV_SHARE_IMAGE}` : undefined
 
   // An undefined value drops the tag.

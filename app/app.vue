@@ -3,7 +3,7 @@ import GlobalStyles from '~/components/layout/GlobalStyles.vue'
 
 const site = useSiteConfig()
 const siteUrl = site.url
-const siteDescription = 'Ive Botunac, PhD · AI Research Scientist, consultant and founder based in Zadar, Croatia.'
+const siteDescription = 'Ive Botunac, PhD · AI Research Engineer, assistant professor and founder based in Zadar, Croatia.'
 
 useSchemaOrg([
   {
@@ -11,7 +11,7 @@ useSchemaOrg([
     '@id': `${siteUrl}/#person`,
     name: 'Ive Botunac',
     honorificSuffix: 'PhD',
-    jobTitle: 'AI Research Scientist',
+    jobTitle: 'AI Research Engineer & Assistant Professor',
     url: siteUrl,
     email: 'removed@example.invalid',
     address: {
@@ -26,7 +26,8 @@ useSchemaOrg([
     ],
     worksFor: [
       { '@type': 'Organization' as const, name: 'Primo Technology Ltd.', url: 'https://techprimo.ai' },
-      { '@type': 'Organization' as const, name: 'Alfatec Group', url: 'https://alfatec.ai' }
+      { '@type': 'Organization' as const, name: 'ALFATEC Group', url: 'https://alfatec.ai' },
+      { '@type': 'Organization' as const, name: 'University of Zadar', url: 'https://www.unizd.hr' }
     ],
     alumniOf: [
       { '@type': 'CollegeOrUniversity' as const, name: 'University of Rijeka, Faculty of Informatics and Digital Technologies' },

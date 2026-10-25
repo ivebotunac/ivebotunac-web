@@ -85,12 +85,10 @@ const ext = computed(() => props.org.url
 .org__img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 6px;
+  object-fit: cover;
 }
 
 .org__img.mono-img--fallback {
-  padding: 0;
   font-size: 1.3rem;
 }
 
