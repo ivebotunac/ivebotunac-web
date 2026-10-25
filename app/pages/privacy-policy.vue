@@ -111,8 +111,11 @@ useSchemaOrg([
           </li>
         </ul>
         <p>
-          Apart from that cookie the site sets no cookies and stores nothing in your browser. Fonts and images come from
-          the site's own hosting, so reading a page sends nothing to a font or advertising service.
+          Apart from that cookie the site sets no cookies. The little robot on the page remembers, in your browser's
+          local storage, which of its tricks you have tried, your best combo and how many times you have visited, so it
+          can greet you instead of explaining itself again. That record never leaves your browser and is not sent to me
+          or anyone else; clearing the site's data in your browser deletes it. Fonts and images come from the site's own
+          hosting, so reading a page sends nothing to a font or advertising service.
         </p>
 
         <h3>Email you send me</h3>

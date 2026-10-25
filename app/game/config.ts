@@ -51,13 +51,12 @@ export function dispScale(W: number): number {
 export const quips: string[] = [
   'AI will take your job. (kidding… mostly)', 'I\'m not sentient. That\'s what I\'d say though.',
   'Trained on the whole internet, still can\'t parallel park.', 'Hallucinating responsibly since 2023.',
-  'Prompt me. I dare you.', 'beep boop, hire Ive.', 'Your data is safe with me. probably.',
-  'I peaked at autocomplete.', 'Resistance is futile. nice CV though.', '01001000 01101001 👋',
-  'AGI is 2 weeks away. always.', 'My context window is bigger than yours.',
-  'I read your CV. all 4096 tokens of it.', 'Scaling laws go brrr.', 'I\'m a very confident lookup table.',
-  'More data. always more data.', 'I don\'t sleep. I checkpoint.', 'Fine-tuned on vibes.',
-  'H100s? in this economy?', 'RAG: because I forget things.', 'Temperature 0.7, personality 11.',
-  'swipe me fast, if you dare.', 'hold still. just a small inference.', 'pop me and I respawn. try it.'
+  'beep boop, hire Ive.', 'I peaked at autocomplete.', 'Resistance is futile. nice CV though.',
+  '01001000 01101001 👋', 'AGI is 2 weeks away. always.', 'I read his CV. all 4096 tokens of it.',
+  'Scaling laws go brrr.', 'I\'m a very confident lookup table.', 'I don\'t sleep. I checkpoint.',
+  'Fine-tuned on vibes.', 'H100s? in this economy?', 'RAG: because I forget things.',
+  'Temperature 0.7, personality 11.', 'ask him about agentic AI. I\'m the demo.',
+  'built in Zadar. trained on espresso.', 'he also teaches. I\'m the homework.'
 ]
 export const knockLines: string[] = ['Ow. Lawsuit incoming.', 'You can\'t stop progress.', 'That\'s going in the training data.', 'Rude. Anyway… AGI soon.', 'Error 418: I\'m a teapot now.']
 export const recoverLines: string[] = ['✦ recompiling ✦', 'back, and fine-tuned.', 'you only made me stronger.', 'redeployed. v2.0.']
@@ -65,8 +64,26 @@ export const hitLines: string[] = ['Gotcha, human.', 'Cursor acquired.', 'Target
 export const missLines: string[] = ['missed. recalibrating…', 'lag. blame the GPU.', 'you dodged. impressive.']
 export const stealLines: string[] = ['Hey! That trend was MINE.', 'Give it back, human!', 'Stealing my trends? rude.', 'That\'s MY alpha, attack mode on.', 'You\'ll regret that catch.']
 export const caughtTpl: string[] = ['Caught the ', 'Acquired: ', 'Shipped: ']
-export const hintMouse: string[] = ['psst: punch me, throw me, or pet me.', 'click me. drag me. or slowly pet me.']
-export const hintTouch: string[] = ['tap me. keep tapping. or drag and throw me.', 'go on, tap me. I can take it.']
+// The tutorial, one skill at a time; `touch` replaces `mouse` on phones.
+export const TUT_LINES: Record<'hit' | 'juggle' | 'pop' | 'throw' | 'pet', { mouse: string, touch: string }> = {
+  hit: { mouse: 'psst. click me.', touch: 'psst. tap me.' },
+  juggle: { mouse: 'hit me again before I land!', touch: 'tap me again before I land!' },
+  pop: { mouse: 'careful. every hit inflates me.', touch: 'careful. every hit inflates me.' },
+  throw: { mouse: 'fine. now grab me, drag, and let go.', touch: 'fine. now hold me, drag, and let go.' },
+  pet: { mouse: 'or be nice: move slowly over me.', touch: '' }
+}
+export const welcomeLines: string[] = ['welcome back, human.', 'oh. you again.', 'back for more?']
+export const welcomePopLines: string[] = ['welcome back. I still remember the pop.', 'oh, it\'s the one who popped me.']
+// Said once a visit when the cursor first reaches a link of that kind; keys match the href.
+export const LINK_LINES: Record<string, string[]> = {
+  'mailto:': ['email him. I\'ll wait.', 'go on, say hi.'],
+  'linkedin.com': ['go on, connect.', 'he accepts invites. I checked.'],
+  'scholar.google': ['peer reviewed. unlike me.', 'citations go brrr.'],
+  'croris': ['the official record. very serious.'],
+  'techprimo.ai': ['his studio. I\'m the intern.'],
+  'doi.org': ['actual science. go read it.'],
+  'coursera.org': ['he did the homework. I just scraped it.']
+}
 export const grabLines: string[] = ['hey! put me down!', 'unhand me, human.', 'I get airsick!', 'this is not in my training data.']
 export const throwLines: string[] = ['WHEEE!', 'I\'m flying! unsupervised!', 'gradient descent, literally.', 'not the face!']
 export const puffLines: string[] = ['I\'m… inflating?', 'too many parameters!', 'stop, I\'m overfitting!', 'context window overflowing…']
@@ -86,7 +103,7 @@ export const COMBO_LINES: Record<number, string> = {
 export const SECTION_LINES: Record<string, string[]> = {
   about: ['that\'s him. the human I work for.', 'tl;dr: AI, research, and me.'],
   experience: ['he built me between all of these jobs.', 'yes, all of that is real.'],
-  publications: ['I\'m cited in none of these. yet.', 'peer reviewed. unlike me.'],
+  publications: ['I\'m cited in none of these. yet.', 'ten papers and not one about me.'],
   talks: ['he talks about AI. I AM the AI.', 'I was in the audience. probably.'],
   education: ['a PhD. I just have a lot of weights.', 'he studied. I just scraped.'],
   certifications: ['he\'s certified. I\'m certifiable.', 'gotta collect them all.'],

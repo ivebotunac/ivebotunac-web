@@ -1,10 +1,12 @@
 // The orchestrator: one Game owns all state and element refs; frame() steps it at a fixed 60 ticks a second.
-import { CRITTERS, CX, CY, FORM_LINE, HALF, MAX_SIZE, MORPH, SECTION_LINES, U, col, dispScale, hintMouse, hintTouch, pick, quips, rand, recoverLines, respawnLines, scrollLines, sleepLines, wakeLines } from './config'
+import { CRITTERS, CX, CY, FORM_LINE, HALF, MAX_SIZE, MORPH, SECTION_LINES, U, col, dispScale, pick, quips, rand, recoverLines, respawnLines, scrollLines, sleepLines, wakeLines } from './config'
 import type { FormName, Mood } from './config'
 import { draw } from './forms'
 import type { Pxl } from './forms'
 import { emit, magic, renderFx, renderSparks } from './effects'
 import { bindInput, chaseTarget, idleTarget, pet, resolveBeam, runAttack, scheduleAttack, shootAndCatch, spawnTrend, updateBullets, updateTrendMotion } from './actions'
+import { calmHint, endCombo, loadMemory } from './guide'
+import type { Memory, Skill } from './guide'
 import type { AttackKind, AttackPhase, Ball, Beam, Bullet, Debris, GameRefs, Mode, Point, Popup, Press, Ring, Spark, Trend } from './types'
 
 const STEP = 1000 / 60
@@ -61,9 +63,17 @@ export class Game {
   fireCD = 0
   // bubble / quips
   bubbleUntil = 0
-  nextQuip = 240
+  // random quips are rare, about every 20 to 35 s; reactive lines carry the game
+  nextQuip = 1500
   lastQuip = -1
-  hinted = false
+  // tutorial and the visitor's own memory
+  mem: Memory = loadMemory()
+  hintSaid: Partial<Record<Skill, number>> = {}
+  hintAt = -9999
+  greeted = false
+  linkCD = 0
+  linksSeen = new Set<string>()
+  cursor = ''
   // home / trend / size
   homeTgt: Point | null = null
   homeHold = 0
@@ -159,6 +169,7 @@ export class Game {
     this.unbind = null
     clearTimeout(this.rageTO)
     this.rageEl.classList.remove('rage--on')
+    document.documentElement.classList.remove('robot-grab', 'robot-grabbing')
   }
 
   // Drawn size: the random growth plus inflation from hits.
@@ -198,7 +209,7 @@ export class Game {
 
   say(txt: string, dur?: number): void {
     this.bubble.textContent = txt; this.bubble.hidden = false;
-    this.bubbleUntil = this.t + (dur || 280); this.nextQuip = this.bubbleUntil + 260 + (rand(0, 360) | 0);
+    this.bubbleUntil = this.t + (dur || 280); this.nextQuip = this.bubbleUntil + 1200 + (rand(0, 900) | 0);
   }
 
   morphTo(f: FormName): void {
@@ -257,7 +268,8 @@ function tick(g: Game): void {
   if (g.flash > 0) g.flash--;
   if (g.shake > 0) g.shake--;
   if (g.scrollCD > 0) g.scrollCD--;
-  if (g.comboT > 0 && --g.comboT === 0) g.combo = 0;
+  if (g.linkCD > 0) g.linkCD--;
+  if (g.comboT > 0 && --g.comboT === 0) { endCombo(g); g.combo = 0; }
   if (g.puff > 0) { g.puff = Math.max(0, g.puff - 0.0012); if (g.puff < 0.4) g.puffSaid = false; }
   const recent = (g.t - g.lastMove) < 90;
 
@@ -304,7 +316,7 @@ function tick(g: Game): void {
       g.kvx *= -0.6;
     }
     g.krot += (g.knockT > 72 ? 0.3 : (Math.PI / 2 - g.krot) * 0.12);
-    if (--g.knockT === 0) { emit(g, 14, 14); g.say(pick(recoverLines), 200); g.kvy = -2.4; }
+    if (--g.knockT === 0) { emit(g, 14, 14); if (g.combo < 3) g.say(pick(recoverLines), 200); g.kvy = -2.4; }
   } else {
     g.pos.x += (g.tgt.x - g.pos.x) * lerp; g.pos.y += (g.tgt.y - g.pos.y) * lerp;
     if (g.krot !== 0) { g.krot *= 0.7; if (Math.abs(g.krot) < 0.02) g.krot = 0; }
@@ -344,6 +356,17 @@ function tick(g: Game): void {
   g.pet.style.transform = 'translate(' + (g.pos.x - HALF) + 'px,' + (g.pos.y - HALF) + 'px)';
   // A fixed gap above the robot's scaled top, so the bubble never overlaps it.
   g.bubble.style.bottom = (132 + 24 * g.size() * g.DS) + 'px';
+  // The cursor turns into a hand over the robot and a fist while holding it.
+  if (!g.coarse) {
+    const over = g.t - g.lastMove < 600 && Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR();
+    const cur = g.held ? 'robot-grabbing' : (over ? 'robot-grab' : '');
+    if (cur !== g.cursor) {
+      const cl = document.documentElement.classList;
+      if (g.cursor) cl.remove(g.cursor);
+      if (cur) cl.add(cur);
+      g.cursor = cur;
+    }
+  }
 
   g.bob = (mode === 'knock' || mode === 'held') ? 0 : Math.sin(g.t * (g.asleep ? 0.025 : 0.05)) * (spd > 1 ? 1.1 : 2);
   g.lean = mode === 'knock' ? 0 : (mode === 'held' ? Math.max(-0.5, Math.min(0.5, dx * 0.04)) : Math.max(-0.18, Math.min(0.18, dx * 0.02)));
@@ -371,15 +394,16 @@ function tick(g: Game): void {
     const s = g.getSection();
     if (s !== g.lastSection) { g.lastSection = s; if (!g.seenSections.has(s) && SECTION_LINES[s]) g.pendingSection = s; }
   }
-  // quips in calm states only: the how-to hint first, then section lines, then random ones
-  if (mode !== 'knock' && mode !== 'attack' && mode !== 'held' && !g.trend && !g.asleep && g.bubble.hidden) {
-    if (!g.hinted) {
-      if (g.t > g.nextQuip) { g.hinted = true; g.say(pick(g.coarse ? hintTouch : hintMouse), 320); }
-    } else if (g.pendingSection && g.t > g.bubbleUntil + 90) {
-      const s = g.pendingSection; g.pendingSection = ''; g.seenSections.add(s); g.say(pick(SECTION_LINES[s]!), 260);
-    } else if (g.t > g.nextQuip) {
-      let j: number; do { j = (Math.random() * quips.length) | 0; } while (j === g.lastQuip && quips.length > 1);
-      g.lastQuip = j; g.say(quips[j]!);
+  // calm moments only: a tutorial hint first, then section lines, then a rare random quip
+  if (mode !== 'knock' && mode !== 'attack' && mode !== 'held' && !g.asleep && g.bubble.hidden && g.t > g.bubbleUntil + 60) {
+    // hints may interrupt a trend chase; section lines wait until the first hint has had its moment
+    if (!calmHint(g) && !g.trend) {
+      if (g.pendingSection && g.t > 720) {
+        const s = g.pendingSection; g.pendingSection = ''; g.seenSections.add(s); g.say(pick(SECTION_LINES[s]!), 260);
+      } else if (g.t > g.nextQuip) {
+        let j: number; do { j = (Math.random() * quips.length) | 0; } while (j === g.lastQuip && quips.length > 1);
+        g.lastQuip = j; g.say(quips[j]!);
+      }
     }
   }
   if (!g.bubble.hidden && g.t > g.bubbleUntil) g.bubble.hidden = true;

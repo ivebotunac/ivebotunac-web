@@ -1,6 +1,7 @@
 // What the robot and the visitor do: attacks, trends, input and hit reactions.
 import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
+import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
 import type { Game } from './core'
 
 export function segDist(px: number, py: number, ax: number, ay: number, bx: number, by: number): number {
@@ -159,6 +160,7 @@ export function knockRobot(g: Game, dirx: number): void {
   g.angryT = Math.min(900, g.angryT + 240);
   emit(g, 16, 16); g.say(pick(knockLines)); feedback(g, g.pos.x, g.pos.y, 'POW!', '#0b6bcb');
   impact(g, 5);
+  if (g.gone <= 0) onKnock(g);
 }
 
 // A hit while it is still in the air bounces it back up and keeps the combo going.
@@ -170,6 +172,7 @@ export function juggle(g: Game, dirx: number): void {
   impact(g, 3);
   // stretch on the way up, after the impact squash
   g.sqv = -0.3;
+  if (g.gone <= 0) onJuggle(g);
 }
 
 function hitRobot(g: Game, dirx: number): void {
@@ -179,6 +182,7 @@ function hitRobot(g: Game, dirx: number): void {
 
 // Inflated past its limit: bursts into debris, the screen flashes, and it respawns a moment later.
 export function popRobot(g: Game): void {
+  onPop(g);
   const x = g.pos.x, y = g.pos.y;
   explode(g, x, y); explode(g, x, y); fxBurst(g, x, y, 30, '#ff5a1f'); fxBurst(g, x, y, 20, '#ffffff');
   g.rings.push({ x, y, life: 0, max: 34, c: '#ff5a1f' }, { x, y, life: 0, max: 26, c: '#0c2236' });
@@ -195,7 +199,7 @@ export function pet(g: Game): void {
   g.petAcc++; g.angryT = Math.max(0, g.angryT - 6); g.puff = Math.max(0, g.puff - 0.004);
   g.attackT = 0; g.attackCD = Math.max(g.attackCD, 120);
   if (g.petAcc % 22 === 1) g.popups.push({ x: g.pos.x + rand(-14, 14), y: g.pos.y - 24 * g.size() * g.DS, text: '♥', life: 0, max: 50, c: '#ff6fa3', size: 17 });
-  if (g.petAcc === 90) g.say(pick(petLines), 220);
+  if (g.petAcc === 90) { g.say(pick(petLines), 220); learn(g, 'pet'); }
 }
 
 // Idle wandering target, lower and slower while asleep. Returns lerp.
@@ -243,6 +247,7 @@ function pointerUp(g: Game): void {
   g.kvx = clamp((last.x - first.x) * k, -24, 24); g.kvy = clamp((last.y - first.y) * k, -24, 24);
   const sp = Math.hypot(g.kvx, g.kvy);
   g.knockT = (70 + Math.min(60, sp * 3)) | 0; g.krot = 0;
+  learn(g, 'throw');
   if (sp > 9) {
     feedback(g, g.pos.x, g.pos.y, 'WHEEE!', '#0b6bcb'); g.say(pick(throwLines), 160);
     g.angryT = Math.min(900, g.angryT + 120); g.puff += 0.08;
@@ -292,6 +297,7 @@ export function bindInput(g: Game): () => void {
     e.preventDefault(); pointerMove(g, tch.clientX, tch.clientY);
   };
   const onTouchEnd = () => { pointerUp(g); };
+  const onOver = (e: MouseEvent) => { const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null; if (a) linkLine(g, a.href); };
   const onScroll = () => { g.scrollDY += scrollY - g.scrollY; g.scrollY = scrollY; g.wake(); };
   const onResize = () => { g.W = innerWidth; g.H = innerHeight; g.DS = dispScale(g.W); g.sizeFx(); };
 
@@ -306,6 +312,7 @@ export function bindInput(g: Game): () => void {
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onTouchEnd, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('mouseover', onOver, { passive: true });
   window.addEventListener('resize', onResize, { passive: true });
 
   return () => {
@@ -320,6 +327,7 @@ export function bindInput(g: Game): () => void {
     window.removeEventListener('touchend', onTouchEnd);
     window.removeEventListener('touchcancel', onTouchEnd);
     window.removeEventListener('scroll', onScroll);
+    document.removeEventListener('mouseover', onOver);
     window.removeEventListener('resize', onResize);
   };
 }

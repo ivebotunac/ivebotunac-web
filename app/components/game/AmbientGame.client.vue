@@ -226,3 +226,16 @@ onUnmounted(destroy)
   }
 }
 </style>
+
+<style>
+/* The game sets these on <html> while the cursor is over the robot or holding it. */
+html.robot-grab,
+html.robot-grab * {
+  cursor: grab !important;
+}
+
+html.robot-grabbing,
+html.robot-grabbing * {
+  cursor: grabbing !important;
+}
+</style>
