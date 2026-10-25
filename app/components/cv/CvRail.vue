@@ -90,6 +90,18 @@ const goTo = (id: string) => {
   padding: 56px 0 40px;
 }
 
+/* A rail taller than the window scrolls on its own, or its last links are never reachable. */
+@media (min-width: 861px) and (max-height: 778px) {
+  .rail__sticky {
+    max-height: calc(100vh - 36px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    margin-left: -16px;
+    padding-left: 16px;
+  }
+}
+
 /* Identity */
 .id__photo { margin: 0 0 18px; }
 
