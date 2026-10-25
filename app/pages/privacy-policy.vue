@@ -98,10 +98,10 @@ useSchemaOrg([
             described under Visits.
           </li>
           <li>
-            <strong>Leaderboards:</strong> when you find the first sub-agent, and when a boss fight starts, our server
-            stores a record of that attempt (a random id, the start time and later the finish time) so it can time it
-            itself; the ids are kept in your browser’s local storage. If you sign a finished team or fight, the three
-            letters you type and your best time are shown publicly on that leaderboard. Choose letters that do not identify you if you prefer. To remove an entry, write
+            <strong>Leaderboard:</strong> when a boss fight starts, our server stores a record of that fight (a random
+            id, the start time and later the finish time) so it can time it itself; the id of your fastest fight is kept
+            in your browser’s local storage. If you sign it, the three letters you type and your best time are shown
+            publicly on the leaderboard. Choose letters that do not identify you if you prefer. To remove an entry, write
             to us with the letters and the time. Legal basis: our legitimate interest in running the game (Art. 6(1)(f)
             GDPR).
           </li>

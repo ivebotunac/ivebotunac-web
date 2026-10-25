@@ -10,7 +10,7 @@ import { track } from '~/utils/track'
 import { startRun } from './stats-client'
 import type { Memory } from './guide'
 import type { Game } from './core'
-import type { Boss, BossOrb } from './types'
+import type { Boss, BossMove, BossOrb } from './types'
 
 // Tuned so taps plus team fire win in about 30 to 60 s; the team and robot alone do about 2 hp a second.
 const HP = 300
@@ -22,6 +22,10 @@ const DIE = 100
 const IDLE = 2400
 const IDLE_TOUCH = 900
 const BRAND = ['#0c2236', '#36c6e0', '#ff5a1f', '#f5f9fd', '#3b7cc0']
+// Ticks: a dash, a teleport's flicker before it goes, and how long it stays gone.
+const DASH = 26
+const TP_OUT = 24
+const TP_GONE = 22
 // Same key as guide.ts; the best boss time rides along in the visitor's memory object.
 const KEY = 'ib-robot-v1'
 
@@ -58,10 +62,11 @@ export function startBoss(g: Game): void {
   if (g.boss || g.printing) return;
   g.boss = {
     phase: 'enter', x: g.W / 2, y: -14 * cell(g), t: 0, hp: HP, max: HP, shown: HP, flash: 0, shake: 0,
-    combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90, run: null
+    combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90, run: null,
+    offX: 0, offY: 0, mv: null, mvCD: 300, burstCD: 520
   };
   const fight = g.boss;
-  void startRun('boss').then((run) => { if (run && g.boss === fight) fight.run = run; });
+  void startRun().then((run) => { if (run && g.boss === fight) fight.run = run; });
   if (g.trend) clearTrend(g);
   g.attackT = 0; g.beamAt = 0; g.angryT = 0; g.wake();
   burnSaid = false;
@@ -84,8 +89,11 @@ export function bindBoss(g: Game): () => void {
 // The dying core still takes presses, so fast taps on its death throes never fall through to a link underneath.
 export function bossAt(g: Game, x: number, y: number): boolean {
   const b = g.boss;
-  return !!b && b.phase !== 'leave' && Math.hypot(x - b.x, y - b.y) < bossR(g);
+  return !!b && b.phase !== 'leave' && !vanished(b) && Math.hypot(x - b.x, y - b.y) < bossR(g);
 }
+
+// Mid-teleport, between the flicker and the landing, nothing can hit it.
+const vanished = (b: Boss) => b.mv?.kind === 'tp' && b.mv.t >= TP_OUT;
 
 // Checked in pointerDown before the robot; true when the press landed on the boss.
 export function hitBoss(g: Game, x: number, y: number): boolean {
@@ -106,7 +114,7 @@ export function hitBoss(g: Game, x: number, y: number): boolean {
 // Every source of damage goes through here; a big hit also sends the Deployer's rocket.
 export function hurtBoss(g: Game, dmg: number, big: boolean): void {
   const b = g.boss;
-  if (!b || b.phase !== 'fight') return;
+  if (!b || b.phase !== 'fight' || vanished(b)) return;
   b.hp = Math.max(0, b.hp - dmg);
   b.flash = Math.max(b.flash, big ? 6 : 3); b.shake = Math.max(b.shake, big ? 10 : 3);
   if (big) deployRocket(g, true);
@@ -126,7 +134,7 @@ export function bossRobotTarget(g: Game): number {
   g.tgt.x = clamp(b.x + side * (bossR(g) + 90), 40, g.W - 40);
   g.tgt.y = clamp(b.y + 100 + Math.sin(g.t * 0.03) * 16, 60, g.H - 60);
   g.attackT = 0; g.beamAt = 0;
-  if (b.phase === 'fight' && --b.fireCD <= 0) {
+  if (b.phase === 'fight' && !vanished(b) && --b.fireCD <= 0) {
     fireBeam(g, g.pos.x, g.pos.y - 6, b.x, b.y, '#36c6e0'); fxBurst(g, b.x + rand(-10, 10), b.y + rand(-10, 10), 6, '#36c6e0');
     hurtBoss(g, 1.2, false);
     b.fireCD = cool(70, 30);
@@ -142,6 +150,56 @@ function cursorNear(g: Game, x: number, y: number, r: number): boolean {
 function landHit(g: Game, b: Boss): void {
   feedback(g, g.mouseX, g.mouseY, 'HIT!', '#ff5a1f');
   b.combo = 0; b.comboT = 0; g.buzz(30);
+}
+
+// A spot on screen the boss can sit at, clear of the edges and the health bar.
+function spot(g: Game): { x: number, y: number } {
+  const m = 12 * cell(g) + 24;
+  return { x: rand(m, Math.max(m, g.W - m)), y: rand(Math.max(110, m + 40), Math.max(m + 60, g.H * 0.62)) };
+}
+
+// Now and then it dashes or teleports, more often once it is below half; a teleport gets likelier as it weakens.
+function move(g: Game, b: Boss, baseX: number, baseY: number): void {
+  const low = b.hp < b.max / 2;
+  if (!b.mv) {
+    if (--b.mvCD > 0 || b.tele) return;
+    const to = spot(g), tp = Math.random() < (low ? 0.55 : 0.35);
+    b.mv = { kind: tp ? 'tp' : 'dash', t: 0, sx: b.offX, sy: b.offY, tx: to.x - baseX, ty: to.y - baseY };
+    b.mvCD = low ? cool(110, 110) : cool(190, 160);
+    if (tp) g.bridge?.announce('AGI is teleporting.');
+    return;
+  }
+  const mv: BossMove = b.mv;
+  mv.t++;
+  if (mv.kind === 'dash') {
+    const k = Math.min(1, mv.t / DASH), e = 1 - Math.pow(1 - k, 3);
+    b.offX = mv.sx + (mv.tx - mv.sx) * e; b.offY = mv.sy + (mv.ty - mv.sy) * e;
+    if (mv.t % 3 === 0) fxBurst(g, b.x, b.y, 3, pick(['#36c6e0', '#9b6bff']));
+    if (k >= 1) b.mv = null;
+    return;
+  }
+  if (mv.t === TP_OUT) { fxBurst(g, b.x, b.y, 22, '#9b6bff'); fxBurst(g, b.x, b.y, 12, '#36c6e0'); g.rings.push({ x: b.x, y: b.y, life: 0, max: 24, c: '#9b6bff' }); b.tele = null; }
+  if (mv.t >= TP_OUT + TP_GONE) {
+    b.offX = mv.tx; b.offY = mv.ty; b.mv = null; b.flash = 4;
+    const x = baseX + mv.tx, y = baseY + mv.ty;
+    fxBurst(g, x, y, 24, '#9b6bff'); fxBurst(g, x, y, 14, '#ffffff'); g.rings.push({ x, y, life: 0, max: 26, c: '#36c6e0' });
+  }
+}
+
+// A barrage: five to eight locked bombs at once, on the page's text and around the cursor, landing at different moments.
+function barrage(g: Game, b: Boss): void {
+  if (--b.burstCD > 0 || b.tele || b.mv || b.t < 240) return;
+  const low = b.hp < b.max / 2, n = (low ? 6 : 5) + ((Math.random() * 3) | 0);
+  const sx = b.x, sy = b.y + 6 * cell(g);
+  for (let i = 0; i < n; i++) {
+    const page = i % 2 === 0 ? textTarget(g) : null;
+    const near = g.mouseX > -900 && g.t - g.lastMove < 600 && i % 3 === 1;
+    const at = page ?? (near ? { x: g.mouseX + rand(-60, 60), y: g.mouseY + rand(-50, 50) } : { x: rand(g.W * 0.1, g.W * 0.9), y: rand(g.H * 0.3, g.H * 0.85) });
+    const tx = clamp(at.x, 20, g.W - 20), ty = clamp(at.y, 20, g.H - 20);
+    b.orbs.push({ kind: 'lock', x: sx, y: sy, sx, sy, tx, ty, vx: 0, vy: 0, life: -i * 7, max: 58 + ((Math.random() * 20) | 0) });
+  }
+  b.flash = 4; b.shake = 6;
+  b.burstCD = low ? cool(300, 180) : cool(480, 240);
 }
 
 // Telegraph first, fire after: a reticle that a slow orb lands on, or (with a mouse) a slow three-orb spread.
@@ -174,6 +232,8 @@ function tickOrbs(g: Game, b: Boss): void {
   for (let i = b.orbs.length - 1; i >= 0; i--) {
     const o = b.orbs[i]!;
     o.life++;
+    // a barrage bomb still waiting its turn sits in the core; its reticle already shows
+    if (o.life < 0) { o.x = o.sx; o.y = o.sy; continue; }
     if (o.kind === 'lock') {
       const k = o.life / o.max, e = k * k * (3 - 2 * k);
       o.x = o.sx + (o.tx - o.sx) * e; o.y = o.sy + (o.ty - o.sy) * e - Math.sin(k * Math.PI) * 40;
@@ -246,8 +306,13 @@ export function tickBoss(g: Game): void {
     if (k >= 1) { b.phase = 'fight'; b.t = 0; b.lastHit = g.t; b.last = now; }
   } else if (b.phase === 'fight') {
     const amp = Math.max(0, Math.min(g.W * 0.3, g.W / 2 - 12 * P - 24));
-    b.x = g.W / 2 + Math.sin(b.t * 0.011) * amp; b.y = hy + Math.sin(b.t * 0.023) * g.H * 0.04;
-    attack(g, b);
+    const baseX = g.W / 2 + Math.sin(b.t * 0.011) * amp, baseY = hy + Math.sin(b.t * 0.023) * g.H * 0.04;
+    move(g, b, baseX, baseY);
+    // after a move it drifts back to its sweep over a few seconds
+    if (!b.mv) { b.offX *= 0.994; b.offY *= 0.994; }
+    const m = 12 * P + 12;
+    b.x = clamp(baseX + b.offX, m, g.W - m); b.y = clamp(baseY + b.offY, 60 + m, g.H - m);
+    if (!vanished(b)) { attack(g, b); barrage(g, b); }
     // on touch the boss takes every tap under it, so an idle fight ends sooner there
     if (g.t - b.lastHit > (g.coarse ? IDLE_TOUCH : IDLE)) leave(g, b);
   } else if (b.phase === 'dying') {
@@ -323,7 +388,16 @@ function cellColour(b: Boss, cl: Cell, warn: boolean): string {
 export function drawBoss(g: Game): void {
   const c = g.fxc, b = g.boss;
   if (!c || !b) return;
-  const P = cell(g), warn = !!b.tele;
+  const P = cell(g);
+  // mid-teleport: nothing, except a faint shimmer where it is about to land
+  if (vanished(b)) {
+    const mv = b.mv!;
+    if (mv.t > TP_OUT + TP_GONE - 9 && g.t % 3 === 0) fxBurst(g, b.x - b.offX + mv.tx + rand(-30, 30), b.y - b.offY + mv.ty + rand(-30, 30), 1, '#9b6bff');
+    return;
+  }
+  // the flicker before it goes
+  if (b.mv?.kind === 'tp' && b.mv.t % 4 < 2) return;
+  const warn = !!b.tele || b.mv?.kind === 'tp';
   const sx = b.shake > 0 ? Math.round((Math.random() - 0.5) * b.shake) : 0, sy = b.shake > 0 ? Math.round((Math.random() - 0.5) * b.shake) : 0;
   const x0 = Math.round(b.x - 12 * P) + sx, y0 = Math.round(b.y - 12 * P + Math.sin(b.t * 0.05) * 3) + sy;
   const seed = (b.t / 6) | 0, glitch = b.phase === 'dying' || warn || b.flash > 0 || hash(seed) < 0.3;
@@ -390,7 +464,7 @@ export function drawBossOver(g: Game): void {
   }
   for (const o of b.orbs) {
     if (o.kind === 'lock') drawReticle(c, o.tx, o.ty, 18, g.t, 0.9);
-    drawOrb(c, o, g.t);
+    if (o.life >= 0) drawOrb(c, o, g.t);
   }
   if (b.phase === 'leave') return;
   const w = Math.min(320, g.W - 48), h = 10, x = Math.round((g.W - w) / 2), y = 30;

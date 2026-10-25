@@ -25,15 +25,14 @@ export default defineEventHandler(async (event) => {
   let result
   try {
     if (parsed.kind === 'pop') return await recordPop()
-    if (parsed.kind === 'run') return await startRun(parsed.game)
-    if (parsed.kind === 'team') result = await recordTeam(parsed.ms, parsed.run, parsed.other)
-    else if (parsed.kind === 'boss') result = await recordBoss(parsed.run, parsed.other)
-    else result = await nameRun(parsed.run, parsed.initials, parsed.other)
+    if (parsed.kind === 'run') return await startRun()
+    if (parsed.kind === 'team') return await recordTeam(parsed.ms, parsed.run)
+    result = parsed.kind === 'boss' ? await recordBoss(parsed.run) : await nameRun(parsed.run, parsed.initials)
   } catch (err) {
     console.error('[game] event write failed:', err instanceof Error ? err.message : err)
     throw createError({ statusCode: 503, statusMessage: 'Game stats unavailable' })
   }
-  // a self-reported time under the floor, a boss run unknown or impossibly fast, or a run already named or unknown
+  // a fight unknown or impossibly fast, or one already signed or unfinished
   if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'name' ? 'Run cannot be named' : 'Time not accepted' })
   return result
 })

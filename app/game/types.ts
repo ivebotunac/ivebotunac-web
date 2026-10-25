@@ -38,14 +38,14 @@ export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
 export interface Peek { role: Role, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
 export interface Confetti { x: number, y: number, vx: number, vy: number, rot: number, vr: number, c: string, life: number, max: number }
 // What the HUD shows; the component holds it reactively.
-// run and bossRun: the fastest finished team and boss runs the card shows and offers to sign; bossMs: that fight's time.
-export interface QuestView { team: Role[], done: boolean, ms: number | null, run: string | null, bossRun: string | null, bossMs: number | null, boss: boolean }
+// bossRun: the fastest finished boss fight the card shows and offers to sign; bossMs: its time.
+export interface QuestView { team: Role[], done: boolean, ms: number | null, bossRun: string | null, bossMs: number | null, boss: boolean }
 // The game's way out to the Vue layer: HUD state, screen-reader lines, and the finished team.
 export interface QuestBridge {
   view(v: QuestView): void
   announce(text: string): void
   // the last recruit: posts the time at once, so a reload during the fly-by cannot lose it
-  finished(ms: number, run: string | null): void
+  finished(ms: number): void
   // the end of the fly-by: opens the team card
   complete(): void
   // a won boss fight and its run: posts it, then opens the card on the boss board
@@ -71,4 +71,9 @@ export interface Boss {
   orbs: BossOrb[], ms: number, last: number, fireCD: number
   // the server's id for this fight, which times it for the boss board
   run: string | null
+  // where it is pushed off its sweep (dashes and teleports set it, then it drifts back), the move under way,
+  // and the ticks until the next move and the next barrage
+  offX: number, offY: number, mv: BossMove | null, mvCD: number, burstCD: number
 }
+// A dash glides fast to a new spot; a teleport flickers, vanishes, and lands somewhere else.
+export interface BossMove { kind: 'dash' | 'tp', t: number, sx: number, sy: number, tx: number, ty: number }

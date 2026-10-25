@@ -5,9 +5,8 @@ import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
 import { formatDuration as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 
-// One top ten on the team card, with the three-letter signature for the visitor's own run.
-// run: the run to sign; other: the visitor's run on the other board, so the answer carries both.
-const props = defineProps<{ title: string, game: 'team' | 'boss', board: BoardEntry[], mine: MyRun | null, run: string | null, other: string | null, note?: string }>()
+// The AGI top ten on the team card, with the three-letter signature for the visitor's fight. run: the fight to sign.
+const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string | null }>()
 const emit = defineEmits<{ (e: 'stats', s: GameStats): void }>()
 
 const inputId = useId()
@@ -30,19 +29,18 @@ async function save() {
   if (!props.run || initials.value.length !== 3 || saving.value) return
   saving.value = true
   error.value = ''
-  const s = await postName(props.run, initials.value, props.other)
+  const s = await postName(props.run, initials.value)
   saving.value = false
   if (!s) { error.value = 'Those letters cannot be used. Try others.'; return }
-  const mine = props.game === 'boss' ? s.bossMine : s.mine
-  track('board_name', { board: props.game, place: mine?.place ?? 0 })
+  track('board_name', { place: s.mine?.place ?? 0 })
   initials.value = ''
   emit('stats', s)
 }
 </script>
 
 <template>
-  <section class="lboard" :aria-label="title">
-    <p class="lboard__title">{{ title }}</p>
+  <section class="lboard" aria-label="Fastest AGI kills">
+    <p class="lboard__title">Fastest AGI kills</p>
     <form v-if="canName" class="lboard__name" @submit.prevent="save">
       <label class="lboard__name-label" :for="inputId">{{ label }}</label>
       <div class="lboard__name-row">
@@ -71,7 +69,6 @@ async function save() {
     </ol>
     <p v-else-if="!canName" class="lboard__note">No one has signed this board yet.</p>
     <p v-if="kept" class="lboard__note lboard__note--gap">{{ kept }}</p>
-    <p v-if="note" class="lboard__note lboard__note--gap">{{ note }}</p>
   </section>
 </template>
 

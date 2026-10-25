@@ -22,7 +22,7 @@ const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
-const quest = reactive<QuestView>({ team: [], done: false, ms: null, run: null, bossRun: null, bossMs: null, boss: false })
+const quest = reactive<QuestView>({ team: [], done: false, ms: null, bossRun: null, bossMs: null, boss: false })
 const announce = ref('')
 const cardOpen = ref(false)
 // Which board leads the card: the team's after the quest, the boss's after a win.
@@ -32,12 +32,8 @@ const stats = ref<GameStats | null>(null)
 const statsOff = ref(false)
 const gotStats = (s: GameStats | null) => { if (s) { stats.value = s; statsOff.value = false } else if (!stats.value) statsOff.value = true }
 
-// Both boards for the runs the card shows; a post answers for the run it posted, which can be a slower one.
-const refresh = () => getGameStats(quest.run, quest.bossRun).then(gotStats)
-const after = (posted: string | null, kept: () => string | null) => (s: GameStats | null) => {
-  if (s && posted === kept()) gotStats(s)
-  else void refresh()
-}
+// The board for the fight the card shows; a win posts its own fight, which can be slower than the one kept.
+const refresh = () => getGameStats(quest.bossRun).then(gotStats)
 
 const openCard = () => {
   cardMode.value = 'team'
@@ -52,11 +48,11 @@ const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  finished: (ms, run) => { postTeam(ms, run, quest.bossRun).then(after(run, () => quest.run)) },
+  finished: (ms) => { postTeam(ms, quest.bossRun).then(gotStats) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) { cardMode.value = 'team'; cardOpen.value = true } },
   bossDone: (run) => {
-    if (run) postBoss(run, quest.run).then(after(run, () => quest.bossRun))
+    if (run) postBoss(run).then(s => (s && run === quest.bossRun ? gotStats(s) : refresh()))
     else void refresh()
     clearTimeout(bossTimer)
     bossTimer = setTimeout(() => { cardMode.value = 'boss'; cardOpen.value = true }, 2400)
@@ -94,7 +90,6 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
         :mode="cardMode"
         :ms="quest.ms"
         :boss-ms="quest.bossMs"
-        :run="quest.run"
         :boss-run="quest.bossRun"
         :stats="stats"
         :stats-off="statsOff"

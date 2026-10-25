@@ -7,11 +7,11 @@ import type { Role } from './types'
 export type Skill = keyof typeof TUT_LINES
 
 // team: roles recruited so far; teamStartedAt: Date.now() at the first recruit; teamMs: the finished time;
-// run: the server's id for this attempt, which times it for the leaderboard; signRun and bossRun: the fastest finished
-// team and boss runs, with their times, kept through a restart so an unsigned record can still be signed.
+// bossRun: the server's id for the fastest finished boss fight, with its time, kept through a restart so an
+// unsigned record can still be signed.
 export interface Memory {
   learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamStartedAt: number | null, teamMs: number | null,
-  run: string | null, signRun: string | null, signMs: number | null, bossRun: string | null, bossRunMs: number | null
+  bossRun: string | null, bossRunMs: number | null
 }
 
 const KEY = 'ib-robot-v1'
@@ -20,17 +20,15 @@ const REPEAT = 2700
 const MAX_SAID = 3
 
 export function loadMemory(): Memory {
-  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamStartedAt: null, teamMs: null, run: null, signRun: null, signMs: null, bossRun: null, bossRunMs: null }
+  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamStartedAt: null, teamMs: null, bossRun: null, bossRunMs: null }
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
     if (Array.isArray(raw.learned)) m.learned = raw.learned
     for (const k of ['best', 'pops', 'visits'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
     if (Array.isArray(raw.team)) m.team = ROLES.filter(r => raw.team.includes(r))
     for (const k of ['teamStartedAt', 'teamMs'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
-    for (const k of ['run', 'signRun', 'bossRun'] as const) if (typeof raw[k] === 'string') m[k] = raw[k]
-    for (const k of ['signMs', 'bossRunMs'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
-    // a team finished before signRun existed is still the one to sign
-    if (!m.signRun && m.run && m.teamMs !== null) { m.signRun = m.run; m.signMs = m.teamMs }
+    if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
+    if (typeof raw.bossRunMs === 'number') m.bossRunMs = raw.bossRunMs
   } catch { /* storage blocked or corrupt: start fresh */ }
   m.visits++
   return m

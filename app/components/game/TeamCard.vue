@@ -8,10 +8,10 @@ import { track } from '~/utils/track'
 import PnIcon from '~/components/ui/PnIcon.vue'
 import LeaderBoard from './LeaderBoard.vue'
 
-// mode: the team's card after the quest, or the boss's after a win; run and bossRun: the runs it offers to sign.
+// mode: the team's card after the quest, or the boss's after a win; bossRun: the fight it offers to sign.
 const props = defineProps<{
   open: boolean, mode: 'team' | 'boss', ms: number | null, bossMs: number | null
-  run: string | null, bossRun: string | null, stats: GameStats | null, statsOff: boolean
+  bossRun: string | null, stats: GameStats | null, statsOff: boolean
 }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'stats', s: GameStats): void }>()
 
@@ -30,22 +30,8 @@ let opener: HTMLElement | null = null
 const time = computed(() => (props.ms === null ? '' : fmt(props.ms)))
 // The server's time for the fight when it answered, the game's own until then.
 const bossTime = computed(() => {
-  const ms = props.stats?.bossMine?.ms ?? props.bossMs
+  const ms = props.stats?.mine?.ms ?? props.bossMs
   return ms === null ? '' : fmt(ms)
-})
-
-const teamBoard = computed(() => ({
-  key: 'team' as const, title: 'Fastest teams', board: props.stats?.board ?? [], mine: props.stats?.mine ?? null, run: props.run, other: props.bossRun,
-  note: !props.run && !props.stats?.mine ? 'This team was not timed by the server, so it cannot go on the board. Restart the game to race for a place.' : '',
-}))
-const bossBoard = computed(() => ({
-  key: 'boss' as const, title: 'Fastest AGI kills', board: props.stats?.bossBoard ?? [], mine: props.stats?.bossMine ?? null, run: props.bossRun, other: props.run, note: '',
-}))
-// The board for what just happened leads; the boss board waits for a first fight or a first name on it.
-const boards = computed(() => {
-  const showBoss = props.mode === 'boss' || !!props.bossRun || bossBoard.value.board.length > 0
-  if (props.mode === 'boss') return [bossBoard.value, teamBoard.value]
-  return showBoss ? [teamBoard.value, bossBoard.value] : [teamBoard.value]
 })
 
 const globalLine = computed(() => {
@@ -155,20 +141,9 @@ function onKeydown(e: KeyboardEvent) {
         <p class="tcard__body">Five of them were hiding in the CV, so you have read more of it than most. Thanks for that.</p>
       </template>
 
-      <p v-if="!stats && statsOff" class="tcard__offline">The leaderboards are offline right now. Your times are kept on this device.</p>
+      <p v-if="!stats && statsOff" class="tcard__offline">The leaderboard is offline right now. Your times are kept on this device.</p>
       <template v-if="stats">
-        <LeaderBoard
-          v-for="b in boards"
-          :key="b.key"
-          :game="b.key"
-          :title="b.title"
-          :board="b.board"
-          :mine="b.mine"
-          :run="b.run"
-          :other="b.other"
-          :note="b.note"
-          @stats="s => emit('stats', s)"
-        />
+        <LeaderBoard :board="stats.board" :mine="stats.mine" :run="bossRun" @stats="s => emit('stats', s)" />
       </template>
       <div class="tcard__actions">
         <div class="tcard__social">

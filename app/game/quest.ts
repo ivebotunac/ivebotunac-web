@@ -6,7 +6,6 @@ import { recruitLine, saveMemory } from './guide'
 import { bossFighting, drawBoss, drawBossOver, tickBoss } from './boss'
 import { deployRocket, drawCrew, drawPlanPath, teamBehaviour, tickCrew } from './team'
 import { track } from '~/utils/track'
-import { startRun } from './stats-client'
 import { drawScorch, healNow, tickScorch } from './scorch'
 import type { Game } from './core'
 import type { Peek, Role } from './types'
@@ -31,7 +30,7 @@ export function speak(g: Game, line: string): void {
 
 export function syncQuest(g: Game): void {
   const m = g.mem;
-  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, run: m.signRun, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: !!g.boss });
+  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: !!g.boss });
 }
 
 // One random row per section, picked once a page view; the CvMore "show all" wrapper is not a row.
@@ -115,18 +114,10 @@ export function questPop(g: Game, x: number, y: number): void {
   deployRocket(g, bossFighting(g));
 }
 
-// The server times the attempt from here; a reply for an attempt since restarted is dropped.
-function beginRun(g: Game, startedAt: number): void {
-  void startRun('team').then((run) => {
-    if (!run || g.mem.teamStartedAt !== startedAt) return;
-    g.mem.run = run; saveMemory(g); syncQuest(g);
-  });
-}
-
 function recruit(g: Game, role: Role, x: number, y: number): void {
   const m = g.mem, info = ROLE_INFO[role];
   if (m.team.includes(role)) return;
-  if (m.teamStartedAt === null) { m.teamStartedAt = Date.now(); m.run = null; beginRun(g, m.teamStartedAt); }
+  if (m.teamStartedAt === null) m.teamStartedAt = Date.now();
   m.team.push(role);
   addMember(g, role, x, y);
   fxBurst(g, x, y, 18, info.c); fxBurst(g, x, y, 10, '#ffffff');
@@ -140,9 +131,7 @@ function recruit(g: Game, role: Role, x: number, y: number): void {
   if (n === ROLES.length) {
     m.teamMs = Math.max(0, Date.now() - m.teamStartedAt);
     track('team_complete', { ms: m.teamMs });
-    // the faster of this team and the one kept from before a restart is the one the card offers to sign
-    if (m.run && (m.signMs === null || m.teamMs < m.signMs)) { m.signRun = m.run; m.signMs = m.teamMs; }
-    g.bridge?.finished(m.teamMs, m.run);
+    g.bridge?.finished(m.teamMs);
     g.flyby = FLYBY; text += ' Team assembled.';
     speak(g, pick(teamDoneLines));
   } else speak(g, line);
@@ -230,10 +219,10 @@ export function drawQuest(g: Game): void {
 }
 
 // Starts this visitor's game over: team, times and records go; tricks already learned stay, so nothing is taught twice,
-// and the fastest finished runs stay, so a record not yet signed can still be.
+// and the fastest finished boss fight stays, so a record not yet signed can still be.
 export function restartGame(g: Game): void {
   const m = g.mem;
-  m.team = []; m.teamStartedAt = null; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null; m.run = null;
+  m.team = []; m.teamStartedAt = null; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null;
   m.learned = m.learned.filter(s => s !== 'team');
   g.boss = null; g.flyby = 0; g.team.length = 0; g.peeks.length = 0; g.confetti.length = 0; g.hides = {};
   saveMemory(g); pickHides(g); syncQuest(g);
