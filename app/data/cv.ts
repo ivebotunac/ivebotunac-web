@@ -259,12 +259,48 @@ export const cv: Cv = {
     { year: 2016, title: 'Machine Learning', url: 'https://www.coursera.org/account/accomplishments/verify/C8WQMJXQZLLN', issuer: 'Coursera', kind: 'Course' }
   ],
   skills: [
-    { label: 'AI / ML', text: 'Deep understanding of AI & ML concepts and algorithms; neural networks (CNN, RNN, Transformers); generative AI models; LLM fine-tuning, RAG and multi-agent systems (LangGraph).' },
-    { label: 'Programming', text: 'Python – TensorFlow, Transformers, LangChain, Scikit-learn, Django, FastAPI, Pandas.' },
-    { label: 'Web', text: 'HTML / CSS / JS / TS, Angular, Ionic, Vue.js, Node.js (Express.js).' },
-    { label: 'Cloud', text: 'Amazon AWS, Google Cloud Platform, Firebase.' },
-    { label: 'Other', text: 'SQL, Docker, MLOps.' },
-    { label: 'Languages', text: 'Croatian – native. English – B2 (listening, reading, spoken, writing).' }
+    {
+      label: 'AI agents & LLM apps',
+      claim: 'Multi-agent systems, RAG and tool use, built for production.',
+      core: ['LangGraph', 'LangChain', 'MCP', 'Claude Code', 'OpenAI', 'Gemini', 'Anthropic'],
+      also: ['AWS Bedrock AgentCore', 'ChromaDB', 'AssemblyAI'],
+      proof: 'An agent platform on AWS for an enterprise client, market-intelligence agents on LangGraph, an MCP server for product analytics, and the Claude Code agent system my studio runs on.'
+    },
+    {
+      label: 'ML research',
+      claim: 'Deep reinforcement learning and LLM fine-tuning for financial markets.',
+      core: ['PyTorch', 'Stable-Baselines3', 'Transformers', 'PEFT', 'Unsloth', 'TRL'],
+      also: ['Optuna', 'scikit-learn', 'pandas', 'TensorFlow', 'Backtrader'],
+      proof: 'My PhD thesis and papers on deep-RL trading systems, and fine-tuned LLMs that turn market news into trading features.'
+    },
+    {
+      label: 'Mobile',
+      claim: '13 subscription apps for iOS and Android.',
+      core: ['Ionic Vue', 'Capacitor', 'RevenueCat'],
+      also: ['Swift', 'ARKit', 'LiDAR'],
+      proof: 'The Primo apps, one shared codebase pattern across 13 products, plus a native iOS plugin for LiDAR scanning.'
+    },
+    {
+      label: 'Web',
+      claim: 'Product sites and admin apps.',
+      core: ['Nuxt', 'Vue', 'TypeScript', 'Pinia', 'Tailwind'],
+      also: ['React', 'Redux Toolkit', 'TanStack'],
+      proof: '8 Nuxt sites, this one included, and React admin apps for client products.'
+    },
+    {
+      label: 'Backend & cloud',
+      claim: 'Serverless and event-driven services.',
+      core: ['Node.js', 'Firebase', 'Google Cloud', 'AWS'],
+      also: ['Express', 'DynamoDB', 'SQS', 'CDK', 'PostgreSQL', 'Redis', 'Docker'],
+      proof: 'Firebase backends for the apps and sites, and queue-driven agent services on AWS with PostgreSQL and Redis behind them.'
+    },
+    {
+      label: 'Engineering',
+      claim: 'Tested, automated delivery.',
+      core: ['Vitest', 'Playwright', 'GitHub Actions'],
+      also: ['Jest', 'Cypress', 'MLOps'],
+      proof: 'Unit, end-to-end and visual tests, CI on every push, and pipelines that take models from training to production.'
+    }
   ],
   updated: '2026-10'
 }

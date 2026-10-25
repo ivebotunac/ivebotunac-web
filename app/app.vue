@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GlobalStyles from '~/components/layout/GlobalStyles.vue'
+import { cv } from '~/data/cv'
 
 const site = useSiteConfig()
 const siteUrl = site.url
@@ -30,6 +31,8 @@ useSchemaOrg([
       { '@type': 'Organization' as const, name: 'ALFATEC Group', url: 'https://alfatec.ai' },
       { '@type': 'Organization' as const, name: 'University of Zadar', url: 'https://www.unizd.hr' }
     ],
+    // The daily tools of every skill area, for search engines and assistants.
+    knowsAbout: cv.skills.flatMap(s => s.core),
     alumniOf: [
       { '@type': 'CollegeOrUniversity' as const, name: 'University of Rijeka, Faculty of Informatics and Digital Technologies' },
       { '@type': 'CollegeOrUniversity' as const, name: 'University of Zadar' }

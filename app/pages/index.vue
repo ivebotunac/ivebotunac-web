@@ -142,7 +142,7 @@ onUnmounted(() => {
           <CvCertifications :certifications="cv.certifications" />
         </CvSection>
 
-        <CvSection v-bind="head('skills')">
+        <CvSection v-bind="head('skills', `${cv.skills.length} areas`)">
           <CvSkills :skills="cv.skills" />
         </CvSection>
 

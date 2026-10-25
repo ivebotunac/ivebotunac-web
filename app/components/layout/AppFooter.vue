@@ -18,7 +18,7 @@ const backToTop = () => {
   <!-- On the CV it sits inside the content column, as on the old page; other pages wrap it in a container. -->
   <footer class="foot">
     <p class="foot__line">
-      &copy; {{ year }} Ive Botunac · hand-coded in Zadar · <NuxtLink to="/privacy-policy">privacy policy</NuxtLink> · <a href="#top" @click.exact.prevent="backToTop">back to top ↑</a>
+      &copy; {{ year }} Ive Botunac · <NuxtLink to="/privacy-policy">privacy policy</NuxtLink> · <a href="#top" @click.exact.prevent="backToTop">back to top ↑</a>
     </p>
   </footer>
 </template>

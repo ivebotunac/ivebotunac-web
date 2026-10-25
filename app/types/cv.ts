@@ -50,9 +50,13 @@ export interface Certification {
   courses?: number
 }
 
+// A skill area: what I do with it, the tools that carry it (the daily ones first), and where it was done.
 export interface Skill {
   label: string
-  text: string
+  claim: string
+  core: string[]
+  also?: string[]
+  proof?: string
 }
 
 export interface Stat {
