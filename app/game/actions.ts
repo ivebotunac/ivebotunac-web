@@ -2,6 +2,11 @@
 import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
 import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
+import { hitPeek, questPop, syncQuest } from './quest'
+import { hitBoss } from './boss'
+import { onTrendCaught } from './team'
+import { postGameEvent } from './stats-client'
+import { track } from '~/utils/track'
 import type { Game } from './core'
 
 export function segDist(px: number, py: number, ax: number, ay: number, bx: number, by: number): number {
@@ -28,7 +33,7 @@ export function throwBall(g: Game, tx: number, ty: number): void {
 
 // An attack run starts only while the cursor is moving; it never just trails the cursor.
 export function scheduleAttack(g: Game, recent: boolean): void {
-  if (g.knockT <= 0 && !g.held && !g.asleep &&(!g.trend || g.angryT > 0) && recent && g.attackT <= 0 && g.beamAt <= 0) {
+  if (g.knockT <= 0 && !g.held && !g.asleep && !g.boss && (!g.trend || g.angryT > 0) && recent && g.attackT <= 0 && g.beamAt <= 0) {
     if (g.attackCD > 0) g.attackCD--;
     else {
       g.attackT = 1; g.atkPhase = 'approach'; g.atkTimer = 0; g.fired = false;
@@ -131,7 +136,7 @@ export function shootAndCatch(g: Game): void {
     // Lets it fly about 4.5s, then catches it with a laser from behind.
     if (g.trend.tt > 280 && g.trend.hits >= 2) {
       const cx2 = g.trend.x, cy2 = g.trend.y;
-      g.say(pick(caughtTpl) + g.trend.label + ' trend!'); fireBeam(g, g.pos.x, g.pos.y - 6, cx2, cy2, '#ff5a1f'); feedback(g, cx2, cy2, 'CAUGHT!', '#ff5a1f'); emit(g, 10, 12); clearTrend(g);
+      g.say(pick(caughtTpl) + g.trend.label + ' trend!'); fireBeam(g, g.pos.x, g.pos.y - 6, cx2, cy2, '#ff5a1f'); feedback(g, cx2, cy2, 'CAUGHT!', '#ff5a1f'); emit(g, 10, 12); onTrendCaught(g); clearTrend(g);
     }
   }
 }
@@ -142,6 +147,8 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 // Shared juice for every landed hit: hit-stop, flash, shake, squash, haptics, combo, inflation.
 function impact(g: Game, freeze: number): void {
   g.freeze = freeze; g.flash = 6; g.shake = 9; g.kick(0.32); g.buzz(18);
+  // the first landed hit of a page view also reveals the team HUD
+  if (!g.hitTracked) { g.hitTracked = true; track('game_hit'); syncQuest(g); }
   g.combo++; g.comboT = 150;
   // Every hit inflates it from normal size; random growth waits until it deflates.
   if (g.combo === 1) g.scaleTarget = 1;
@@ -192,6 +199,8 @@ export function popRobot(g: Game): void {
   g.knockT = 0; g.held = false; g.press = null; g.attackT = 0; g.beamAt = 0;
   g.bubble.hidden = true; g.sparks.length = 0;
   if (g.trend) clearTrend(g);
+  track('game_pop'); void postGameEvent('pop');
+  questPop(g, x, y);
 }
 
 // A slow cursor over the robot: hearts, and the anger and inflation drain away.
@@ -210,9 +219,14 @@ export function idleTarget(g: Game): number {
 }
 
 // ---- pointer: press hits at once, moving turns it into a grab, release throws ----
-function pointerDown(g: Game, x: number, y: number): boolean {
+// `robot` false limits the press to a waiting agent and the boss.
+function pointerDown(g: Game, x: number, y: number, robot = true): boolean {
   g.swallowClick = false; g.wake();
-  if (g.gone > 0) return false;
+  // a waiting sub-agent wins over the robot and the trend, and is clickable while the robot is popped
+  if (hitPeek(g, x, y)) { g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true; return true; }
+  // the boss sits over the page, so it wins over the robot and stays hittable while the robot is popped
+  if (hitBoss(g, x, y)) { g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true; return true; }
+  if (g.gone > 0 || !robot) return false;
   if (g.trend && !g.trendEl.hidden) {
     const r = g.trendEl.getBoundingClientRect(), pad = g.coarse ? 16 : 12;
     if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
@@ -257,7 +271,10 @@ function pointerUp(g: Game): void {
 
 // Binds every window listener and returns the function that removes them all.
 export function bindInput(g: Game): () => void {
+  // Browsers follow a tap with compatibility mouse events; read as a mouse, a tap would swipe through the robot.
+  const fromTouch = () => performance.now() - g.lastTouch < 800;
   const onMouseMove = (e: MouseEvent) => {
+    if (fromTouch()) return;
     const cx = e.clientX, cy = e.clientY;
     g.wake();
     if (g.press) pointerMove(g, cx, cy);
@@ -281,15 +298,28 @@ export function bindInput(g: Game): () => void {
     g.pmX = cx; g.pmY = cy; g.mouseX = cx; g.mouseY = cy; g.lastMove = g.t;
   };
   const onMouseOut = (e: MouseEvent) => { if (!e.relatedTarget) g.lastMove = -999; };
-  const onMouseDown = (e: MouseEvent) => { if (e.button === 0 && pointerDown(g, e.clientX, e.clientY)) e.preventDefault(); };
-  const onMouseUp = () => { pointerUp(g); };
+  // The quest HUD and team card take their own clicks, even with the robot flying over them.
+  const onUi = (e: Event) => !!(e.target as Element | null)?.closest?.('[data-game-ui]');
+  // Cleared on every primary press, so a swallow left by a press that sent no click never eats a HUD click.
+  const onMouseDown = (e: MouseEvent) => {
+    if (e.button !== 0) return;
+    g.swallowClick = false;
+    if (!fromTouch() && !onUi(e) && pointerDown(g, e.clientX, e.clientY)) e.preventDefault();
+  };
+  // the click, if any, is dispatched before this timeout runs, so the swallow cannot outlive it
+  const onMouseUp = () => { pointerUp(g); setTimeout(() => { g.swallowClick = false; }, 0); };
+  const onBlur = () => { g.swallowClick = false; pointerUp(g); };
   // The click that follows a press on the robot or the trend must not reach a link underneath.
   const onClick = (e: MouseEvent) => { if (g.swallowClick) { e.preventDefault(); e.stopPropagation(); g.swallowClick = false; } };
   // Swallows the touch only when it lands, so taps elsewhere still scroll and click.
   const onTouchStart = (e: TouchEvent) => {
+    g.lastTouch = performance.now(); g.pmX = -999;
     const tch = e.touches[0];
-    if (!tch || e.touches.length > 1) return;
-    if (pointerDown(g, tch.clientX, tch.clientY)) e.preventDefault();
+    if (!tch || e.touches.length > 1 || onUi(e)) return;
+    // a tap on a link or a row toggle does what it shows; only a waiting agent or the boss wins over it
+    const page = !!(e.target as Element | null)?.closest?.('a[href],button,summary,[role=button]');
+    // a cancelled touchstart sends no click, so a pending swallow would eat the next tap on the HUD or the page
+    if (pointerDown(g, tch.clientX, tch.clientY, !page)) { e.preventDefault(); g.swallowClick = false; }
   };
   const onTouchMove = (e: TouchEvent) => {
     const tch = e.touches[0];
@@ -305,7 +335,7 @@ export function bindInput(g: Game): () => void {
   window.addEventListener('mouseout', onMouseOut, { passive: true });
   window.addEventListener('mousedown', onMouseDown);
   window.addEventListener('mouseup', onMouseUp, { passive: true });
-  window.addEventListener('blur', onMouseUp);
+  window.addEventListener('blur', onBlur);
   window.addEventListener('click', onClick, true);
   window.addEventListener('touchstart', onTouchStart, { passive: false });
   window.addEventListener('touchmove', onTouchMove, { passive: false });
@@ -320,7 +350,7 @@ export function bindInput(g: Game): () => void {
     window.removeEventListener('mouseout', onMouseOut);
     window.removeEventListener('mousedown', onMouseDown);
     window.removeEventListener('mouseup', onMouseUp);
-    window.removeEventListener('blur', onMouseUp);
+    window.removeEventListener('blur', onBlur);
     window.removeEventListener('click', onClick, true);
     window.removeEventListener('touchstart', onTouchStart);
     window.removeEventListener('touchmove', onTouchMove);

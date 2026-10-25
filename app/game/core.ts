@@ -6,8 +6,11 @@ import type { Pxl } from './forms'
 import { emit, magic, renderFx, renderSparks } from './effects'
 import { bindInput, chaseTarget, idleTarget, pet, resolveBeam, runAttack, scheduleAttack, shootAndCatch, spawnTrend, updateBullets, updateTrendMotion } from './actions'
 import { calmHint, endCombo, loadMemory } from './guide'
-import type { Memory, Skill } from './guide'
-import type { AttackKind, AttackPhase, Ball, Beam, Bullet, Debris, GameRefs, Mode, Point, Popup, Press, Ring, Spark, Trend } from './types'
+import { bindQuest, drawQuest, flybyTarget, initQuest, peekAt, tickQuest } from './quest'
+import { bindBoss, bossAt, bossFighting, bossRobotTarget, withBoss } from './boss'
+import type { GameMemory } from './boss'
+import type { Skill } from './guide'
+import type { AttackKind, AttackPhase, Ball, Beam, Boss, Bullet, Confetti, Crew, Debris, GameRefs, Mode, Peek, Point, Popup, Press, QuestBridge, Ring, Role, Spark, TeamBehaviour, TeamMember, Trend } from './types'
 
 const STEP = 1000 / 60
 
@@ -67,7 +70,7 @@ export class Game {
   nextQuip = 1500
   lastQuip = -1
   // tutorial and the visitor's own memory
-  mem: Memory = loadMemory()
+  mem: GameMemory = withBoss(loadMemory())
   hintSaid: Partial<Record<Skill, number>> = {}
   hintAt = -9999
   greeted = false
@@ -116,6 +119,8 @@ export class Game {
   press: Press | null = null
   held = false
   swallowClick = false
+  // performance.now() of the last touchstart, to drop the mouse events a tap sends after it
+  lastTouch = -1e9
   // petting, sleep, scroll, sections
   petT = -999
   petAcc = 0
@@ -138,8 +143,26 @@ export class Game {
   lean = 0
   moving = false
   closed = false
+  // the team quest (quest.ts): recruited agents in formation order, agents waiting in opened rows, the fly-by
+  bridge: QuestBridge | null
+  team: TeamMember[] = []
+  // per-tick behaviours for recruited agents; see TeamBehaviour
+  teamBehaviours: TeamBehaviour[] = []
+  peeks: Peek[] = []
+  confetti: Confetti[] = []
+  hides: Partial<Record<Role, HTMLDetailsElement>> = {}
+  flyby = 0
+  notHereAt = -9999
+  hitTracked = false
+  printing = false
+  // a line to say on respawn instead of the usual one
+  afterRespawn = ''
+  // the AGI boss (boss.ts) and the team's own effects (team.ts)
+  boss: Boss | null = null
+  crew: Crew = { shots: [], glyphs: [], rockets: [], lx: 0, ly: 0, vx: 0, vy: 0, plan: 0 }
 
-  constructor(refs: GameRefs, ctx: CanvasRenderingContext2D, getSection: () => string) {
+  constructor(refs: GameRefs, ctx: CanvasRenderingContext2D, getSection: () => string, bridge: QuestBridge | null) {
+    this.bridge = bridge
     this.pet = refs.pet
     this.canvas = refs.canvas
     this.ctx = ctx
@@ -153,12 +176,16 @@ export class Game {
     this.sizeFx()
   }
 
+  // The CSS size follows the bitmap, so drawing stays 1:1 with clientX/clientY under a dynamic toolbar.
   sizeFx(): void {
-    this.fx.width = this.W; this.fx.height = this.H;
+    this.fx.width = this.W; this.fx.height = this.H
+    this.fx.style.width = this.W + 'px'; this.fx.style.height = this.H + 'px'
   }
 
   start(): void {
-    this.unbind = bindInput(this)
+    const unInput = bindInput(this), unQuest = bindQuest(this), unBoss = bindBoss(this)
+    this.unbind = () => { unInput(); unQuest(); unBoss() }
+    initQuest(this)
     this.raf = requestAnimationFrame(now => frame(this, now))
   }
 
@@ -168,8 +195,8 @@ export class Game {
     this.unbind?.()
     this.unbind = null
     clearTimeout(this.rageTO)
-    this.rageEl.classList.remove('rage--on')
-    document.documentElement.classList.remove('robot-grab', 'robot-grabbing')
+    this.rageEl.classList.remove('rage--on', 'rage--brand')
+    document.documentElement.classList.remove('robot-grab', 'robot-grabbing', 'robot-point')
   }
 
   // Drawn size: the random growth plus inflation from hits.
@@ -177,8 +204,9 @@ export class Game {
     return Math.min(MAX_SIZE, this.scale + this.puff * 1.3)
   }
 
+  // About the sprite's own half-width, so presses beside it reach the page underneath.
   hitR(): number {
-    return 30 * this.size() * this.DS + this.tapPad
+    return 16 * this.size() * this.DS + this.tapPad
   }
 
   kick(amt: number): void {
@@ -196,15 +224,16 @@ export class Game {
     if (this.asleep) { this.asleep = false; this.say(pick(wakeLines), 180) }
   }
 
-  // Peak-anger screen flash: orange tint and faint blur over the whole viewport.
-  rage(): void {
+  // Peak-anger screen flash: orange tint and faint blur over the whole viewport; `brand` mixes in the cyan and blue.
+  rage(brand = false): void {
     const el = this.rageEl;
     el.classList.remove('rage--on');
+    el.classList.toggle('rage--brand', brand);
     // reflow restarts the animation when re-triggered
     void el.offsetWidth;
     el.classList.add('rage--on');
     clearTimeout(this.rageTO);
-    this.rageTO = setTimeout(() => { el.classList.remove('rage--on'); }, 2600);
+    this.rageTO = setTimeout(() => { el.classList.remove('rage--on', 'rage--brand'); }, 2600);
   }
 
   say(txt: string, dur?: number): void {
@@ -224,6 +253,8 @@ function frame(g: Game, now: number): void {
   g.lastNow = now;
   let n = 0;
   while (g.acc >= STEP - 1.5 && n < 3) { g.acc = Math.max(0, g.acc - STEP); tick(g); n++; }
+  // below 20 fps the backlog is dropped, or it would replay later at triple speed
+  if (n === 3) g.acc = Math.min(g.acc, STEP);
   g.raf = requestAnimationFrame(t => frame(g, t));
 }
 
@@ -231,7 +262,7 @@ function respawn(g: Game): void {
   g.pos.x = g.W * 0.8; g.pos.y = g.H * 0.48; g.tgt.x = g.pos.x; g.tgt.y = g.pos.y; g.prevX = g.pos.x; g.prevY = g.pos.y;
   g.scale = 1; g.scaleTarget = 1; g.krot = 0; g.kvx = 0; g.kvy = 0;
   g.curForm = 'robot'; g.morphFlash = MORPH; magic(g);
-  g.angryT = 300; g.say(pick(respawnLines), 240);
+  g.angryT = 300; g.say(g.afterRespawn || pick(respawnLines), 240); g.afterRespawn = '';
 }
 
 function drawPet(g: Game): void {
@@ -275,7 +306,7 @@ function tick(g: Game): void {
 
   if (g.gone > 0) {
     if (--g.gone === 0) respawn(g);
-    drawPet(g); renderFx(g, recent);
+    tickQuest(g); drawPet(g); renderFx(g, recent); drawQuest(g);
     return;
   }
 
@@ -283,13 +314,13 @@ function tick(g: Game): void {
   else if (g.petAcc > 0 && g.t - g.petT > 300) g.petAcc = 0;
 
   // Falls asleep after a long stretch with no input, sooner at night.
-  if (!g.asleep && g.t - g.lastInput > (g.night ? 900 : 1800) && g.knockT <= 0 && !g.held && !g.trend && g.attackT <= 0 && g.angryT <= 0 && g.puff < 0.05) {
+  if (!g.asleep && g.t - g.lastInput > (g.night ? 900 : 1800) && g.knockT <= 0 && !g.held && !g.trend && g.attackT <= 0 && g.angryT <= 0 && g.puff < 0.05 && !g.boss) {
     g.asleep = true; g.say(pick(sleepLines), 200);
   }
   const calm = !g.asleep && !g.held;
 
   // No trends while angry: the visitor is the target.
-  if (calm && --g.trendCD <= 0 && !g.trend && g.knockT <= 0 && g.angryT <= 0) spawnTrend(g);
+  if (calm && !g.boss && --g.trendCD <= 0 && !g.trend && g.knockT <= 0 && g.angryT <= 0) spawnTrend(g);
   updateTrendMotion(g);
 
   scheduleAttack(g, recent);
@@ -297,6 +328,8 @@ function tick(g: Game): void {
   let mode: Mode, lerp = 0.05;
   if (g.held && g.press) mode = 'held';
   else if (g.knockT > 0) mode = 'knock';
+  else if (g.flyby > 0) { mode = 'idle'; lerp = flybyTarget(g); }
+  else if (bossFighting(g)) { mode = 'idle'; lerp = bossRobotTarget(g); }
   else if (g.trend && g.angryT <= 0) { mode = 'chase'; lerp = chaseTarget(g); }
   else if (g.attackT > 0) { mode = 'attack'; lerp = runAttack(g, recent); }
   else { mode = 'idle'; lerp = idleTarget(g); }
@@ -332,6 +365,7 @@ function tick(g: Game): void {
   if (mode === 'attack') g.dir = (g.mouseX < g.pos.x ? -1 : 1);
   else if (mode === 'chase') g.dir = (g.trend!.x < g.pos.x ? -1 : 1);
   else if (dx < -0.4) g.dir = -1; else if (dx > 0.4) g.dir = 1;
+  if (g.boss && mode === 'idle' && g.flyby <= 0 && Math.abs(dx) < 1.5) g.dir = g.boss.x < g.pos.x ? -1 : 1;
 
   resolveBeam(g, recent);
   updateBullets(g, recent);
@@ -359,7 +393,7 @@ function tick(g: Game): void {
   // The cursor turns into a hand over the robot and a fist while holding it.
   if (!g.coarse) {
     const over = g.t - g.lastMove < 600 && Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR();
-    const cur = g.held ? 'robot-grabbing' : (over ? 'robot-grab' : '');
+    const cur = g.held ? 'robot-grabbing' : (over ? 'robot-grab' : ((g.peeks.length && g.t - g.lastMove < 600 && peekAt(g, g.mouseX, g.mouseY)) || (g.boss && g.t - g.lastMove < 600 && bossAt(g, g.mouseX, g.mouseY)) ? 'robot-point' : ''));
     if (cur !== g.cursor) {
       const cl = document.documentElement.classList;
       if (g.cursor) cl.remove(g.cursor);
@@ -381,13 +415,15 @@ function tick(g: Game): void {
     }
   }
   if (g.morphFlash > 0) g.morphFlash--;
-  g.st = mode === 'knock' ? 'knock' : (mode === 'held' || g.angryT > 0 ? 'mad' : (mode === 'attack' || g.beamAt > 0 ? 'attack' : (mode === 'chase' || g.t - g.petT < 30 ? 'happy' : 'idle')));
+  g.st = mode === 'knock' ? 'knock' : (mode === 'held' || g.angryT > 0 ? 'mad' : (mode === 'attack' || g.beamAt > 0 || bossFighting(g) ? 'attack' : (mode === 'chase' || g.flyby > 0 || g.t - g.petT < 30 ? 'happy' : 'idle')));
   g.closed = g.asleep || g.t % 200 < 7;
   g.moving = spd > 1 && mode !== 'knock' && mode !== 'held';
   drawPet(g);
 
+  tickQuest(g);
   renderSparks(g);
   renderFx(g, recent);
+  drawQuest(g);
 
   // A section seen for the first time queues its line.
   if (g.t % 30 === 0) {
@@ -395,7 +431,7 @@ function tick(g: Game): void {
     if (s !== g.lastSection) { g.lastSection = s; if (!g.seenSections.has(s) && SECTION_LINES[s]) g.pendingSection = s; }
   }
   // calm moments only: a tutorial hint first, then section lines, then a rare random quip
-  if (mode !== 'knock' && mode !== 'attack' && mode !== 'held' && !g.asleep && g.bubble.hidden && g.t > g.bubbleUntil + 60) {
+  if (mode !== 'knock' && mode !== 'attack' && mode !== 'held' && !g.asleep && !g.boss && g.bubble.hidden && g.t > g.bubbleUntil + 60) {
     // hints may interrupt a trend chase; section lines wait until the first hint has had its moment
     if (!calmHint(g) && !g.trend) {
       if (g.pendingSection && g.t > 720) {
@@ -411,13 +447,13 @@ function tick(g: Game): void {
 
 let game: Game | null = null
 
-// Builds nothing under reduced motion or without a 2D context.
-export function start(refs: GameRefs, getSection: () => string): void {
+// Builds nothing under reduced motion or without a 2D context; `bridge` carries quest state out to the HUD.
+export function start(refs: GameRefs, getSection: () => string, bridge: QuestBridge | null = null): void {
   destroy()
   if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   const ctx = refs.canvas.getContext('2d')
   if (!ctx) return
-  game = new Game(refs, ctx, getSection)
+  game = new Game(refs, ctx, getSection, bridge)
   game.start()
 }
 

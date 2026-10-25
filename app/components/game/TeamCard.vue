@@ -1,0 +1,359 @@
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { mdiClose, mdiLinkedin } from '@mdi/js'
+import { ROLES, drawAgent } from '~/game/agents'
+import type { GameStats } from '~/game/stats-client'
+import { track } from '~/utils/track'
+import PnIcon from '~/components/ui/PnIcon.vue'
+
+const props = defineProps<{ open: boolean, ms: number | null, stats: GameStats | null }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+const LINKEDIN = 'https://www.linkedin.com/in/ivebotunac'
+const X = 'https://x.com/ivebotunac'
+// The X logo; @mdi/js only has the old Twitter bird.
+const X_LOGO = 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'
+const PDF = '/ive-botunac-cv.pdf'
+const FOCUSABLE = 'a[href], button:not([disabled])'
+
+const dialogEl = ref<HTMLDialogElement | null>(null)
+const teamEl = ref<HTMLCanvasElement | null>(null)
+const titleId = useId()
+let opener: HTMLElement | null = null
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+// 3:42 under an hour, 1:02:03 under a day, then whole days.
+const time = computed(() => {
+  if (props.ms === null) return ''
+  const s = Math.round(props.ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60)
+  if (h >= 24) { const d = Math.round(h / 24); return `${d} ${d === 1 ? 'day' : 'days'}` }
+  return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`
+})
+
+const globalLine = computed(() => {
+  const s = props.stats
+  if (!s) return ''
+  if (s.rank) return `You're #${s.rank} to do it` + (s.fasterThanPct !== null ? `, faster than ${Math.round(s.fasterThanPct)}% of them.` : '.')
+  if (s.teams > 0) return `${s.teams} ${s.teams === 1 ? 'visitor has' : 'visitors have'} assembled the team so far.`
+  return ''
+})
+
+// The whole team in a row, drawn once with the game's own sprites.
+function paintTeam() {
+  const c = teamEl.value?.getContext('2d')
+  if (!c) return
+  c.clearRect(0, 0, 264, 44)
+  ROLES.forEach((r, i) => drawAgent(c, r, 22 + i * 44, 22, 2, 1, 0, i))
+}
+
+function show() {
+  const d = dialogEl.value
+  if (!d || d.open) return
+  opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null
+  d.showModal()
+  paintTeam()
+  nextTick(() => d.querySelector<HTMLElement>(FOCUSABLE)?.focus())
+}
+
+function shut() {
+  const d = dialogEl.value
+  if (d?.open) d.close()
+  if (opener && document.contains(opener)) opener.focus({ preventScroll: true })
+  opener = null
+}
+
+watch(() => props.open, (v) => { confirming.value = false; if (v) show(); else shut() }, { flush: 'post' })
+
+onBeforeUnmount(() => { if (dialogEl.value?.open) dialogEl.value.close() })
+
+const cta = (name: 'linkedin' | 'x' | 'cv_pdf' | 'close' | 'fight_agi') => track('cta_click', { cta: name })
+
+function dismiss() {
+  cta('close')
+  emit('close')
+}
+
+// The boss is wired elsewhere; it listens for this event once the card is out of the way.
+function fight() {
+  cta('fight_agi')
+  emit('close')
+  nextTick(() => window.dispatchEvent(new CustomEvent('game:fight-agi')))
+}
+
+// Restart asks once more, then clears this device's game and closes the card.
+const confirming = ref(false)
+function restart() {
+  confirming.value = false
+  emit('close')
+  nextTick(() => window.dispatchEvent(new CustomEvent('game:restart')))
+}
+
+// Esc: cancelled so the parent's state stays the one source of truth.
+function onCancel(e: Event) {
+  e.preventDefault()
+  dismiss()
+}
+
+// A click on the dialog element itself is a click on the backdrop.
+function onClick(e: MouseEvent) {
+  if (e.target === dialogEl.value) dismiss()
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Tab') return
+  const items = [...(dialogEl.value?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])]
+  if (!items.length) return
+  const first = items[0]!, last = items[items.length - 1]!
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+}
+</script>
+
+<template>
+  <dialog
+    ref="dialogEl"
+    class="tcard"
+    role="dialog"
+    aria-modal="true"
+    :aria-labelledby="titleId"
+    data-game-ui
+    @cancel="onCancel"
+    @close="open && emit('close')"
+    @click="onClick"
+    @keydown="onKeydown"
+  >
+    <div class="tcard__frame">
+      <canvas ref="teamEl" class="tcard__team" width="264" height="44" aria-hidden="true" />
+      <p class="tcard__kicker">6/6 sub-agents recruited</p>
+      <h2 :id="titleId" class="tcard__title">Team assembled<template v-if="time"> in {{ time }}</template></h2>
+      <p v-if="globalLine" class="tcard__line">{{ globalLine }}</p>
+      <p class="tcard__body">Five of them were hiding in the CV, so you have read more of it than most. Thanks for that.</p>
+      <div class="tcard__actions">
+        <div class="tcard__social">
+          <a class="tcard__btn tcard__btn--linkedin" :href="LINKEDIN" target="_blank" rel="noopener" @click="cta('linkedin')">
+            <PnIcon :path="mdiLinkedin" :size="22" /><span class="tcard__net"><small>Follow me on</small>LinkedIn</span>
+          </a>
+          <a class="tcard__btn tcard__btn--x" :href="X" target="_blank" rel="noopener" @click="cta('x')">
+            <PnIcon :path="X_LOGO" :size="18" /><span class="tcard__net"><small>Follow me on</small>X</span>
+          </a>
+        </div>
+        <a class="tcard__btn" :href="PDF" download @click="cta('cv_pdf')">Download the CV (PDF)</a>
+        <button type="button" class="tcard__btn tcard__btn--fight" @click="fight">Fight AGI</button>
+      </div>
+      <p class="tcard__reset">
+        <button v-if="!confirming" type="button" class="tcard__reset-btn" @click="confirming = true">Restart game</button>
+        <template v-else>
+          Clear your team and records on this device?
+          <button type="button" class="tcard__reset-btn tcard__reset-btn--go" @click="restart">Restart</button>
+          <button type="button" class="tcard__reset-btn" @click="confirming = false">Cancel</button>
+        </template>
+      </p>
+      <!-- Last in the DOM so the first Tab lands on LinkedIn, drawn in the top corner. -->
+      <button type="button" class="tcard__close" aria-label="Close" @click="dismiss">
+        <PnIcon :path="mdiClose" :size="20" />
+      </button>
+    </div>
+  </dialog>
+</template>
+
+<style scoped>
+.tcard {
+  width: min(380px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--pn-border-brand);
+  border-radius: 0;
+  background-color: var(--pn-surface);
+  color: var(--pn-text);
+  box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
+  font-family: var(--pn-font);
+  overflow: auto;
+}
+
+.tcard::backdrop {
+  background-color: var(--pn-scrim);
+}
+
+.tcard__frame {
+  position: relative;
+  padding: 22px 22px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.tcard__team {
+  display: block;
+  width: 264px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 14px;
+  image-rendering: pixelated;
+}
+
+.tcard__kicker {
+  margin: 0 0 6px;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  /* the deeper orange: --pn-accent-text is about 3.1:1 on white at this size */
+  color: var(--pn-primary-600);
+}
+
+.tcard__title {
+  margin: 0;
+  font-family: var(--pn-font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--pn-text);
+}
+
+.tcard__line {
+  margin: 10px 0 0;
+  font-size: .84rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--pn-text);
+}
+
+.tcard__body {
+  margin: 10px 0 0;
+  font-size: .82rem;
+  line-height: 1.5;
+  color: var(--pn-text-muted);
+}
+
+.tcard__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.tcard__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--pn-border-brand);
+  border-radius: 0;
+  background-color: var(--pn-surface);
+  color: var(--pn-text);
+  font: 500 .8rem/1.2 var(--pn-font);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--pn-motion-fast) var(--pn-ease-out), box-shadow var(--pn-motion-fast) var(--pn-ease-out);
+}
+
+.tcard__btn:hover {
+  border-color: var(--pn-link);
+  box-shadow: 3px 3px 0 0 var(--pn-shadow-offset-hover);
+}
+
+.tcard__btn:focus-visible {
+  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
+  outline-offset: var(--pn-focus-offset);
+}
+
+/* Side by side, the network name under a small "Follow me on". */
+.tcard__social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tcard__social .tcard__btn {
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 50px;
+  padding: 6px 12px;
+  color: #fff;
+}
+
+.tcard__net {
+  display: grid;
+  text-align: left;
+  font-size: .84rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tcard__net small {
+  font-size: .66rem;
+  font-weight: 400;
+  opacity: .85;
+}
+
+/* The networks' own colours. */
+.tcard__btn--linkedin { background-color: #0a66c2; border-color: #0a66c2; }
+.tcard__btn--x { background-color: #000; border-color: #000; }
+.tcard__btn--linkedin:hover { border-color: #0a66c2; }
+.tcard__btn--x:hover { border-color: #000; }
+
+/* Ink on the brand orange; white on it would fail contrast. */
+.tcard__btn--fight {
+  background-color: var(--pn-accent-ui);
+  border-color: var(--pn-text);
+  color: var(--pn-text);
+  font-weight: 600;
+}
+
+.tcard__btn--fight:hover { border-color: var(--pn-text); }
+
+.tcard__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--pn-error-text);
+  cursor: pointer;
+}
+
+.tcard__close:hover {
+  border-color: var(--pn-error);
+  background-color: rgba(224, 72, 63, 0.08);
+}
+
+.tcard__close:focus-visible {
+  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
+  outline-offset: var(--pn-focus-offset);
+}
+
+.tcard__reset {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--pn-border);
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--pn-text-secondary);
+}
+
+.tcard__reset-btn {
+  min-height: 32px;
+  margin-right: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--pn-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.tcard__reset-btn:hover { color: var(--pn-link); }
+.tcard__reset-btn--go { margin-left: 8px; color: var(--pn-primary-600); font-weight: 600; }
+
+@media print {
+  .tcard { display: none !important; }
+}
+</style>

@@ -65,12 +65,13 @@ export const missLines: string[] = ['missed. recalibrating…', 'lag. blame the 
 export const stealLines: string[] = ['Hey! That trend was MINE.', 'Give it back, human!', 'Stealing my trends? rude.', 'That\'s MY alpha, attack mode on.', 'You\'ll regret that catch.']
 export const caughtTpl: string[] = ['Caught the ', 'Acquired: ', 'Shipped: ']
 // The tutorial, one skill at a time; `touch` replaces `mouse` on phones.
-export const TUT_LINES: Record<'hit' | 'juggle' | 'pop' | 'throw' | 'pet', { mouse: string, touch: string }> = {
+export const TUT_LINES: Record<'hit' | 'juggle' | 'pop' | 'throw' | 'pet' | 'team', { mouse: string, touch: string }> = {
   hit: { mouse: 'psst. click me.', touch: 'psst. tap me.' },
   juggle: { mouse: 'hit me again before I land!', touch: 'tap me again before I land!' },
   pop: { mouse: 'careful. every hit inflates me.', touch: 'careful. every hit inflates me.' },
   throw: { mouse: 'fine. now grab me, drag, and let go.', touch: 'fine. now hold me, drag, and let go.' },
-  pet: { mouse: 'or be nice: move slowly over me.', touch: '' }
+  pet: { mouse: 'or be nice: move slowly over me.', touch: '' },
+  team: { mouse: 'psst. my sub-agents ran off into the CV. open a few rows to find them.', touch: 'psst. my sub-agents ran off into the CV. open a few rows to find them.' }
 }
 export const welcomeLines: string[] = ['welcome back, human.', 'oh. you again.', 'back for more?']
 export const welcomePopLines: string[] = ['welcome back. I still remember the pop.', 'oh, it\'s the one who popped me.']
@@ -109,6 +110,28 @@ export const SECTION_LINES: Record<string, string[]> = {
   certifications: ['he\'s certified. I\'m certifiable.', 'gotta collect them all.'],
   skills: ['I\'m not on this list. rude.', 'skills: plenty. punching robots: please no.']
 }
+// The quest: `{r}` is a role, `{s}` a CV section.
+export const peekLines: { mouse: string[], touch: string[] } = {
+  mouse: ['there\'s my {r}! click it.', 'found the {r}. grab it, quick!', 'my {r}! click before it hides.'],
+  touch: ['there\'s my {r}! tap it.', 'found the {r}. tap it, quick!', 'my {r}! tap before it hides.']
+}
+export const notHereLines: string[] = ['not here. try another row in {s}.', 'warm… but not this row. {s} still hides one.', 'nope. someone\'s hiding elsewhere in {s}.']
+export const recruitLines: string[] = ['{r} reporting for duty.', '{r} is back on the team.', 'found my {r}. good human.', '{r} recruited.']
+export const lastAgentLine = 'one left: the {r}, somewhere in {s}.'
+export const lastDeployerLine = 'one left: the Deployer. it only shows up when I pop.'
+export const deployerLines: string[] = ['the Deployer! it only comes out when things blow up.', 'something exploded, so the Deployer showed up.']
+export const teamDoneLines: string[] = ['team assembled. orchestration online.', 'all six agents. now we\'re dangerous.', 'full team. we ship at dawn.']
+export const restartLines: string[] = ['factory reset complete. who are you again?', 'fresh start. my agents ran off again.', 'memory wiped. the team is hiding again.']
+// The recruited team's small talk.
+export const reviewLines: string[] = ['LGTM', 'nit: rename this', 'needs tests', 'approved ✓', 'ship it', 'nit: typo', 'left 1 comment', 'why not a const?']
+export const bossReviewLines: string[] = ['changes requested', 'REJECTED', 'blocking: AGI', 'needs alignment']
+// The AGI boss.
+export const bossStartLines: string[] = ['AGI incoming. team, assemble!', 'it\'s here. everyone, attack!', 'AGI arrived early. fight it!']
+export const bossHalfLines: string[] = ['it\'s adapting. keep hitting!', 'half way. don\'t stop now.', 'it\'s scaling. so are we.']
+export const bossWinLines: string[] = ['AGI defeated. back to being a CV.', 'we beat AGI. put that on the CV.', 'alignment achieved. by force.']
+export const bossLeaveLines: string[] = ['AGI got bored and left. the HUD can call it back.', 'it wandered off. fight it again from the HUD.']
+export const CONFETTI: string[] =['#ff5a1f', '#36c6e0', '#0b6bcb', '#9b6bff', '#ffd23b', '#3b7cc0']
+
 export const trends: string[] = ['Agentic AI', 'Reasoning models', 'World models', 'Multi-agent', 'MCP', 'Computer use', 'Test-time compute', 'Vision-Language-Action', 'On-device AI', 'Physical AI', 'Voice agents', 'Long context', 'Mixture-of-Experts', 'Synthetic data', 'RAG 2.0', 'Inference scaling']
 
 // The one-liner each form says on morph.

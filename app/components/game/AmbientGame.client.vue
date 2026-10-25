@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
+import { getGameStats, postGameEvent } from '~/game/stats-client'
+import type { GameStats } from '~/game/stats-client'
+import type { QuestBridge, QuestView } from '~/game/types'
 import { useActiveSection } from '~/composables/useActiveSection'
+import QuestHud from './QuestHud.vue'
+import TeamCard from './TeamCard.vue'
 
 // The game says a line when a CV section first comes into view.
 const activeSection = useActiveSection()
@@ -16,12 +21,32 @@ const petEl = ref<HTMLElement | null>(null)
 const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
+// The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
+const quest = reactive<QuestView>({ team: [], visible: false, done: false, ms: null, boss: false })
+const announce = ref('')
+const cardOpen = ref(false)
+const stats = ref<GameStats | null>(null)
+
+const openCard = () => {
+  cardOpen.value = true
+  if (!stats.value) getGameStats().then((s) => { if (s && !stats.value) stats.value = s })
+}
+
+const bridge: QuestBridge = {
+  view: v => Object.assign(quest, v),
+  announce: (text) => { announce.value = text },
+  // A fresh finish posts its time, and the answer carries this visitor's rank.
+  finished: (ms) => { postGameEvent('team', ms).then((s) => { if (s) stats.value = s }) },
+  // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
+  complete: () => { if (!quest.boss) cardOpen.value = true }
+}
+
 onMounted(async () => {
   mounted.value = true
   await nextTick()
   const [rage, fx, trend, pet, bubble, canvas] = [rageEl.value, fxEl.value, trendEl.value, petEl.value, bubbleEl.value, canvasEl.value]
   if (!rage || !fx || !trend || !pet || !bubble || !canvas) return
-  start({ pet, canvas, bubble, trend, fx, rage }, () => activeSection.value)
+  start({ pet, canvas, bubble, trend, fx, rage }, () => activeSection.value, bridge)
 })
 
 onUnmounted(destroy)
@@ -38,6 +63,11 @@ onUnmounted(destroy)
         <div ref="bubbleEl" class="pet__bubble" hidden />
         <canvas ref="canvasEl" class="pet__canvas" width="220" height="220" />
       </div>
+    </div>
+    <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
+    <div class="quest">
+      <QuestHud :team="quest.team" :visible="quest.visible" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
+      <TeamCard :open="cardOpen" :ms="quest.ms" :stats="stats" @close="cardOpen = false" />
     </div>
   </Teleport>
 </template>
@@ -180,6 +210,11 @@ onUnmounted(destroy)
   animation: rageFlash 2.5s ease-out both;
 }
 
+/* The boss defeat: the same flash in the brand cyan, blue and orange. */
+.rage--brand {
+  background: radial-gradient(125% 125% at 50% 40%, rgba(54, 198, 224, 0.22) 0%, rgba(11, 107, 203, 0.30) 55%, rgba(255, 90, 31, 0.50) 100%);
+}
+
 @keyframes rageFlash {
   0% { opacity: 0; }
   10% { opacity: 1; }
@@ -215,13 +250,15 @@ onUnmounted(destroy)
 }
 
 @media print {
-  .ambient {
+  .ambient,
+  .quest {
     display: none !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient {
+  .ambient,
+  .quest {
     display: none !important;
   }
 }
@@ -237,5 +274,11 @@ html.robot-grab * {
 html.robot-grabbing,
 html.robot-grabbing * {
   cursor: grabbing !important;
+}
+
+/* Over a sub-agent waiting to be recruited. */
+html.robot-point,
+html.robot-point * {
+  cursor: pointer !important;
 }
 </style>

@@ -85,8 +85,18 @@ useSchemaOrg([
           </li>
           <li>
             <strong>The robot game:</strong> the little robot remembers, in your browser’s local storage, which tricks
-            you have tried, your best combo and how often you have visited. That record never leaves your browser;
-            clearing the site’s data deletes it.
+            you have tried, your best combo, how many times you have popped it, how often you have visited, which
+            sub-agents you found, when you found the first one and how long the whole team took, and your best boss
+            time. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
+            site-wide totals described next, and game events (hits, pops, agents found, the team time, boss fights and
+            their times, and clicks on the team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
+          </li>
+          <li>
+            <strong>Game counters:</strong> the game sends anonymous events (a pop, or a finished team with its time)
+            to our server, which adds them to site-wide totals stored in Google Cloud Firestore. No identifier or IP
+            address is stored in Firestore; the IP address is held in memory for about ten minutes only to stop abuse,
+            under our legitimate interest (Art. 6(1)(f) GDPR), and the request itself appears in the hosting logs
+            described under Visits.
           </li>
           <li>
             <strong>Email you send us:</strong> your address, name and message, used to reply (Art. 6(1)(b) and (f)
@@ -98,7 +108,8 @@ useSchemaOrg([
         <h2 id="recipients">Who Receives It</h2>
         <ul>
           <li>
-            <strong>Google Cloud</strong> (Firebase App Hosting) hosts the site and keeps the request logs.
+            <strong>Google Cloud</strong> (Firebase App Hosting and Firestore) hosts the site, keeps the request logs
+            and stores the game totals.
             <a href="https://cloud.google.com/terms/cloud-privacy-notice" target="_blank" rel="noopener">Google Cloud Privacy Notice</a>
           </li>
           <li>

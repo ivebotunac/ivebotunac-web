@@ -49,6 +49,9 @@ export default defineNuxtConfig({
     indexable: false
   },
 
+  // The PDF CV's source page is not for search.
+  sitemap: { exclude: ['/cv-print'] },
+
   robots: {
     allow: ['/'],
     sitemap: ['/sitemap.xml']
@@ -103,6 +106,8 @@ export default defineNuxtConfig({
     // Enable prerendering for public pages (SEO)
     '/': { prerender: true, headers: htmlCache },
     '/privacy-policy': { prerender: true, headers: htmlCache },
+    // The PDF CV's source page: built so the script can print it; the page itself says noindex.
+    '/cv-print': { prerender: true },
   },
 
   nitro: {

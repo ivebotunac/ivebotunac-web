@@ -12,7 +12,8 @@
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
     "postinstall": "nuxt prepare",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "cv:pdf": "node scripts/cv-pdf.mjs"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
@@ -20,6 +21,7 @@
     "@nuxt/image": "^1.11.0",
     "@nuxtjs/robots": "^5.7.1",
     "@nuxtjs/sitemap": "^7.6.0",
+    "firebase-admin": "^14.2.0",
     "nuxt": "~4.4.8",
     "nuxt-schema-org": "^5.0.10",
     "nuxt-vitalizer": "^2.0.0",
@@ -28,6 +30,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
     "eslint": "^9.39.5",
+    "playwright-core": "1.62.1",
     "typescript": "~5.9.3",
     "vue-tsc": "^3.3.11"
   }

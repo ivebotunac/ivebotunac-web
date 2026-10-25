@@ -69,11 +69,12 @@ export function renderSparks(g: Game): void {
   ctx.globalAlpha = 1;
 }
 
-// Screen-space layer: lasers, bursts, bullets, balls, debris, rings, popups.
+// Screen-space layer: lasers, bursts, bullets, balls, debris, rings, popups. The quest, the team and the boss draw on top after it.
 export function renderFx(g: Game, recent: boolean): void {
   const fxc = g.fxc; if (!fxc) return;
   const W = g.W, H = g.H;
-  const anyFx = g.beams.length || g.fxp.length || g.bullets.length || g.balls.length || g.debris.length || g.rings.length || g.popups.length;
+  const anyFx = g.beams.length || g.fxp.length || g.bullets.length || g.balls.length || g.debris.length || g.rings.length || g.popups.length
+    || g.team.length || g.peeks.length || g.confetti.length || g.boss || g.crew.shots.length || g.crew.rockets.length || g.crew.glyphs.length;
   if (anyFx || g.fxActive) fxc.clearRect(0, 0, W, H);
   g.fxActive = !!anyFx;
   for (let b = g.beams.length - 1; b >= 0; b--) {
