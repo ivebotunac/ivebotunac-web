@@ -1,78 +1,79 @@
-// The boss's shots burn letters out of the CV for a while: the glyph goes transparent in place and drops as pixels.
+// The boss's shots burn letters out of the CV for a while: each letter flares, burns in pixel flame, then leaves soot.
 // Only the visitor's own DOM changes, never the served HTML, and every letter heals: on a timer, on a win, before print.
 import { fxBurst } from './effects'
 import type { Game } from './core'
 
 const CLASS = 'ib-burnt'
-// Letters stay burnt this long (ticks at 60 Hz), and the page never holds more than MAX at once.
-const HEAL = 900
-const MAX = 160
-// Sample points around an impact, in pixels from its centre: a crater about seven letters wide and three lines tall.
-const SPREAD: [number, number][] = []
-for (let dy = -16; dy <= 16; dy += 8) {
-  const w = 28 - Math.abs(dy)
-  for (let dx = -w; dx <= w; dx += 7) SPREAD.push([dx, dy])
-}
+// Letters stay out this long (ticks at 60 Hz), burn in flame for the first FLAME of it, and at most MAX are out at once.
+const HEAL = 1500
+const FLAME = 200
+const MAX = 260
 // Text that must stay whole: links and buttons, headings that name a section, the game's own UI.
 const KEEP = 'a, button, input, label, h1, h2, script, style, [data-game-ui], .cv-tog'
-const ASH = ['#0c2236', '#213b54', '#3b7cc0', '#ff5a1f']
+const ASH = ['#0c2236', '#213b54', '#3b7cc0', '#ff5a1f', '#ffd23b']
+// Flame pixels cool from white-hot to smoke as they rise.
+const HEAT = ['#fff6c2', '#ffd23b', '#ffa51f', '#ff5a1f', '#d7381b', '#7a2414', '#3a2a2a']
+const PX = 3
 
-interface Burn { span: HTMLSpanElement, healAt: number }
+interface Burn { span: HTMLSpanElement, born: number, healAt: number }
+interface Flame { x: number, y: number, vx: number, vy: number, life: number, max: number }
 const burns: Burn[] = []
-
-function caretAt(x: number, y: number): { node: Text, offset: number } | null {
-  if (typeof document.caretPositionFromPoint === 'function') {
-    const p = document.caretPositionFromPoint(x, y)
-    return p && p.offsetNode instanceof Text ? { node: p.offsetNode, offset: p.offset } : null
-  }
-  // Safari before 18.4 only has the older call
-  const r = document.caretRangeFromPoint?.(x, y)
-  return r && r.startContainer instanceof Text ? { node: r.startContainer, offset: r.startOffset } : null
-}
+const flames: Flame[] = []
 
 const range = typeof document === 'undefined' ? null : document.createRange()
-const inBox = (b: DOMRect, x: number, y: number) => x >= b.left - 1 && x <= b.right + 1 && y >= b.top - 1 && y <= b.bottom + 1
 
-function isLetter(node: Text, i: number, x: number, y: number): boolean {
-  if (!range || i < 0 || i >= node.data.length || /\s/.test(node.data[i]!)) return false
-  range.setStart(node, i); range.setEnd(node, i + 1)
-  return inBox(range.getBoundingClientRect(), x, y)
-}
-
-// The caret sits between letters, so the letter is whichever side's box holds the point. Inside a <summary>
-// Chrome answers with the element, not the text, so those rows fall back to a scan of the text under the point.
-function letterAt(x: number, y: number): { node: Text, i: number } | null {
-  const c = caretAt(x, y)
-  if (c) {
-    for (const i of [c.offset, c.offset - 1]) if (isLetter(c.node, i, x, y)) return { node: c.node, i }
-    return null
+// Every letter whose centre lies within r of the impact, nearest first; lines count a little closer than columns.
+function lettersNear(x: number, y: number, r: number): { node: Text, i: number, d: number }[] {
+  if (!range) return []
+  const nodes = new Set<Text>()
+  for (let dy = -r; dy <= r; dy += 8) for (let dx = -r; dx <= r; dx += 8) {
+    const el = document.elementFromPoint(x + dx, y + dy)
+    if (!el || !el.closest('.cv') || el.closest(KEEP)) continue
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) nodes.add(n as Text)
   }
-  const el = document.elementFromPoint(x, y)
-  if (!el || !range) return null
-  const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-  for (let n = walk.nextNode() as Text | null; n; n = walk.nextNode() as Text | null) {
-    range.selectNodeContents(n)
-    if (!inBox(range.getBoundingClientRect(), x, y)) continue
-    for (let i = 0; i < n.data.length; i++) if (isLetter(n, i, x, y)) return { node: n, i }
+  const out: { node: Text, i: number, d: number }[] = []
+  for (const node of nodes) {
+    const el = node.parentElement
+    if (!el || el.classList.contains(CLASS) || el.closest(KEEP) || !node.data.trim()) continue
+    range.selectNodeContents(node)
+    const box = range.getBoundingClientRect()
+    if (box.right < x - r || box.left > x + r || box.bottom < y - r || box.top > y + r) continue
+    for (let i = 0; i < node.data.length; i++) {
+      if (/\s/.test(node.data[i]!)) continue
+      range.setStart(node, i); range.setEnd(node, i + 1)
+      const b = range.getBoundingClientRect()
+      const d = Math.hypot(b.left + b.width / 2 - x, (b.top + b.height / 2 - y) * 1.15)
+      if (d < r) out.push({ node, i, d })
+    }
   }
-  return null
+  return out.sort((a, b) => a.d - b.d)
 }
 
 function burnLetter(g: Game, node: Text, i: number): void {
-  const el = node.parentElement
-  if (!el || el.classList.contains(CLASS) || el.closest(KEEP) || !el.closest('.cv')) return
   const mid = node.splitText(i)
   mid.splitText(1)
   const span = document.createElement('span')
   span.className = CLASS
   mid.replaceWith(span)
   span.append(mid)
-  burns.push({ span, healAt: g.t + HEAL + ((Math.random() * 120) | 0) })
-  const b = span.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2
-  // the glyph falls as a few pixels of ash
-  for (let k = 0; k < 3; k++) {
-    g.debris.push({ x: cx + (Math.random() - 0.5) * b.width, y: cy + (Math.random() - 0.5) * b.height, vx: (Math.random() - 0.5) * 2.4, vy: -1 - Math.random() * 2, sz: 2 + ((Math.random() * 2) | 0), c: ASH[(Math.random() * ASH.length) | 0]!, life: 0, max: 120 + ((Math.random() * 80) | 0), landed: false })
+  burns.push({ span, born: g.t, healAt: g.t + HEAL + ((Math.random() * 240) | 0) })
+  const b = span.getBoundingClientRect()
+  // the glyph shatters into pixels that fall
+  for (let k = 0; k < 5; k++) {
+    g.debris.push({ x: b.left + Math.random() * b.width, y: b.top + Math.random() * b.height, vx: (Math.random() - 0.5) * 3.2, vy: -1.5 - Math.random() * 2.5, sz: 2 + ((Math.random() * 2) | 0), c: ASH[(Math.random() * ASH.length) | 0]!, life: 0, max: 120 + ((Math.random() * 90) | 0), landed: false })
   }
+}
+
+// One impact burns up to `most` letters within r; returns how many went.
+export function scorch(g: Game, x: number, y: number, r = 34, most = 22): number {
+  if (g.printing || !g.fxc) return 0
+  const hits = lettersNear(x, y, r).slice(0, Math.min(most, MAX - burns.length))
+  // from the end of each text node backwards, so a split never moves a letter still to burn
+  hits.sort((a, b) => b.i - a.i)
+  for (const h of hits) burnLetter(g, h.node, h.i)
+  if (hits.length) { fxBurst(g, x, y, 10, '#ffa51f'); fxBurst(g, x, y, 6, '#0c2236') }
+  return hits.length
 }
 
 // A random point inside a block of CV text on screen, for the shots that aim at the page instead of the cursor.
@@ -88,19 +89,6 @@ export function textTarget(g: Game): { x: number, y: number } | null {
   return { x: b.left + Math.random() * Math.min(b.width, 420), y: b.top + Math.random() * b.height }
 }
 
-// One impact burns the letters under it; returns how many went.
-export function scorch(g: Game, x: number, y: number): number {
-  if (g.printing || !g.fxc) return 0
-  let n = 0
-  for (const [dx, dy] of SPREAD) {
-    if (burns.length >= MAX) break
-    const hit = letterAt(x + dx, y + dy)
-    if (hit) { burnLetter(g, hit.node, hit.i); n++ }
-  }
-  if (n) fxBurst(g, x, y, 6, '#0c2236')
-  return n
-}
-
 function heal(g: Game | null, burn: Burn, sparkle: boolean): void {
   const { span } = burn
   if (sparkle && g && span.isConnected) {
@@ -114,14 +102,39 @@ function heal(g: Game | null, burn: Burn, sparkle: boolean): void {
   parent.normalize()
 }
 
-// Each letter heals on its own clock, or all at once from repairAll's wave.
+export const scorchBusy = (): boolean => flames.length > 0
+
+// Heals what is due, and feeds the flames of the letters still burning.
 export function tickScorch(g: Game): void {
   for (let i = burns.length - 1; i >= 0; i--) {
     const burn = burns[i]!
-    if (g.t < burn.healAt) continue
-    burns.splice(i, 1)
-    heal(g, burn, true)
+    if (g.t >= burn.healAt) { burns.splice(i, 1); heal(g, burn, true); continue }
+    const age = g.t - burn.born
+    // the fire dies down over FLAME ticks; a letter off screen feeds nothing
+    if (age > FLAME || flames.length > 700 || Math.random() > 0.75 * (1 - age / FLAME)) continue
+    const b = burn.span.getBoundingClientRect()
+    if (b.bottom < 0 || b.top > g.H) continue
+    flames.push({ x: b.left + Math.random() * b.width, y: b.bottom - Math.random() * b.height * 0.5, vx: (Math.random() - 0.5) * 0.5, vy: -0.7 - Math.random() * 0.9, life: 0, max: 18 + ((Math.random() * 18) | 0) })
   }
+  for (let i = flames.length - 1; i >= 0; i--) {
+    const f = flames[i]!
+    f.life++; f.x += f.vx + Math.sin((f.life + i) * 0.5) * 0.25; f.y += f.vy
+    if (f.life >= f.max) flames.splice(i, 1)
+  }
+}
+
+// Square pixels snapped to a 3px grid, so the fire reads as pixel art like the rest of the game.
+export function drawScorch(g: Game): void {
+  const c = g.fxc
+  if (!c || !flames.length) return
+  for (const f of flames) {
+    const k = f.life / f.max
+    c.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1
+    c.fillStyle = HEAT[Math.min(HEAT.length - 1, (k * HEAT.length) | 0)]!
+    const s = k < 0.35 ? PX : k < 0.7 ? PX - 1 : 2
+    c.fillRect(Math.round(f.x / PX) * PX, Math.round(f.y / PX) * PX, s, s)
+  }
+  c.globalAlpha = 1
 }
 
 // The team fixes the CV after a win: a wave from the top of the screen down over about a second.
@@ -134,5 +147,6 @@ export function repairAll(g: Game): void {
 
 // Before print, on restart and when the game stops: everything back at once, without effects.
 export function healNow(): void {
+  flames.length = 0
   for (const burn of burns.splice(0)) heal(null, burn, false)
 }

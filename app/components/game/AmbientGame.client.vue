@@ -279,11 +279,19 @@ html.robot-grabbing * {
   cursor: grabbing !important;
 }
 
-/* A letter the AGI burnt out (scorch.ts): the glyph keeps its width, a soot mark sits where it was. */
+/* A letter the AGI burnt out (scorch.ts): it flares in stepped orange, then a soot mark keeps its width; the flame is canvas. */
 .ib-burnt {
-  color: transparent !important;
-  text-shadow: none !important;
-  background: radial-gradient(circle at 50% 55%, rgba(12, 34, 54, .55) 0 22%, rgba(255, 90, 31, .28) 38%, transparent 68%);
+  color: transparent;
+  text-shadow: none;
+  background: radial-gradient(circle at 50% 55%, rgba(12, 34, 54, .6) 0 24%, rgba(122, 36, 20, .35) 40%, transparent 70%);
+  animation: ibIgnite .5s steps(4, end) both;
+}
+
+@keyframes ibIgnite {
+  0% { color: #fff6c2; background-color: rgba(255, 210, 59, .55); }
+  35% { color: #ffd23b; background-color: rgba(255, 90, 31, .45); }
+  70% { color: #ff5a1f; background-color: rgba(215, 56, 27, .25); }
+  100% { color: transparent; background-color: transparent; }
 }
 
 /* Over a sub-agent waiting to be recruited. */

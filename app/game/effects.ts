@@ -1,5 +1,6 @@
 // Particle factories plus the per-frame sparkle and fx-layer render passes.
 import { CX, CY, col, hitLines, pick } from './config'
+import { scorchBusy } from './scorch'
 import type { Game } from './core'
 
 export function emit(g: Game, n: number, spread: number): void {
@@ -74,7 +75,7 @@ export function renderFx(g: Game, recent: boolean): void {
   const fxc = g.fxc; if (!fxc) return;
   const W = g.W, H = g.H;
   const anyFx = g.beams.length || g.fxp.length || g.bullets.length || g.balls.length || g.debris.length || g.rings.length || g.popups.length
-    || g.team.length || g.peeks.length || g.confetti.length || g.boss || g.crew.shots.length || g.crew.rockets.length || g.crew.glyphs.length;
+    || g.team.length || g.peeks.length || g.confetti.length || g.boss || g.crew.shots.length || g.crew.rockets.length || g.crew.glyphs.length || scorchBusy();
   if (anyFx || g.fxActive) fxc.clearRect(0, 0, W, H);
   g.fxActive = !!anyFx;
   for (let b = g.beams.length - 1; b >= 0; b--) {

@@ -98,7 +98,7 @@ export const cv: Cv = {
       ]
     },
     {
-      org: 'Primo Technology Ltd.',
+      org: 'Primo Technology',
       url: 'https://techprimo.ai',
       logo: '/images/logos/primo-v2.webp',
       monogram: 'P',
@@ -109,7 +109,7 @@ export const cv: Cv = {
           title: 'Founder',
           start: '2025-02',
           end: 'present',
-          desc: 'My AI consulting agency and indie dev studio – strategy, implementation and training, plus my own AI-powered mobile and web products.'
+          desc: 'My indie dev studio: I design, build and look after focused AI-powered mobile apps on the App Store and Google Play, among them Primo Notes, Primo Scale and Primo Nautic.'
         }
       ]
     },

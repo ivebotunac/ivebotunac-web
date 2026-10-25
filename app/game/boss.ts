@@ -161,8 +161,8 @@ function attack(g: Game, b: Boss): void {
   const far = Math.hypot(g.mouseX - b.x, g.mouseY - b.y) > bossR(g) + 90;
   if (!g.coarse && far && g.t - g.lastMove < 90 && Math.random() < 0.45) { b.tele = { kind: 'spread', x: b.x, y: b.y, life: 0, max: 40 }; return; }
   const aim = g.mouseX > -900 && g.t - g.lastMove < 600;
-  // two shots in five, and every shot with no cursor to chase, go for the CV's text, so the fight leaves marks
-  const page = !aim || Math.random() < 0.4 ? textTarget(g) : null;
+  // three shots in five, and every shot with no cursor to chase, go for the CV's text, so the fight leaves marks
+  const page = !aim || Math.random() < 0.6 ? textTarget(g) : null;
   const x = page ? page.x : aim ? g.mouseX : rand(g.W * 0.2, g.W * 0.8), y = page ? page.y : aim ? g.mouseY : rand(g.H * 0.45, g.H * 0.8);
   b.tele = { kind: 'lock', x: clamp(x, 20, g.W - 20), y: clamp(y, 20, g.H - 20), life: 0, max: 56 };
 }
@@ -183,6 +183,8 @@ function tickOrbs(g: Game, b: Boss): void {
       continue;
     }
     o.x += o.vx; o.y += o.vy;
+    // a spread orb burns a trail through the text it crosses
+    if (o.life % 8 === 0) scorch(g, o.x, o.y, 14, 4);
     if (!g.coarse && cursorNear(g, o.x, o.y, 18)) { landHit(g, b); fxBurst(g, o.x, o.y, 10, '#ff5a1f'); b.orbs.splice(i, 1); continue; }
     // a spread orb that runs out on screen lands where it is
     if (o.life >= o.max) scorch(g, o.x, o.y);

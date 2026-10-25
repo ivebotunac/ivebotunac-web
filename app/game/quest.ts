@@ -7,7 +7,7 @@ import { bossFighting, drawBoss, drawBossOver, tickBoss } from './boss'
 import { deployRocket, drawCrew, drawPlanPath, teamBehaviour, tickCrew } from './team'
 import { track } from '~/utils/track'
 import { startRun } from './stats-client'
-import { healNow, tickScorch } from './scorch'
+import { drawScorch, healNow, tickScorch } from './scorch'
 import type { Game } from './core'
 import type { Peek, Role } from './types'
 
@@ -215,6 +215,7 @@ export function drawQuest(g: Game): void {
     c.fillRect(Math.round(q.x - w / 2), Math.round(q.y), w, 4);
   }
   c.globalAlpha = 1;
+  drawScorch(g);
   drawBoss(g);
   drawPlanPath(g);
   for (const m of g.team) drawAgent(c, m.role, m.x, m.y, TEAM_P, m.dir, g.t, m.slot);
