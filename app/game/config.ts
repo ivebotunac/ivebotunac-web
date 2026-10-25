@@ -26,6 +26,8 @@ export const HALF = 110
 export const BASE = 1.56
 // Morph "poof" duration in frames.
 export const MORPH = 20
+// Largest drawn size, random growth plus inflation, that still fits the 220px canvas.
+export const MAX_SIZE = 2.6
 
 export const col: Palette = {
   body: '#3b7cc0',
@@ -55,7 +57,7 @@ export const quips: string[] = [
   'I read your CV. all 4096 tokens of it.', 'Scaling laws go brrr.', 'I\'m a very confident lookup table.',
   'More data. always more data.', 'I don\'t sleep. I checkpoint.', 'Fine-tuned on vibes.',
   'H100s? in this economy?', 'RAG: because I forget things.', 'Temperature 0.7, personality 11.',
-  'swipe me fast, if you dare.', 'hold still. just a small inference.'
+  'swipe me fast, if you dare.', 'hold still. just a small inference.', 'pop me and I respawn. try it.'
 ]
 export const knockLines: string[] = ['Ow. Lawsuit incoming.', 'You can\'t stop progress.', 'That\'s going in the training data.', 'Rude. Anyway… AGI soon.', 'Error 418: I\'m a teapot now.']
 export const recoverLines: string[] = ['✦ recompiling ✦', 'back, and fine-tuned.', 'you only made me stronger.', 'redeployed. v2.0.']
@@ -63,6 +65,33 @@ export const hitLines: string[] = ['Gotcha, human.', 'Cursor acquired.', 'Target
 export const missLines: string[] = ['missed. recalibrating…', 'lag. blame the GPU.', 'you dodged. impressive.']
 export const stealLines: string[] = ['Hey! That trend was MINE.', 'Give it back, human!', 'Stealing my trends? rude.', 'That\'s MY alpha, attack mode on.', 'You\'ll regret that catch.']
 export const caughtTpl: string[] = ['Caught the ', 'Acquired: ', 'Shipped: ']
+export const hintMouse: string[] = ['psst: punch me, throw me, or pet me.', 'click me. drag me. or slowly pet me.']
+export const hintTouch: string[] = ['tap me. keep tapping. or drag and throw me.', 'go on, tap me. I can take it.']
+export const grabLines: string[] = ['hey! put me down!', 'unhand me, human.', 'I get airsick!', 'this is not in my training data.']
+export const throwLines: string[] = ['WHEEE!', 'I\'m flying! unsupervised!', 'gradient descent, literally.', 'not the face!']
+export const puffLines: string[] = ['I\'m… inflating?', 'too many parameters!', 'stop, I\'m overfitting!', 'context window overflowing…']
+export const respawnLines: string[] = ['✦ restored from checkpoint ✦', 'rebooted. that was rude.', 'v3.0, now with airbags.', 'you popped me. I remember everything.']
+export const petLines: string[] = ['…ok, that\'s nice.', 'purring in binary.', 'reward signal received ♥', 'fine. you can stay.']
+export const sleepLines: string[] = ['low power mode… zzz', 'nobody\'s watching. nap time.', 'entering sleep(). zzz']
+export const wakeLines: string[] = ['huh? I wasn\'t sleeping.', 'rebooting… where was I?', 'I was just defragmenting.']
+export const scrollLines: string[] = ['whoa, speed reader.', 'slow down, it\'s a good CV.', 'you skipped the good part.']
+// Said once at these combo counts.
+export const COMBO_LINES: Record<number, string> = {
+  5: 'ok, you\'re good at this.',
+  10: 'combo x10. are you training me?',
+  20: 'this is a CV, not an arcade.',
+  30: 'please. I have a family. of models.'
+}
+// One line per CV section, said once when it first comes into view.
+export const SECTION_LINES: Record<string, string[]> = {
+  about: ['that\'s him. the human I work for.', 'tl;dr: AI, research, and me.'],
+  experience: ['he built me between all of these jobs.', 'yes, all of that is real.'],
+  publications: ['I\'m cited in none of these. yet.', 'peer reviewed. unlike me.'],
+  talks: ['he talks about AI. I AM the AI.', 'I was in the audience. probably.'],
+  education: ['a PhD. I just have a lot of weights.', 'he studied. I just scraped.'],
+  certifications: ['he\'s certified. I\'m certifiable.', 'gotta collect them all.'],
+  skills: ['I\'m not on this list. rude.', 'skills: plenty. punching robots: please no.']
+}
 export const trends: string[] = ['Agentic AI', 'Reasoning models', 'World models', 'Multi-agent', 'MCP', 'Computer use', 'Test-time compute', 'Vision-Language-Action', 'On-device AI', 'Physical AI', 'Voice agents', 'Long context', 'Mixture-of-Experts', 'Synthetic data', 'RAG 2.0', 'Inference scaling']
 
 // The one-liner each form says on morph.

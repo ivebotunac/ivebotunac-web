@@ -97,14 +97,14 @@ export function renderFx(g: Game, recent: boolean): void {
     const ba = g.balls[z]!;
     ba.vy += 0.12; ba.x += ba.vx; ba.y += ba.vy; ba.spin += ba.dspin; ba.life++;
     if (recent && Math.hypot(ba.x - g.mouseX, ba.y - g.mouseY) < 42) { cursorHit(g, g.mouseX, g.mouseY, 'GOTCHA!'); fxBurst(g, ba.x, ba.y, 18, '#ffffff'); g.balls.splice(z, 1); continue; }
-    if (ba.life > ba.max || ba.x < -28 || ba.x > W + 28 || ba.y > H + 28) { fxBurst(g, ba.x, ba.y, 6, '#e23b2e'); g.balls.splice(z, 1); continue; }
+    if (ba.life > ba.max || ba.x < -28 || ba.x > W + 28 || ba.y > H + 28) { fxBurst(g, ba.x, ba.y, 6, '#ff5a1f'); g.balls.splice(z, 1); continue; }
+    // A data orb in the site palette: navy shell, orange ring, cyan core, a notch that shows the spin.
     fxc.save(); fxc.translate(Math.round(ba.x), Math.round(ba.y)); fxc.rotate(ba.spin);
-    const R = 16;
-    fxc.fillStyle = '#e23b2e'; fxc.beginPath(); fxc.arc(0, 0, R, 0, Math.PI * 2); fxc.fill();
-    fxc.fillStyle = '#f5f5f5'; fxc.beginPath(); fxc.arc(0, 0, R, 0, Math.PI); fxc.fill();
-    fxc.fillStyle = '#1a1a1a'; fxc.fillRect(-R, -3, R * 2, 6);
-    fxc.beginPath(); fxc.arc(0, 0, 6, 0, Math.PI * 2); fxc.fill();
-    fxc.fillStyle = '#f5f5f5'; fxc.beginPath(); fxc.arc(0, 0, 3, 0, Math.PI * 2); fxc.fill();
+    const R = 15;
+    fxc.fillStyle = '#0c2236'; fxc.beginPath(); fxc.arc(0, 0, R, 0, Math.PI * 2); fxc.fill();
+    fxc.strokeStyle = '#ff5a1f'; fxc.lineWidth = 3; fxc.beginPath(); fxc.arc(0, 0, R - 4, 0, Math.PI * 2); fxc.stroke();
+    fxc.fillStyle = '#36c6e0'; fxc.beginPath(); fxc.arc(0, 0, 5, 0, Math.PI * 2); fxc.fill();
+    fxc.fillStyle = '#ffffff'; fxc.fillRect(-2, -R + 1, 4, 5);
     fxc.restore();
   }
   for (let f = g.fxp.length - 1; f >= 0; f--) {
@@ -134,11 +134,12 @@ export function renderFx(g: Game, recent: boolean): void {
     fxc.globalAlpha = (1 - rg.life / rg.max) * 0.85; fxc.strokeStyle = rg.c || '#0b6bcb'; fxc.lineWidth = 2;
     fxc.beginPath(); fxc.arc(rg.x, rg.y, 8 + rg.life * 2.4, 0, Math.PI * 2); fxc.stroke();
   }
-  fxc.textAlign = 'center'; fxc.font = '700 15px ui-monospace, SFMono-Regular, Menlo, monospace';
+  fxc.textAlign = 'center';
   for (let u = g.popups.length - 1; u >= 0; u--) {
     const pu = g.popups[u]!;
     pu.life++; pu.y -= 0.8;
     if (pu.life >= pu.max) { g.popups.splice(u, 1); continue; }
+    fxc.font = '700 ' + (pu.size || 15) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
     fxc.globalAlpha = pu.life > pu.max - 26 ? (pu.max - pu.life) / 26 : 1;
     fxc.fillStyle = pu.c || '#0b6bcb'; fxc.fillText(pu.text, pu.x, pu.y);
   }

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
+import { useActiveSection } from '~/composables/useActiveSection'
 
+// The game says a line when a CV section first comes into view.
+const activeSection = useActiveSection()
 
 // Renders only after mount, so a direct path import, which skips the .client wrapper, cannot SSR the teleport.
 const mounted = ref(false)
@@ -18,7 +21,7 @@ onMounted(async () => {
   await nextTick()
   const [rage, fx, trend, pet, bubble, canvas] = [rageEl.value, fxEl.value, trendEl.value, petEl.value, bubbleEl.value, canvasEl.value]
   if (!rage || !fx || !trend || !pet || !bubble || !canvas) return
-  start({ pet, canvas, bubble, trend, fx, rage })
+  start({ pet, canvas, bubble, trend, fx, rage }, () => activeSection.value)
 })
 
 onUnmounted(destroy)
