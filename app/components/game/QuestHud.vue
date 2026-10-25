@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { ROLES, ROLE_INFO } from '~/game/agents'
 import type { Role } from '~/game/types'
+import { mdiClose } from '@mdi/js'
 import { useActiveSection } from '~/composables/useActiveSection'
+import PnIcon from '~/components/ui/PnIcon.vue'
 
-const props = defineProps<{ team: Role[], visible: boolean, done: boolean, boss?: boolean, announce: string }>()
+const props = defineProps<{ team: Role[], done: boolean, boss?: boolean, announce: string }>()
 const emit = defineEmits<{ (e: 'card'): void }>()
 
 const active = useActiveSection()
@@ -16,8 +18,28 @@ const panelId = useId()
 const has = (r: Role) => props.team.includes(r)
 const count = computed(() => props.team.length)
 
+// First visit only: after a few seconds a tip says what the chip is; gone for good once closed or used.
+const TIP_KEY = 'ib-hint-team'
+const tip = ref(false)
+let tipTimer: ReturnType<typeof setTimeout> | undefined
+const hideTip = () => {
+  clearTimeout(tipTimer)
+  if (!tip.value && tipTimer === undefined) return
+  tip.value = false
+  tipTimer = undefined
+  try { localStorage.setItem(TIP_KEY, '1') } catch { /* storage blocked */ }
+}
+
+onMounted(() => {
+  try { if (localStorage.getItem(TIP_KEY)) return } catch { /* storage blocked: show it */ }
+  tipTimer = setTimeout(() => { if (!count.value && !open.value) tip.value = true }, 8000)
+})
+
+watch(count, (n) => { if (n) hideTip() })
+
 // A full team has nothing left to find, so the chip opens the team card instead of the list.
 const onChip = () => {
+  hideTip()
   if (props.done) { open.value = false; emit('card'); return }
   open.value = !open.value
 }
@@ -55,7 +77,10 @@ watch(open, (v) => {
   else document.removeEventListener('pointerdown', onOutside, true)
 })
 
-onBeforeUnmount(() => document.removeEventListener('pointerdown', onOutside, true))
+onBeforeUnmount(() => {
+  clearTimeout(tipTimer)
+  document.removeEventListener('pointerdown', onOutside, true)
+})
 
 // Same as the rail index: scroll without the router, keep the hash, hand focus to the section.
 const goTo = (id: string) => {
@@ -74,52 +99,58 @@ const goTo = (id: string) => {
   <div ref="rootEl" class="qhud" data-game-ui @keydown="onKey">
     <p class="qhud__live" role="status">{{ announce }}</p>
 
-    <template v-if="visible">
-      <button
-        ref="chipEl"
-        type="button"
-        class="qhud__chip"
-        :aria-expanded="done ? undefined : open"
-        :aria-controls="done ? undefined : panelId"
-        :aria-haspopup="done ? 'dialog' : undefined"
-        @click="onChip"
-      >
-        <span class="qhud__name">TEAM {{ count }}/{{ ROLES.length }}</span>
-        <span class="qhud__slots" aria-hidden="true">
-          <span v-for="r in ROLES" :key="r" class="qhud__slot qhud__slot--sm" :class="{ 'is-on': has(r) }" :style="{ '--slot': ROLE_INFO[r].c }" />
-        </span>
-        <span class="qhud__vh">{{ done ? ', team assembled. Open the team card' : ', show where the sub-agents hide' }}</span>
+    <div v-if="tip && !open" class="qhud__tip">
+      <p class="qhud__tip-text">Six of my AI sub-agents are hiding in this CV. Open its rows to find them.</p>
+      <button type="button" class="qhud__tip-go" @click="onChip">Show where</button>
+      <button type="button" class="qhud__tip-x" aria-label="Dismiss tip" @click="hideTip">
+        <PnIcon :path="mdiClose" :size="16" />
       </button>
-      <!-- Stays mounted through the fight, so keyboard focus is not dropped when it changes role. -->
-      <button v-if="done" type="button" class="qhud__fight" @click="fight">{{ boss ? 'End fight' : 'Fight AGI' }}</button>
+    </div>
 
-      <!-- After the chip, so Tab from the expanded chip goes straight into the links; CSS keeps it above. -->
-      <div v-show="open && !done" :id="panelId" class="qhud__panel">
-        <p class="qhud__title">Find the six sub-agents</p>
-        <ul class="qhud__list">
-          <li v-for="r in ROLES" :key="r" class="qhud__row">
-            <span class="qhud__slot" :class="{ 'is-on': has(r) }" :style="{ '--slot': ROLE_INFO[r].c }" aria-hidden="true" />
-            <span class="qhud__role">{{ ROLE_INFO[r].label }}</span>
-            <span v-if="has(r)" class="qhud__state">found</span>
-            <a
-              v-else-if="ROLE_INFO[r].section"
-              :href="`#${ROLE_INFO[r].section}`"
-              class="qhud__where"
-              @click.prevent="goTo(ROLE_INFO[r].section!)"
-            >open a row in {{ ROLE_INFO[r].where }}</a>
-            <span v-else class="qhud__state">shows up when the robot pops</span>
-          </li>
-        </ul>
-        <div class="qhud__reset">
-          <button v-if="!confirming" type="button" class="qhud__reset-btn" @click="confirming = true">Restart game</button>
-          <template v-else>
-            <p class="qhud__reset-q">Start over? This clears your team and records on this device.</p>
-            <button type="button" class="qhud__reset-btn qhud__reset-btn--go" @click="restart">Restart</button>
-            <button type="button" class="qhud__reset-btn" @click="confirming = false">Cancel</button>
-          </template>
-        </div>
+    <button
+      ref="chipEl"
+      type="button"
+      class="qhud__chip"
+      :aria-expanded="done ? undefined : open"
+      :aria-controls="done ? undefined : panelId"
+      :aria-haspopup="done ? 'dialog' : undefined"
+      @click="onChip"
+    >
+      <span class="qhud__name">TEAM {{ count }}/{{ ROLES.length }}</span>
+      <span class="qhud__slots" aria-hidden="true">
+        <span v-for="r in ROLES" :key="r" class="qhud__slot qhud__slot--sm" :class="{ 'is-on': has(r) }" :style="{ '--slot': ROLE_INFO[r].c }" />
+      </span>
+      <span class="qhud__vh">{{ done ? ', team assembled. Open the team card' : ', show where the sub-agents hide' }}</span>
+    </button>
+    <!-- Stays mounted through the fight, so keyboard focus is not dropped when it changes role. -->
+    <button v-if="done" type="button" class="qhud__fight" @click="fight">{{ boss ? 'End fight' : 'Fight AGI' }}</button>
+
+    <!-- After the chip, so Tab from the expanded chip goes straight into the links; CSS keeps it above. -->
+    <div v-show="open && !done" :id="panelId" class="qhud__panel">
+      <p class="qhud__title">Find the six sub-agents</p>
+      <ul class="qhud__list">
+        <li v-for="r in ROLES" :key="r" class="qhud__row">
+          <span class="qhud__slot" :class="{ 'is-on': has(r) }" :style="{ '--slot': ROLE_INFO[r].c }" aria-hidden="true" />
+          <span class="qhud__role">{{ ROLE_INFO[r].label }}</span>
+          <span v-if="has(r)" class="qhud__state">found</span>
+          <a
+            v-else-if="ROLE_INFO[r].section"
+            :href="`#${ROLE_INFO[r].section}`"
+            class="qhud__where"
+            @click.prevent="goTo(ROLE_INFO[r].section!)"
+          >open a row in {{ ROLE_INFO[r].where }}</a>
+          <span v-else class="qhud__state">shows up when the robot pops</span>
+        </li>
+      </ul>
+      <div class="qhud__reset">
+        <button v-if="!confirming" type="button" class="qhud__reset-btn" @click="confirming = true">Restart game</button>
+        <template v-else>
+          <p class="qhud__reset-q">Start over? This clears your team and records on this device.</p>
+          <button type="button" class="qhud__reset-btn qhud__reset-btn--go" @click="restart">Restart</button>
+          <button type="button" class="qhud__reset-btn" @click="confirming = false">Cancel</button>
+        </template>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -250,6 +281,77 @@ const goTo = (id: string) => {
   background-color: var(--pn-surface);
   border: 1px solid var(--pn-border-brand);
   box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
+}
+
+/* Ink bubble over the chip, pointing down at it; the robot's speech bubble is the light version. */
+.qhud__tip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  width: min(270px, calc(100vw - 32px));
+  padding: 10px 34px 10px 12px;
+  background-color: var(--pn-text);
+  color: var(--pn-text-on-ink);
+  box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-hover);
+  animation: tipIn .3s var(--pn-ease-out) both;
+}
+
+.qhud__tip::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--pn-text);
+  transform: rotate(45deg);
+}
+
+.qhud__tip-text {
+  margin: 0 0 6px;
+  font-size: .76rem;
+  line-height: 1.45;
+}
+
+.qhud__tip-go {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 600 .74rem/1 var(--pn-font);
+  color: var(--pn-text-on-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.qhud__tip-x {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pn-text-on-ink);
+  opacity: .75;
+  cursor: pointer;
+}
+
+.qhud__tip-x:hover { opacity: 1; }
+
+.qhud__tip-go:focus-visible,
+.qhud__tip-x:focus-visible {
+  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
+  outline-offset: 2px;
+}
+
+@keyframes tipIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 .qhud__title {

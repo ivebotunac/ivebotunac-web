@@ -22,7 +22,7 @@ const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
-const quest = reactive<QuestView>({ team: [], visible: false, done: false, ms: null, boss: false })
+const quest = reactive<QuestView>({ team: [], done: false, ms: null, boss: false })
 const announce = ref('')
 const cardOpen = ref(false)
 const stats = ref<GameStats | null>(null)
@@ -66,7 +66,7 @@ onUnmounted(destroy)
     </div>
     <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
     <div class="quest">
-      <QuestHud :team="quest.team" :visible="quest.visible" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
+      <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
       <TeamCard :open="cardOpen" :ms="quest.ms" :stats="stats" @close="cardOpen = false" />
     </div>
   </Teleport>

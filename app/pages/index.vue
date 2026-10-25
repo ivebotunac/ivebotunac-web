@@ -5,6 +5,7 @@ import { cv } from '~/data/cv'
 import { CV_SECTIONS, type CvSectionId } from '~/components/layout/nav'
 import { useActiveSection } from '~/composables/useActiveSection'
 import { useCvSeo } from '~/composables/useCvSeo'
+import { useRowHint } from '~/composables/useRowHint'
 import { toYearMonth } from '~/utils/cv-dates'
 import { CV_REVEAL_KEY } from '~/components/cv/reveal'
 import CvRail from '~/components/cv/CvRail.vue'
@@ -28,6 +29,7 @@ useHead({ script: [{ key: 'cv-js', innerHTML: 'document.documentElement.classLis
 
 const { loadGoogleAnalytics } = useGoogleAnalytics()
 onMounted(loadGoogleAnalytics)
+useRowHint()
 
 const head = (id: CvSectionId, count?: string) => {
   const s = CV_SECTIONS.find(x => x.id === id)!

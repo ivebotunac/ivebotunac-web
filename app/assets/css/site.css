@@ -88,6 +88,35 @@ details[open] > summary .cv-tog { border-color: var(--pn-link); }
 details[open] > summary .cv-tog::before { content: "\2212"; }
 .cv summary:hover .cv-tog { border-color: var(--pn-link); }
 
+/* First visit only (useRowHint): the first Experience toggle pulses under a label until any row is opened. */
+.cv-tog--hint {
+  position: relative;
+  border-color: var(--pn-accent-display);
+  animation: togPulse 1.8s ease-out infinite;
+}
+.cv-tog--hint::after {
+  content: "Click + for details";
+  position: absolute;
+  right: -5px;
+  bottom: calc(100% + 9px);
+  padding: 5px 8px;
+  background-color: var(--pn-text);
+  color: var(--pn-text-on-ink);
+  font-family: var(--pn-font);
+  font-size: .68rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 3px 3px 0 0 var(--pn-shadow-offset-hover);
+  pointer-events: none;
+}
+@keyframes togPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 90, 31, .55); }
+  70%, 100% { box-shadow: 0 0 0 8px rgba(255, 90, 31, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cv-tog--hint { animation: none; }
+}
+
 /* Visually hidden, still read aloud. */
 .cv-sr-only {
   position: absolute;

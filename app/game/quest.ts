@@ -29,7 +29,7 @@ export function speak(g: Game, line: string): void {
 
 export function syncQuest(g: Game): void {
   const m = g.mem;
-  g.bridge?.view({ team: [...m.team], visible: g.hitTracked || m.learned.includes('hit') || m.team.length > 0, done: m.team.length === ROLES.length, ms: m.teamMs, boss: !!g.boss });
+  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, boss: !!g.boss });
 }
 
 // One random row per section, picked once a page view; the CvMore "show all" wrapper is not a row.

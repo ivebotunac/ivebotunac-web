@@ -17,7 +17,7 @@ defineProps<{ skills: Skill[] }>()
               <span v-for="t in s.also ?? []" :key="t" class="chip">{{ t }}</span>
             </span>
           </span>
-          <span v-if="s.proof" class="cv-tog" aria-hidden="true" />
+          <span v-if="s.proof" class="cv-tog" title="Details" aria-hidden="true" />
         </summary>
         <p v-if="s.proof" class="skill__proof"><span class="skill__where">Where</span>{{ s.proof }}</p>
       </details>

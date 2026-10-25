@@ -2,7 +2,7 @@
 import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
 import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
-import { hitPeek, questPop, syncQuest } from './quest'
+import { hitPeek, questPop } from './quest'
 import { hitBoss } from './boss'
 import { onTrendCaught } from './team'
 import { postGameEvent } from './stats-client'
@@ -147,8 +147,7 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 // Shared juice for every landed hit: hit-stop, flash, shake, squash, haptics, combo, inflation.
 function impact(g: Game, freeze: number): void {
   g.freeze = freeze; g.flash = 6; g.shake = 9; g.kick(0.32); g.buzz(18);
-  // the first landed hit of a page view also reveals the team HUD
-  if (!g.hitTracked) { g.hitTracked = true; track('game_hit'); syncQuest(g); }
+  if (!g.hitTracked) { g.hitTracked = true; track('game_hit'); }
   g.combo++; g.comboT = 150;
   // Every hit inflates it from normal size; random growth waits until it deflates.
   if (g.combo === 1) g.scaleTarget = 1;

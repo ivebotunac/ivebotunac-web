@@ -87,7 +87,7 @@ useSchemaOrg([
             <strong>The robot game:</strong> the little robot remembers, in your browser’s local storage, which tricks
             you have tried, your best combo, how many times you have popped it, how often you have visited, which
             sub-agents you found, when you found the first one and how long the whole team took, and your best boss
-            time. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
+            time, plus whether you have already seen the two first-visit tips. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
             site-wide totals described next, and game events (hits, pops, agents found, the team time, boss fights and
             their times, and clicks on the team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
           </li>

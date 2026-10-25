@@ -22,7 +22,7 @@ defineProps<{
           <span class="item__title">{{ title }}</span>
           <span v-if="sub" class="item__sub">{{ sub }}</span>
         </span>
-        <span class="cv-tog" aria-hidden="true" />
+        <span class="cv-tog" title="Details" aria-hidden="true" />
       </summary>
       <dl class="item__det"><slot /></dl>
     </details>

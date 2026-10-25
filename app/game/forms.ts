@@ -258,9 +258,11 @@ function drawShadefrog(state: Mood, blink: boolean): void {
 
 // RIBBONFAY: cream fairy: pink ears/feet, ribbon feelers, blue eyes (Gen 6)
 function drawRibbonfay(state: Mood, blink: boolean): void {
-  const CR = '#f3ead8', PK = '#f0a8c0', BL = '#5a9ed8';
+  // A deeper cream and a shaded rim, so it reads on the near-white page.
+  const CR = '#efdcc0', SH = '#cfb38c', PK = '#f0a8c0', BL = '#5a9ed8';
   pxl(4, 1, 2, 3, PK); pxl(10, 1, 2, 3, PK);                        // pink ears
   pxl(4, 4, 8, 7, CR);                                            // body
+  pxl(11, 4, 1, 7, SH); pxl(4, 10, 8, 1, SH);                       // shaded rim
   pxl(4, 4, 2, 2, PK);                                            // pink face accent
   pxl(2, 5, 2, 1, CR); pxl(1, 6, 1, 1, BL);                         // left ribbon feeler
   pxl(12, 8, 2, 1, CR); pxl(13, 9, 1, 1, BL);                       // right ribbon feeler
@@ -283,10 +285,13 @@ function drawRagghost(state: Mood, blink: boolean): void {
 
 // PYREHARE: white rabbit: big red-lined ears, red nose/feet, yellow band (Gen 8)
 function drawBlazebun(state: Mood, blink: boolean): void {
-  const WH = '#f5f9fd', R = '#e23b2e', Y = '#f4d23b';
+  // Off-white with a shaded rim: pure white is the page colour and the rabbit vanished into it.
+  const WH = '#dfe6ee', SH = '#a9b8c8', R = '#e23b2e', Y = '#f4d23b';
   pxl(4, 0, 2, 4, WH); pxl(10, 0, 2, 4, WH);                        // big ears
+  pxl(4, 0, 1, 4, SH); pxl(11, 0, 1, 4, SH);                        // ear rims
   pxl(5, 1, 1, 2, R); pxl(10, 1, 1, 2, R);                          // red inner ears
   pxl(4, 4, 8, 7, WH);                                            // body
+  pxl(4, 4, 1, 7, SH); pxl(11, 4, 1, 7, SH); pxl(5, 10, 6, 1, SH);   // shaded rim
   pxl(7, 6, 2, 1, R);                                             // red nose patch
   pxl(5, 8, 6, 1, Y);                                             // yellow chest band
   eyePair(state, blink, 5, 9, 5, '#1a1a1a');
