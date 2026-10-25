@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
-import { getGameStats, postGameEvent } from '~/game/stats-client'
+import { getGameStats, postTeam } from '~/game/stats-client'
 import type { GameStats } from '~/game/stats-client'
 import type { QuestBridge, QuestView } from '~/game/types'
 import { useActiveSection } from '~/composables/useActiveSection'
@@ -22,21 +22,21 @@ const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
-const quest = reactive<QuestView>({ team: [], done: false, ms: null, boss: false })
+const quest = reactive<QuestView>({ team: [], done: false, ms: null, run: null, boss: false })
 const announce = ref('')
 const cardOpen = ref(false)
 const stats = ref<GameStats | null>(null)
 
 const openCard = () => {
   cardOpen.value = true
-  if (!stats.value) getGameStats().then((s) => { if (s && !stats.value) stats.value = s })
+  if (!stats.value) getGameStats(quest.run).then((s) => { if (s && !stats.value) stats.value = s })
 }
 
 const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  finished: (ms) => { postGameEvent('team', ms).then((s) => { if (s) stats.value = s }) },
+  finished: (ms, run) => { postTeam(ms, run).then((s) => { if (s) stats.value = s }) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) cardOpen.value = true }
 }
@@ -67,7 +67,7 @@ onUnmounted(destroy)
     <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
     <div class="quest">
       <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
-      <TeamCard :open="cardOpen" :ms="quest.ms" :stats="stats" @close="cardOpen = false" />
+      <TeamCard :open="cardOpen" :ms="quest.ms" :run="quest.run" :stats="stats" @close="cardOpen = false" @stats="s => stats = s" />
     </div>
   </Teleport>
 </template>

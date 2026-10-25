@@ -93,10 +93,17 @@ useSchemaOrg([
           </li>
           <li>
             <strong>Game counters:</strong> the game sends anonymous events (a pop, or a finished team with its time)
-            to our server, which adds them to site-wide totals stored in Google Cloud Firestore. No identifier or IP
-            address is stored in Firestore; the IP address is held in memory for about ten minutes only to stop abuse,
+            to our server, which adds them to site-wide totals stored in Google Cloud Firestore. No IP address is stored in Firestore; the IP address is held in memory for about ten minutes only to stop abuse,
             under our legitimate interest (Art. 6(1)(f) GDPR), and the request itself appears in the hosting logs
             described under Visits.
+          </li>
+          <li>
+            <strong>Leaderboard:</strong> when you find the first sub-agent, our server stores a record of that attempt
+            (a random id, the start time and later the finish time) so it can time the team itself; the id is kept in
+            your browser’s local storage. If you sign a finished team, the three letters you type and your time are shown
+            publicly on the leaderboard. Choose letters that do not identify you if you prefer. To remove an entry, write
+            to us with the letters and the time. Legal basis: our legitimate interest in running the game (Art. 6(1)(f)
+            GDPR).
           </li>
           <li>
             <strong>Email you send us:</strong> your address, name and message, used to reply (Art. 6(1)(b) and (f)

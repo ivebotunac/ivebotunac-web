@@ -5,7 +5,7 @@ import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
 import { hitPeek, questPop } from './quest'
 import { hitBoss } from './boss'
 import { onTrendCaught } from './team'
-import { postGameEvent } from './stats-client'
+import { postPop } from './stats-client'
 import { track } from '~/utils/track'
 import type { Game } from './core'
 
@@ -198,7 +198,7 @@ export function popRobot(g: Game): void {
   g.knockT = 0; g.held = false; g.press = null; g.attackT = 0; g.beamAt = 0;
   g.bubble.hidden = true; g.sparks.length = 0;
   if (g.trend) clearTrend(g);
-  track('game_pop'); void postGameEvent('pop');
+  track('game_pop'); void postPop();
   questPop(g, x, y);
 }
 

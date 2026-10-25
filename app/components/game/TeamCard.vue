@@ -2,19 +2,20 @@
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { mdiClose, mdiLinkedin } from '@mdi/js'
 import { ROLES, drawAgent } from '~/game/agents'
+import { postName } from '~/game/stats-client'
 import type { GameStats } from '~/game/stats-client'
 import { track } from '~/utils/track'
 import PnIcon from '~/components/ui/PnIcon.vue'
 
-const props = defineProps<{ open: boolean, ms: number | null, stats: GameStats | null }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{ open: boolean, ms: number | null, run: string | null, stats: GameStats | null }>()
+const emit = defineEmits<{ (e: 'close'): void, (e: 'stats', s: GameStats): void }>()
 
 const LINKEDIN = 'https://www.linkedin.com/in/ivebotunac'
 const X = 'https://x.com/ivebotunac'
 // The X logo; @mdi/js only has the old Twitter bird.
 const X_LOGO = 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'
 const PDF = '/ive-botunac-cv.pdf'
-const FOCUSABLE = 'a[href], button:not([disabled])'
+const FOCUSABLE = 'a[href], button:not([disabled]), input'
 
 const dialogEl = ref<HTMLDialogElement | null>(null)
 const teamEl = ref<HTMLCanvasElement | null>(null)
@@ -24,12 +25,36 @@ let opener: HTMLElement | null = null
 const pad = (n: number) => String(n).padStart(2, '0')
 
 // 3:42 under an hour, 1:02:03 under a day, then whole days.
-const time = computed(() => {
-  if (props.ms === null) return ''
-  const s = Math.round(props.ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60)
+function fmt(ms: number): string {
+  const s = Math.round(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60)
   if (h >= 24) { const d = Math.round(h / 24); return `${d} ${d === 1 ? 'day' : 'days'}` }
   return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`
-})
+}
+
+const time = computed(() => (props.ms === null ? '' : fmt(props.ms)))
+
+// The server's own time for this visitor's run, and whether it may still take initials.
+const mine = computed(() => props.stats?.mine ?? null)
+const canName = computed(() => !!props.run && !!mine.value?.eligible && !mine.value.initials)
+// A named run outside the top ten gets its own row under the list.
+const nameLabel = computed(() => `${(mine.value?.place ?? 0) <= 10 ? 'You made' : 'You are'} #${mine.value?.place}. Sign it with three letters:`)
+const mineBelow = computed(() => (mine.value?.initials && !props.stats?.board.some(e => e.mine) ? mine.value : null))
+
+const initials = ref('')
+const saving = ref(false)
+const nameError = ref('')
+const onInitials = (e: Event) => { initials.value = (e.target as HTMLInputElement).value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3) }
+
+async function saveName() {
+  if (!props.run || initials.value.length !== 3 || saving.value) return
+  saving.value = true
+  nameError.value = ''
+  const s = await postName(props.run, initials.value)
+  saving.value = false
+  if (!s) { nameError.value = 'Those letters cannot be used. Try others.'; return }
+  track('board_name', { place: s.mine?.place ?? 0 })
+  emit('stats', s)
+}
 
 const globalLine = computed(() => {
   const s = props.stats
@@ -129,6 +154,39 @@ function onKeydown(e: KeyboardEvent) {
       <h2 :id="titleId" class="tcard__title">Team assembled<template v-if="time"> in {{ time }}</template></h2>
       <p v-if="globalLine" class="tcard__line">{{ globalLine }}</p>
       <p class="tcard__body">Five of them were hiding in the CV, so you have read more of it than most. Thanks for that.</p>
+
+      <section v-if="stats" class="tcard__board" aria-label="Fastest teams">
+        <p class="tcard__board-title">Fastest teams</p>
+        <form v-if="canName" class="tcard__name" @submit.prevent="saveName">
+          <label class="tcard__name-label" :for="`${titleId}-in`">
+            {{ nameLabel }}
+          </label>
+          <div class="tcard__name-row">
+            <input
+              :id="`${titleId}-in`"
+              class="tcard__name-in"
+              :value="initials"
+              maxlength="3"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="AAA"
+              @input="onInitials"
+            >
+            <button type="submit" class="tcard__name-go" :disabled="initials.length !== 3 || saving">Save</button>
+          </div>
+          <p v-if="nameError" class="tcard__name-err" role="alert">{{ nameError }}</p>
+        </form>
+        <ol v-if="stats.board.length" class="tcard__rows">
+          <li v-for="(e, i) in stats.board" :key="i" class="tcard__row" :class="{ 'is-mine': e.mine }">
+            <span class="tcard__pos">{{ i + 1 }}</span><span class="tcard__ini">{{ e.initials }}</span><span class="tcard__t">{{ fmt(e.ms) }}</span>
+          </li>
+          <li v-if="mineBelow" class="tcard__row is-mine tcard__row--below">
+            <span class="tcard__pos">{{ mineBelow.place }}</span><span class="tcard__ini">{{ mineBelow.initials }}</span><span class="tcard__t">{{ fmt(mineBelow.ms) }}</span>
+          </li>
+        </ol>
+        <p v-else-if="!canName" class="tcard__board-empty">No one has signed the board yet.</p>
+      </section>
       <div class="tcard__actions">
         <div class="tcard__social">
           <a class="tcard__btn tcard__btn--linkedin" :href="LINKEDIN" target="_blank" rel="noopener" @click="cta('linkedin')">
@@ -222,6 +280,104 @@ function onKeydown(e: KeyboardEvent) {
   font-size: .82rem;
   line-height: 1.5;
   color: var(--pn-text-muted);
+}
+
+/* The leaderboard: arcade initials in mono, the visitor's own row in the accent. */
+.tcard__board {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--pn-border-brand);
+  background-color: var(--pn-canvas);
+}
+
+.tcard__board-title {
+  margin: 0 0 6px;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--pn-text-muted);
+}
+
+.tcard__board-empty {
+  margin: 0;
+  font-size: .76rem;
+  color: var(--pn-text-muted);
+}
+
+.tcard__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tcard__row {
+  display: grid;
+  grid-template-columns: 2.2em 1fr auto;
+  align-items: center;
+  min-height: 22px;
+  font-family: var(--pn-font-mono);
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tcard__row + .tcard__row { border-top: 1px dashed var(--pn-border); }
+.tcard__row--below { border-top-style: solid !important; margin-top: 2px; }
+.tcard__pos { color: var(--pn-text-muted); }
+.tcard__ini { font-weight: 700; letter-spacing: .12em; }
+.tcard__row.is-mine { color: var(--pn-primary-600); }
+.tcard__row.is-mine .tcard__pos { color: inherit; }
+
+.tcard__name { margin: 0 0 10px; }
+
+.tcard__name-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.tcard__name-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tcard__name-in {
+  width: 5.2em;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--pn-text);
+  border-radius: 0;
+  background-color: var(--pn-surface);
+  color: var(--pn-text);
+  font: 700 1.05rem/1 var(--pn-font-mono);
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+
+.tcard__name-go {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--pn-text);
+  border-radius: 0;
+  background-color: var(--pn-text);
+  color: var(--pn-text-on-ink);
+  font: 600 .78rem/1 var(--pn-font);
+  cursor: pointer;
+}
+
+.tcard__name-go:disabled { opacity: .45; cursor: default; }
+
+.tcard__name-in:focus-visible,
+.tcard__name-go:focus-visible {
+  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
+  outline-offset: var(--pn-focus-offset);
+}
+
+.tcard__name-err {
+  margin: 6px 0 0;
+  font-size: .74rem;
+  color: var(--pn-error-text);
 }
 
 .tcard__actions {

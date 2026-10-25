@@ -1,4 +1,4 @@
-import { createGameLimiter, parseGameEvent, recordPop, recordTeam } from '../../utils/game-stats'
+import { createGameLimiter, nameRun, parseGameEvent, recordPop, recordTeam, startRun } from '../../utils/game-stats'
 
 const limiter = createGameLimiter()
 
@@ -22,10 +22,16 @@ export default defineEventHandler(async (event) => {
   if (!limiter.allow(clientKey(event), parsed.kind)) throw createError({ statusCode: 429, statusMessage: 'Too many game events' })
 
   setResponseHeader(event, 'cache-control', 'no-store')
+  let result
   try {
-    return parsed.kind === 'team' ? await recordTeam(parsed.ms) : await recordPop()
+    if (parsed.kind === 'pop') return await recordPop()
+    if (parsed.kind === 'run') return await startRun()
+    result = parsed.kind === 'team' ? await recordTeam(parsed.ms, parsed.run) : await nameRun(parsed.run, parsed.initials)
   } catch (err) {
     console.error('[game] event write failed:', err instanceof Error ? err.message : err)
     throw createError({ statusCode: 503, statusMessage: 'Game stats unavailable' })
   }
+  // a run timed under the floor, or one already named, too slow or unknown
+  if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'team' ? 'Run too short' : 'Run cannot be named' })
+  return result
 })

@@ -6,8 +6,9 @@ import type { Role } from './types'
 
 export type Skill = keyof typeof TUT_LINES
 
-// team: roles recruited so far; teamStartedAt: Date.now() at the first recruit; teamMs: the finished time.
-export interface Memory { learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamStartedAt: number | null, teamMs: number | null }
+// team: roles recruited so far; teamStartedAt: Date.now() at the first recruit; teamMs: the finished time;
+// run: the server's id for this attempt, which times it for the leaderboard.
+export interface Memory { learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamStartedAt: number | null, teamMs: number | null, run: string | null }
 
 const KEY = 'ib-robot-v1'
 // A calm-time hint repeats after 45 s; any hint is said at most three times a visit.
@@ -15,13 +16,14 @@ const REPEAT = 2700
 const MAX_SAID = 3
 
 export function loadMemory(): Memory {
-  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamStartedAt: null, teamMs: null }
+  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamStartedAt: null, teamMs: null, run: null }
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
     if (Array.isArray(raw.learned)) m.learned = raw.learned
     for (const k of ['best', 'pops', 'visits'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
     if (Array.isArray(raw.team)) m.team = ROLES.filter(r => raw.team.includes(r))
     for (const k of ['teamStartedAt', 'teamMs'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
+    if (typeof raw.run === 'string') m.run = raw.run
   } catch { /* storage blocked or corrupt: start fresh */ }
   m.visits++
   return m

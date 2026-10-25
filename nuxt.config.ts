@@ -45,8 +45,7 @@ export default defineNuxtConfig({
   site: {
     url: 'https://ivebotunac.com',
     name: 'Ive Botunac',
-    // Until launch: robots disallows everything and every page carries noindex.
-    indexable: false
+    indexable: true
   },
 
   // The PDF CV's source page is not for search.
