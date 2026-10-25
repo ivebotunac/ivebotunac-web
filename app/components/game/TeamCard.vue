@@ -7,7 +7,7 @@ import type { GameStats } from '~/game/stats-client'
 import { track } from '~/utils/track'
 import PnIcon from '~/components/ui/PnIcon.vue'
 
-const props = defineProps<{ open: boolean, ms: number | null, run: string | null, stats: GameStats | null }>()
+const props = defineProps<{ open: boolean, ms: number | null, run: string | null, stats: GameStats | null, statsOff: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'stats', s: GameStats): void }>()
 
 const LINKEDIN = 'https://www.linkedin.com/in/ivebotunac'
@@ -35,7 +35,7 @@ const time = computed(() => (props.ms === null ? '' : fmt(props.ms)))
 
 // The server's own time for this visitor's run, and whether it may still take initials.
 const mine = computed(() => props.stats?.mine ?? null)
-const canName = computed(() => !!props.run && !!mine.value?.eligible && !mine.value.initials)
+const canName = computed(() => !!props.run && !!mine.value && !mine.value.initials)
 // A named run outside the top ten gets its own row under the list.
 const nameLabel = computed(() => `${(mine.value?.place ?? 0) <= 10 ? 'You made' : 'You are'} #${mine.value?.place}. Sign it with three letters:`)
 const mineBelow = computed(() => (mine.value?.initials && !props.stats?.board.some(e => e.mine) ? mine.value : null))
@@ -155,8 +155,10 @@ function onKeydown(e: KeyboardEvent) {
       <p v-if="globalLine" class="tcard__line">{{ globalLine }}</p>
       <p class="tcard__body">Five of them were hiding in the CV, so you have read more of it than most. Thanks for that.</p>
 
-      <section v-if="stats" class="tcard__board" aria-label="Fastest teams">
+      <section v-if="stats || statsOff" class="tcard__board" aria-label="Fastest teams">
         <p class="tcard__board-title">Fastest teams</p>
+        <p v-if="!stats" class="tcard__board-empty">The leaderboard is offline right now. Your time is kept on this device.</p>
+        <template v-else>
         <form v-if="canName" class="tcard__name" @submit.prevent="saveName">
           <label class="tcard__name-label" :for="`${titleId}-in`">
             {{ nameLabel }}
@@ -186,6 +188,8 @@ function onKeydown(e: KeyboardEvent) {
           </li>
         </ol>
         <p v-else-if="!canName" class="tcard__board-empty">No one has signed the board yet.</p>
+        <p v-if="!run && !mine" class="tcard__board-empty tcard__board-note">This team was not timed by the server, so it cannot go on the board. Restart the game to race for a place.</p>
+        </template>
       </section>
       <div class="tcard__actions">
         <div class="tcard__social">

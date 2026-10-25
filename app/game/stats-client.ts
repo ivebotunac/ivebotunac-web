@@ -9,7 +9,6 @@ export interface MyRun {
   ms: number
   place: number
   initials: string | null
-  eligible: boolean
 }
 
 export interface GameStats {

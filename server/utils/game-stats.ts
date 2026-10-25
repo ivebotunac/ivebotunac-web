@@ -13,7 +13,6 @@ export interface MyRun {
   // 1 + the named entries strictly faster, so it reads as "you would be #n" before the name too
   place: number
   initials: string | null
-  eligible: boolean
 }
 
 export interface GameStatsResponse {
@@ -33,14 +32,13 @@ export type GameEvent =
   | { kind: 'name', run: string, initials: string }
 export type GameEventKind = GameEvent['kind']
 
-export const GAME_STATS_DOC = 'ivebotunacGame/stats'
+export const GAME_STATS_DOC = 'ivebotunac/stats'
 // One doc per team attempt, created at the first recruit; its id is the visitor's claim on the time.
-export const RUNS = 'ivebotunacGame/stats/runs'
+export const RUNS = 'ivebotunac/stats/runs'
 // Named finishes only, so the top ten is one ordered query.
-export const BOARD = 'ivebotunacGame/stats/board'
+export const BOARD = 'ivebotunac/stats/board'
 export const BOARD_SIZE = 10
-// Five rows to find plus a popped robot; anything faster than this was not played.
-export const BOARD_MIN_MS = 40_000
+// Only for a time the client reports itself; a run the server timed needs no floor, it cannot come in short.
 export const TEAM_MIN_MS = 20_000
 export const TEAM_MAX_MS = 86_400_000
 export const BUCKET_MS = 30_000
@@ -81,9 +79,10 @@ export function parseGameEvent(body: unknown): GameEvent | null {
     return r && i ? { kind, run: r, initials: i } : null
   }
   if (kind !== 'team' || typeof ms !== 'number') return null
-  if (ms < TEAM_MIN_MS) return null
+  const r = parseRun(run)
+  if (!r && ms < TEAM_MIN_MS) return null
   // a team kept across visits can take days; anything over an hour lands in the same bucket anyway
-  return { kind, ms: Math.min(ms, TEAM_MAX_MS), run: parseRun(run) }
+  return { kind, ms: Math.min(Math.max(0, ms), TEAM_MAX_MS), run: r }
 }
 
 export function bucketKey(ms: number): string {
@@ -186,7 +185,7 @@ async function withBoard(stats: GameStatsResponse, run: string | null, data: Rec
   const ms = runMs(data)
   const [board, at] = await Promise.all([readBoard(run), ms === null ? null : place(ms)])
   stats.board = board
-  if (ms !== null && at !== null) stats.mine = { ms, place: at, initials: runInitials(data), eligible: ms >= BOARD_MIN_MS }
+  if (ms !== null && at !== null) stats.mine = { ms, place: at, initials: runInitials(data) }
   return stats
 }
 
@@ -208,7 +207,7 @@ export async function startRun(): Promise<{ run: string }> {
 }
 
 // With a live run the server's own clock sets the time and the client's ms is ignored; without one the time
-// still counts toward the totals but can never reach the board. Null means the run's time is impossibly short.
+// still counts toward the totals but can never reach the board. Null means a self-reported time under the floor.
 export async function recordTeam(clientMs: number, run: string | null): Promise<GameStatsResponse | null> {
   const db = getGameDb()
   const ref = db.doc(GAME_STATS_DOC)
@@ -222,7 +221,7 @@ export async function recordTeam(clientMs: number, run: string | null): Promise<
     // a finished run is a replay of the same finish, so it answers without counting twice
     if (timed && runMs(runSnap?.data()) !== null) return { stats: before, data: runSnap?.data(), timed }
     const ms = timed ? Math.min(Date.now() - startedAt.toMillis(), TEAM_MAX_MS) : clientMs
-    if (ms < TEAM_MIN_MS) return null
+    if (!timed && ms < TEAM_MIN_MS) return null
     const raw = snap.get('teamTimes')
     const teamTimes = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {}
     const pct = fasterThanPct(teamTimes, ms, before.bestMs)
@@ -240,14 +239,14 @@ export async function recordTeam(clientMs: number, run: string | null): Promise<
   return withBoard(result.stats, result.timed ? run : null, result.timed ? result.data : undefined)
 }
 
-// Once per run, only for a finished run fast enough for the board. Null means it cannot be named.
+// Once per run, only for a finished run. Null means it cannot be named.
 export async function nameRun(run: string, initials: string): Promise<GameStatsResponse | null> {
   const db = getGameDb()
   const runRef = db.collection(RUNS).doc(run)
   const ok = await db.runTransaction(async (tx) => {
     const data = (await tx.get(runRef)).data()
     const ms = runMs(data)
-    if (ms === null || ms < BOARD_MIN_MS || runInitials(data) !== null) return false
+    if (ms === null || runInitials(data) !== null) return false
     tx.update(runRef, { initials })
     tx.set(db.collection(BOARD).doc(run), { initials, ms, at: FieldValue.serverTimestamp() })
     return true

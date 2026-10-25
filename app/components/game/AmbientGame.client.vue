@@ -26,17 +26,20 @@ const quest = reactive<QuestView>({ team: [], done: false, ms: null, run: null, 
 const announce = ref('')
 const cardOpen = ref(false)
 const stats = ref<GameStats | null>(null)
+// Set when the counters did not answer, so the card says so instead of leaving the board out.
+const statsOff = ref(false)
+const gotStats = (s: GameStats | null) => { if (s) { stats.value = s; statsOff.value = false } else if (!stats.value) statsOff.value = true }
 
 const openCard = () => {
   cardOpen.value = true
-  if (!stats.value) getGameStats(quest.run).then((s) => { if (s && !stats.value) stats.value = s })
+  if (!stats.value) getGameStats(quest.run).then(gotStats)
 }
 
 const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  finished: (ms, run) => { postTeam(ms, run).then((s) => { if (s) stats.value = s }) },
+  finished: (ms, run) => { postTeam(ms, run).then(gotStats) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) cardOpen.value = true }
 }
@@ -67,7 +70,7 @@ onUnmounted(destroy)
     <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
     <div class="quest">
       <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
-      <TeamCard :open="cardOpen" :ms="quest.ms" :run="quest.run" :stats="stats" @close="cardOpen = false" @stats="s => stats = s" />
+      <TeamCard :open="cardOpen" :ms="quest.ms" :run="quest.run" :stats="stats" :stats-off="statsOff" @close="cardOpen = false" @stats="s => stats = s" />
     </div>
   </Teleport>
 </template>

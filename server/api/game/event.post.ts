@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     console.error('[game] event write failed:', err instanceof Error ? err.message : err)
     throw createError({ statusCode: 503, statusMessage: 'Game stats unavailable' })
   }
-  // a run timed under the floor, or one already named, too slow or unknown
-  if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'team' ? 'Run too short' : 'Run cannot be named' })
+  // a self-reported time under the floor, or a run already named or unknown
+  if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'team' ? 'Time too short' : 'Run cannot be named' })
   return result
 })
