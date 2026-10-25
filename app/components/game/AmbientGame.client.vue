@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
-import { getGameStats, postTeam } from '~/game/stats-client'
+import { getGameStats, postBoss, postTeam } from '~/game/stats-client'
 import type { GameStats } from '~/game/stats-client'
 import type { QuestBridge, QuestView } from '~/game/types'
 import { useActiveSection } from '~/composables/useActiveSection'
@@ -22,26 +22,45 @@ const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
-const quest = reactive<QuestView>({ team: [], done: false, ms: null, run: null, boss: false })
+const quest = reactive<QuestView>({ team: [], done: false, ms: null, run: null, bossRun: null, bossMs: null, boss: false })
 const announce = ref('')
 const cardOpen = ref(false)
+// Which board leads the card: the team's after the quest, the boss's after a win.
+const cardMode = ref<'team' | 'boss'>('team')
 const stats = ref<GameStats | null>(null)
 // Set when the counters did not answer, so the card says so instead of leaving the board out.
 const statsOff = ref(false)
 const gotStats = (s: GameStats | null) => { if (s) { stats.value = s; statsOff.value = false } else if (!stats.value) statsOff.value = true }
 
-const openCard = () => {
-  cardOpen.value = true
-  if (!stats.value) getGameStats(quest.run).then(gotStats)
+// Both boards for the runs the card shows; a post answers for the run it posted, which can be a slower one.
+const refresh = () => getGameStats(quest.run, quest.bossRun).then(gotStats)
+const after = (posted: string | null, kept: () => string | null) => (s: GameStats | null) => {
+  if (s && posted === kept()) gotStats(s)
+  else void refresh()
 }
+
+const openCard = () => {
+  cardMode.value = 'team'
+  cardOpen.value = true
+  void refresh()
+}
+
+// The defeat burst and its time stay on screen a moment before the card covers them.
+let bossTimer: ReturnType<typeof setTimeout> | undefined
 
 const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  finished: (ms, run) => { postTeam(ms, run).then(gotStats) },
+  finished: (ms, run) => { postTeam(ms, run, quest.bossRun).then(after(run, () => quest.run)) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
-  complete: () => { if (!quest.boss) cardOpen.value = true }
+  complete: () => { if (!quest.boss) { cardMode.value = 'team'; cardOpen.value = true } },
+  bossDone: (run) => {
+    if (run) postBoss(run, quest.run).then(after(run, () => quest.bossRun))
+    else void refresh()
+    clearTimeout(bossTimer)
+    bossTimer = setTimeout(() => { cardMode.value = 'boss'; cardOpen.value = true }, 2400)
+  }
 }
 
 onMounted(async () => {
@@ -52,7 +71,7 @@ onMounted(async () => {
   start({ pet, canvas, bubble, trend, fx, rage }, () => activeSection.value, bridge)
 })
 
-onUnmounted(destroy)
+onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 </script>
 
 <template>
@@ -70,7 +89,18 @@ onUnmounted(destroy)
     <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
     <div class="quest">
       <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
-      <TeamCard :open="cardOpen" :ms="quest.ms" :run="quest.run" :stats="stats" :stats-off="statsOff" @close="cardOpen = false" @stats="s => stats = s" />
+      <TeamCard
+        :open="cardOpen"
+        :mode="cardMode"
+        :ms="quest.ms"
+        :boss-ms="quest.bossMs"
+        :run="quest.run"
+        :boss-run="quest.bossRun"
+        :stats="stats"
+        :stats-off="statsOff"
+        @close="cardOpen = false"
+        @stats="s => stats = s"
+      />
     </div>
   </Teleport>
 </template>

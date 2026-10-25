@@ -31,7 +31,7 @@ export function speak(g: Game, line: string): void {
 
 export function syncQuest(g: Game): void {
   const m = g.mem;
-  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, run: m.run, boss: !!g.boss });
+  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, run: m.signRun, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: !!g.boss });
 }
 
 // One random row per section, picked once a page view; the CvMore "show all" wrapper is not a row.
@@ -117,7 +117,7 @@ export function questPop(g: Game, x: number, y: number): void {
 
 // The server times the attempt from here; a reply for an attempt since restarted is dropped.
 function beginRun(g: Game, startedAt: number): void {
-  void startRun().then((run) => {
+  void startRun('team').then((run) => {
     if (!run || g.mem.teamStartedAt !== startedAt) return;
     g.mem.run = run; saveMemory(g); syncQuest(g);
   });
@@ -140,6 +140,8 @@ function recruit(g: Game, role: Role, x: number, y: number): void {
   if (n === ROLES.length) {
     m.teamMs = Math.max(0, Date.now() - m.teamStartedAt);
     track('team_complete', { ms: m.teamMs });
+    // the faster of this team and the one kept from before a restart is the one the card offers to sign
+    if (m.run && (m.signMs === null || m.teamMs < m.signMs)) { m.signRun = m.run; m.signMs = m.teamMs; }
     g.bridge?.finished(m.teamMs, m.run);
     g.flyby = FLYBY; text += ' Team assembled.';
     speak(g, pick(teamDoneLines));
@@ -227,7 +229,8 @@ export function drawQuest(g: Game): void {
   drawBossOver(g);
 }
 
-// Starts this visitor's game over: team, times and records go; tricks already learned stay, so nothing is taught twice.
+// Starts this visitor's game over: team, times and records go; tricks already learned stay, so nothing is taught twice,
+// and the fastest finished runs stay, so a record not yet signed can still be.
 export function restartGame(g: Game): void {
   const m = g.mem;
   m.team = []; m.teamStartedAt = null; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null; m.run = null;

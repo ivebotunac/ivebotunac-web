@@ -1,4 +1,4 @@
-import { createGameLimiter, nameRun, parseGameEvent, recordPop, recordTeam, startRun } from '../../utils/game-stats'
+import { createGameLimiter, nameRun, parseGameEvent, recordBoss, recordPop, recordTeam, startRun } from '../../utils/game-stats'
 
 const limiter = createGameLimiter()
 
@@ -25,13 +25,15 @@ export default defineEventHandler(async (event) => {
   let result
   try {
     if (parsed.kind === 'pop') return await recordPop()
-    if (parsed.kind === 'run') return await startRun()
-    result = parsed.kind === 'team' ? await recordTeam(parsed.ms, parsed.run) : await nameRun(parsed.run, parsed.initials)
+    if (parsed.kind === 'run') return await startRun(parsed.game)
+    if (parsed.kind === 'team') result = await recordTeam(parsed.ms, parsed.run, parsed.other)
+    else if (parsed.kind === 'boss') result = await recordBoss(parsed.run, parsed.other)
+    else result = await nameRun(parsed.run, parsed.initials, parsed.other)
   } catch (err) {
     console.error('[game] event write failed:', err instanceof Error ? err.message : err)
     throw createError({ statusCode: 503, statusMessage: 'Game stats unavailable' })
   }
-  // a self-reported time under the floor, or a run already named or unknown
-  if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'team' ? 'Time too short' : 'Run cannot be named' })
+  // a self-reported time under the floor, a boss run unknown or impossibly fast, or a run already named or unknown
+  if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'name' ? 'Run cannot be named' : 'Time not accepted' })
   return result
 })

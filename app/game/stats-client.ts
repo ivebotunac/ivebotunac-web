@@ -7,6 +7,8 @@ export interface BoardEntry {
 
 export interface MyRun {
   ms: number
+  // the time these initials hold on the board, which can be an earlier, faster run
+  best: number | null
   place: number
   initials: string | null
 }
@@ -19,13 +21,15 @@ export interface GameStats {
   rank: number | null
   board: BoardEntry[]
   mine: MyRun | null
+  bossBoard: BoardEntry[]
+  bossMine: MyRun | null
 }
 
 const TIMEOUT_MS = 4000
 
 const isStats = (v: unknown): v is GameStats => {
   const s = v as GameStats | null
-  return !!s && typeof s === 'object' && typeof s.pops === 'number' && typeof s.teams === 'number' && Array.isArray(s.board)
+  return !!s && typeof s === 'object' && typeof s.pops === 'number' && typeof s.teams === 'number' && Array.isArray(s.board) && Array.isArray(s.bossBoard)
 }
 
 async function request<T>(path: string, ok: (v: unknown) => v is T, init?: RequestInit): Promise<T | null> {
@@ -50,8 +54,13 @@ const post = <T>(body: object, ok: (v: unknown) => v is T) => request('/api/game
   body: JSON.stringify(body),
 })
 
-export function getGameStats(run: string | null): Promise<GameStats | null> {
-  return request(run ? `/api/game/stats?run=${encodeURIComponent(run)}` : '/api/game/stats', isStats)
+// team: the visitor's team run to show; boss: their boss run.
+export function getGameStats(team: string | null, boss: string | null): Promise<GameStats | null> {
+  const q = new URLSearchParams()
+  if (team) q.set('run', team)
+  if (boss) q.set('boss', boss)
+  const qs = q.toString()
+  return request(qs ? `/api/game/stats?${qs}` : '/api/game/stats', isStats)
 }
 
 export function postPop(): Promise<unknown> {
@@ -59,15 +68,20 @@ export function postPop(): Promise<unknown> {
 }
 
 // The server notes the start; its id is this visitor's claim on the finished time.
-export async function startRun(): Promise<string | null> {
-  const r = await post({ kind: 'run' }, (v): v is { run: string } => typeof (v as { run?: unknown } | null)?.run === 'string')
+export async function startRun(game: 'team' | 'boss'): Promise<string | null> {
+  const r = await post({ kind: 'run', game }, (v): v is { run: string } => typeof (v as { run?: unknown } | null)?.run === 'string')
   return r?.run ?? null
 }
 
-export function postTeam(ms: number, run: string | null): Promise<GameStats | null> {
-  return post(run ? { kind: 'team', ms, run } : { kind: 'team', ms }, isStats)
+// other: the visitor's run of the other kind, so the answer carries both boards.
+export function postTeam(ms: number, run: string | null, other: string | null): Promise<GameStats | null> {
+  return post({ kind: 'team', ms, ...(run ? { run } : {}), ...(other ? { other } : {}) }, isStats)
 }
 
-export function postName(run: string, initials: string): Promise<GameStats | null> {
-  return post({ kind: 'name', run, initials }, isStats)
+export function postBoss(run: string, other: string | null): Promise<GameStats | null> {
+  return post({ kind: 'boss', run, ...(other ? { other } : {}) }, isStats)
+}
+
+export function postName(run: string, initials: string, other: string | null): Promise<GameStats | null> {
+  return post({ kind: 'name', run, initials, ...(other ? { other } : {}) }, isStats)
 }

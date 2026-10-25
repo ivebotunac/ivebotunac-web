@@ -11,7 +11,7 @@ const props = defineProps<{ cv: Cv }>()
 const active = useActiveSection()
 const navOpen = ref(false)
 
-const displayName = computed(() => props.cv.name.toLowerCase().replace(/ /g, ' '))
+const displayName = computed(() => props.cv.name.toLowerCase().replace(/ /g, '_'))
 const fullName = computed(() => [props.cv.name, props.cv.credential].filter(Boolean).join(', '))
 const updated = computed(() => formatUpdated(props.cv.updated))
 

@@ -38,7 +38,8 @@ export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
 export interface Peek { role: Role, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
 export interface Confetti { x: number, y: number, vx: number, vy: number, rot: number, vr: number, c: string, life: number, max: number }
 // What the HUD shows; the component holds it reactively.
-export interface QuestView { team: Role[], done: boolean, ms: number | null, run: string | null, boss: boolean }
+// run and bossRun: the fastest finished team and boss runs the card shows and offers to sign; bossMs: that fight's time.
+export interface QuestView { team: Role[], done: boolean, ms: number | null, run: string | null, bossRun: string | null, bossMs: number | null, boss: boolean }
 // The game's way out to the Vue layer: HUD state, screen-reader lines, and the finished team.
 export interface QuestBridge {
   view(v: QuestView): void
@@ -47,6 +48,8 @@ export interface QuestBridge {
   finished(ms: number, run: string | null): void
   // the end of the fly-by: opens the team card
   complete(): void
+  // a won boss fight and its run: posts it, then opens the card on the boss board
+  bossDone(run: string | null): void
 }
 
 // ---- team behaviours (team.ts) ----
@@ -66,4 +69,6 @@ export interface Boss {
   flash: number, shake: number, combo: number, comboT: number, lastHit: number, quarter: number
   atkCD: number, tele: { kind: 'lock' | 'spread', x: number, y: number, life: number, max: number } | null
   orbs: BossOrb[], ms: number, last: number, fireCD: number
+  // the server's id for this fight, which times it for the boss board
+  run: string | null
 }

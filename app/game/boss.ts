@@ -7,6 +7,7 @@ import { deployRocket } from './team'
 import { repairAll, scorch, textTarget } from './scorch'
 import { saveMemory } from './guide'
 import { track } from '~/utils/track'
+import { startRun } from './stats-client'
 import type { Memory } from './guide'
 import type { Game } from './core'
 import type { Boss, BossOrb } from './types'
@@ -57,8 +58,10 @@ export function startBoss(g: Game): void {
   if (g.boss || g.printing) return;
   g.boss = {
     phase: 'enter', x: g.W / 2, y: -14 * cell(g), t: 0, hp: HP, max: HP, shown: HP, flash: 0, shake: 0,
-    combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90
+    combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90, run: null
   };
+  const fight = g.boss;
+  void startRun('boss').then((run) => { if (run && g.boss === fight) fight.run = run; });
   if (g.trend) clearTrend(g);
   g.attackT = 0; g.beamAt = 0; g.angryT = 0; g.wake();
   burnSaid = false;
@@ -200,7 +203,10 @@ function defeat(g: Game, b: Boss): void {
   confetti(g, 60, x, y);
   g.rage(true); g.buzz([40, 30, 80, 30, 120]);
   repairAll(g);
-  if (record) { g.mem.bossMs = ms; saveMemory(g); }
+  if (record) g.mem.bossMs = ms;
+  // the fastest fight the server timed is the one the card offers to sign, kept through a restart
+  if (b.run && (g.mem.bossRunMs === null || ms < g.mem.bossRunMs)) { g.mem.bossRun = b.run; g.mem.bossRunMs = ms; }
+  saveMemory(g);
   const py = Math.max(140, g.H * 0.46);
   g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + fmtMs(ms), life: 0, max: 220, c: '#ff5a1f', size: g.W < 520 ? 20 : 26 });
   if (record && best !== null) g.popups.push({ x: g.W / 2, y: py + 30, text: 'new best!', life: 0, max: 200, c: '#0b6bcb', size: 15 });
@@ -209,6 +215,7 @@ function defeat(g: Game, b: Boss): void {
   g.bridge?.announce('AGI defeated in ' + fmtMs(ms) + '.' + (best === null ? '' : record ? ' New best.' : ' Best ' + fmtMs(best) + '.'));
   g.boss = null; g.angryT = 0;
   syncQuest(g);
+  g.bridge?.bossDone(b.run);
 }
 
 function leave(g: Game, b: Boss): void {
