@@ -1,7 +1,6 @@
 import type { Role, YearMonth } from '~/types/cv'
 
 const SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 const parse = (ym: YearMonth): [number, number] => {
   const [y, m] = ym.split('-').map(Number)
@@ -47,10 +46,4 @@ export const orgSpan = (roles: Role[]): { start: YearMonth, end: YearMonth | 'pr
     ? 'present'
     : roles.map(r => r.end as YearMonth).sort().at(-1)
   return { start: starts[0] as YearMonth, end: end as YearMonth | 'present' }
-}
-
-// "October 2026", for the rail's "Last updated".
-export const formatUpdated = (ym: YearMonth): string => {
-  const [y, m] = parse(ym)
-  return `${LONG[m - 1]}\u00A0${y}`
 }

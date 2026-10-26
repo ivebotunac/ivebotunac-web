@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cv } from '~/data/cv'
 import type { YearMonth } from '~/types/cv'
-import { formatDuration, formatRange, orgSpan, formatUpdated } from '~/utils/cv-dates'
+import { formatDuration, formatRange, orgSpan } from '~/utils/cv-dates'
 
 // The A4 layout that scripts/cv-pdf.mjs prints to public/ive-botunac-cv.pdf; same data as the page, never indexed.
 definePageMeta({ layout: false })
@@ -40,7 +40,7 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
           <a :href="`mailto:${EMAIL}`">{{ EMAIL }}</a>
           <a v-for="l in links" :key="l.href" :href="l.href">{{ l.text }}</a>
         </p>
-        <p class="head__loc">{{ cv.location }} · Updated {{ formatUpdated(cv.updated) }}</p>
+        <p class="head__loc">{{ cv.location }}</p>
       </div>
       <img v-if="cv.photo" class="head__photo" :src="cv.photo" alt="Ive Botunac" width="104" height="104">
     </header>

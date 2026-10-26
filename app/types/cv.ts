@@ -88,5 +88,4 @@ export interface Cv {
   education: Education[]
   certifications: Certification[]
   skills: Skill[]
-  updated: YearMonth
 }

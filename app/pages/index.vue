@@ -177,6 +177,13 @@ onUnmounted(() => {
   max-width: var(--pn-container-prose);
 }
 
+/* The last section's rows already end on a rule, so the footer drops its own and keeps clear space below it. */
+.content > .foot {
+  margin-top: 56px;
+  padding-top: 0;
+  border-top: 0;
+}
+
 .prose {
   margin: 0;
   font-size: .98rem;
@@ -195,6 +202,7 @@ onUnmounted(() => {
 
 @media (max-width: 540px) {
   .content { padding: 24px 0 0; }
+  .content > .foot { margin-top: 40px; }
 }
 
 @media print {

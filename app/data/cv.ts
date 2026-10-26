@@ -319,6 +319,5 @@ export const cv: Cv = {
       also: ['Jest', 'Cypress', 'MLOps'],
       proof: 'Unit, end-to-end and visual tests, CI on every push, and pipelines that take models from training to production.'
     }
-  ],
-  updated: '2026-10'
+  ]
 }
