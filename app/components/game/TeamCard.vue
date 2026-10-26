@@ -138,13 +138,21 @@ function onKeydown(e: KeyboardEvent) {
         <p class="tcard__kicker">6/6 sub-agents recruited</p>
         <h2 :id="titleId" class="tcard__title" tabindex="-1" autofocus>Team assembled<template v-if="time"> in {{ time }}</template></h2>
         <p v-if="globalLine" class="tcard__line">{{ globalLine }}</p>
+        <p v-else-if="!stats && !statsOff" class="tcard__line" aria-hidden="true">
+          <span class="cv-skel tcard__skel" /><span class="cv-skel tcard__skel tcard__skel--short" />
+        </p>
         <p class="tcard__body">Five of them were hiding in the CV, so you have read more of it than most. Thanks for that.</p>
       </template>
 
       <p v-if="!stats && statsOff" class="tcard__offline">The leaderboard is offline right now. Your times are kept on this device.</p>
-      <template v-if="stats">
-        <LeaderBoard :board="stats.board" :mine="stats.mine" :run="bossRun" @stats="s => emit('stats', s)" />
-      </template>
+      <LeaderBoard
+        v-if="stats || !statsOff"
+        :board="stats?.board ?? []"
+        :mine="stats?.mine ?? null"
+        :run="bossRun"
+        :loading="!stats"
+        @stats="s => emit('stats', s)"
+      />
       <div class="tcard__actions">
         <div class="tcard__social">
           <a class="tcard__btn tcard__btn--linkedin" :href="LINKEDIN" target="_blank" rel="noopener" @click="cta('linkedin')">
@@ -235,6 +243,10 @@ function onKeydown(e: KeyboardEvent) {
   line-height: 1.45;
   color: var(--pn-text);
 }
+
+/* Two lines, the length "347 visitors have assembled the team so far." wraps to. */
+.tcard__skel { width: 100%; }
+.tcard__skel--short { width: 45%; }
 
 .tcard__body {
   margin: 10px 0 0;

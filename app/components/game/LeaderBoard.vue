@@ -6,8 +6,12 @@ import { formatDuration as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 
 // The AGI top ten on the team card, with the three-letter signature for the visitor's fight. run: the fight to sign.
-const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string | null }>()
+// loading: the board has not answered yet, so a full top ten of grey rows holds its place.
+const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string | null, loading?: boolean }>()
 const emit = defineEmits<{ (e: 'stats', s: GameStats): void }>()
+
+// BOARD_SIZE on the server
+const SKELETON_ROWS = 10
 
 const inputId = useId()
 const canName = computed(() => !!props.run && !!props.mine && !props.mine.initials)
@@ -39,7 +43,7 @@ async function save() {
 </script>
 
 <template>
-  <section class="lboard" aria-label="Fastest AGI kills">
+  <section class="lboard" aria-label="Fastest AGI kills" :aria-busy="loading">
     <p class="lboard__title">Fastest AGI kills</p>
     <form v-if="canName" class="lboard__name" @submit.prevent="save">
       <label class="lboard__name-label" :for="inputId">{{ label }}</label>
@@ -59,7 +63,15 @@ async function save() {
       </div>
       <p v-if="error" class="lboard__name-err" role="alert">{{ error }}</p>
     </form>
-    <ol v-if="board.length" class="lboard__rows">
+    <template v-if="loading">
+      <p class="cv-sr-only">Loading the board.</p>
+      <ol class="lboard__rows" aria-hidden="true">
+        <li v-for="i in SKELETON_ROWS" :key="i" class="lboard__row lboard__row--skel">
+          <span class="lboard__pos">{{ i }}</span><span class="cv-skel lboard__skel-ini" /><span class="cv-skel lboard__skel-t" />
+        </li>
+      </ol>
+    </template>
+    <ol v-else-if="board.length" class="lboard__rows">
       <li v-for="(e, i) in board" :key="e.initials" class="lboard__row" :class="{ 'is-mine': e.mine }">
         <span class="lboard__pos">{{ i + 1 }}</span><span class="lboard__ini">{{ e.initials }}</span><span class="lboard__t">{{ fmt(e.ms) }}</span>
       </li>
@@ -95,15 +107,20 @@ async function save() {
   color: var(--pn-text-muted);
 }
 
+/* One set of columns for every row, so a place like #12345 widens the first one and the initials stay in line. */
 .lboard__rows {
+  display: grid;
+  grid-template-columns: minmax(2.2em, max-content) 1fr auto;
   list-style: none;
   margin: 0;
   padding: 0;
+  font-size: .78rem;
 }
 
 .lboard__row {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 2.2em 1fr auto;
+  grid-template-columns: subgrid;
   align-items: center;
   min-height: 22px;
   font-family: var(--pn-font-mono);
@@ -113,7 +130,10 @@ async function save() {
 
 .lboard__row + .lboard__row { border-top: 1px dashed var(--pn-border); }
 .lboard__row--below { border-top-style: solid !important; margin-top: 2px; }
-.lboard__pos { color: var(--pn-text-muted); }
+.lboard__pos { padding-right: .6em; color: var(--pn-text-muted); }
+.lboard__t { justify-self: end; }
+.lboard__skel-ini { width: 2.2em; }
+.lboard__skel-t { width: 2.6em; justify-self: end; }
 .lboard__ini { font-weight: 700; letter-spacing: .12em; }
 .lboard__row.is-mine { color: var(--pn-primary-600); }
 .lboard__row.is-mine .lboard__pos { color: inherit; }
