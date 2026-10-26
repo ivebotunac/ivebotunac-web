@@ -16,7 +16,7 @@ export interface Org {
   url?: string
   logo?: string
   monogram: string
-  // Full-time, Part-time, Contractor, Self-employed or Volunteer; shown beside every org.
+  // Full-time, Part-time, Contract, Self-employed or Volunteer; shown beside every org.
   kind: string
   location?: string
   roles: Role[]

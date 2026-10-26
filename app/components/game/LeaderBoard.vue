@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { computed, ref, useId } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { postName } from '~/game/stats-client'
 import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
 import { formatDuration as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 
-// The AGI top ten on the team card, with the three-letter signature for the visitor's fight. run: the fight to sign.
-// loading: the board has not answered yet, so a full top ten of grey rows holds its place.
+// The AGI top ten on the team card, five a page, with the three-letter signature for the visitor's fight. run: the fight to sign.
+// loading: the board has not answered yet, so a full page of grey rows and the pager hold their place.
 const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string | null, loading?: boolean }>()
 const emit = defineEmits<{ (e: 'stats', s: GameStats): void }>()
 
-// BOARD_SIZE on the server
-const SKELETON_ROWS = 10
+const PAGE_SIZE = 5
+// BOARD_SIZE on the server, so a full board has these pages
+const SKELETON_PAGES = 2
+
+const page = ref(0)
+const pages = computed(() => Math.ceil(props.board.length / PAGE_SIZE))
+const shown = computed(() => props.board.slice(page.value * PAGE_SIZE, (page.value + 1) * PAGE_SIZE))
+const pageLabel = (p: number) => `${p * PAGE_SIZE + 1}–${Math.min((p + 1) * PAGE_SIZE, props.board.length)}`
+// A new answer opens on the visitor's own page, the first one otherwise.
+watch(() => props.board, (b) => {
+  const at = b.findIndex(e => e.mine)
+  page.value = at < 0 ? 0 : Math.floor(at / PAGE_SIZE)
+}, { immediate: true })
 
 const inputId = useId()
 const canName = computed(() => !!props.run && !!props.mine && !props.mine.initials)
@@ -66,19 +77,36 @@ async function save() {
     <template v-if="loading">
       <p class="cv-sr-only">Loading the board.</p>
       <ol class="lboard__rows" aria-hidden="true">
-        <li v-for="i in SKELETON_ROWS" :key="i" class="lboard__row lboard__row--skel">
+        <li v-for="i in PAGE_SIZE" :key="i" class="lboard__row lboard__row--skel">
           <span class="lboard__pos">{{ i }}</span><span class="cv-skel lboard__skel-ini" /><span class="cv-skel lboard__skel-t" />
         </li>
       </ol>
+      <div class="lboard__pager" aria-hidden="true">
+        <span v-for="p in SKELETON_PAGES" :key="p" class="cv-skel lboard__skel-page" />
+      </div>
     </template>
-    <ol v-else-if="board.length" class="lboard__rows">
-      <li v-for="(e, i) in board" :key="e.initials" class="lboard__row" :class="{ 'is-mine': e.mine }">
-        <span class="lboard__pos">{{ i + 1 }}</span><span class="lboard__ini">{{ e.initials }}</span><span class="lboard__t">{{ fmt(e.ms) }}</span>
-      </li>
-      <li v-if="below" class="lboard__row is-mine lboard__row--below">
-        <span class="lboard__pos">{{ below.place }}</span><span class="lboard__ini">{{ below.initials }}</span><span class="lboard__t">{{ fmt(below.best ?? below.ms) }}</span>
-      </li>
-    </ol>
+    <template v-else-if="board.length">
+      <ol class="lboard__rows" :start="page * PAGE_SIZE + 1">
+        <li v-for="(e, i) in shown" :key="e.initials" class="lboard__row" :class="{ 'is-mine': e.mine }">
+          <span class="lboard__pos">{{ page * PAGE_SIZE + i + 1 }}</span><span class="lboard__ini">{{ e.initials }}</span><span class="lboard__t">{{ fmt(e.ms) }}</span>
+        </li>
+        <li v-if="below" class="lboard__row is-mine lboard__row--below">
+          <span class="lboard__pos">{{ below.place }}</span><span class="lboard__ini">{{ below.initials }}</span><span class="lboard__t">{{ fmt(below.best ?? below.ms) }}</span>
+        </li>
+      </ol>
+      <nav v-if="pages > 1" class="lboard__pager" aria-label="Board pages">
+        <button
+          v-for="p in pages"
+          :key="p"
+          type="button"
+          class="lboard__page"
+          :aria-current="page === p - 1 ? 'page' : undefined"
+          @click="page = p - 1"
+        >
+          {{ pageLabel(p - 1) }}
+        </button>
+      </nav>
+    </template>
     <p v-else-if="!canName" class="lboard__note">No one has signed this board yet.</p>
     <p v-if="kept" class="lboard__note lboard__note--gap">{{ kept }}</p>
   </section>
@@ -134,6 +162,36 @@ async function save() {
 .lboard__t { justify-self: end; }
 .lboard__skel-ini { width: 2.2em; }
 .lboard__skel-t { width: 2.6em; justify-self: end; }
+
+/* One button per five places; the open page reads as pressed. */
+.lboard__pager {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lboard__page {
+  min-width: 3.6em;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--pn-border-brand);
+  border-radius: 0;
+  background-color: var(--pn-surface);
+  color: var(--pn-text-muted);
+  font: 600 .72rem/1 var(--pn-font-mono);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.lboard__page:hover { border-color: var(--pn-link); }
+.lboard__page[aria-current="page"] { border-color: var(--pn-text); background-color: var(--pn-text); color: var(--pn-text-on-ink); }
+
+.lboard__page:focus-visible {
+  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
+  outline-offset: var(--pn-focus-offset);
+}
+
+.lboard__skel-page { width: 3.6em; height: 28px; }
 .lboard__ini { font-weight: 700; letter-spacing: .12em; }
 .lboard__row.is-mine { color: var(--pn-primary-600); }
 .lboard__row.is-mine .lboard__pos { color: inherit; }

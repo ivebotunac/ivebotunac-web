@@ -80,7 +80,7 @@ export const cv: Cv = {
       url: 'https://stockifi.io',
       logo: '/images/logos/stockifi-v2.webp',
       monogram: 'S',
-      kind: 'Contractor',
+      kind: 'Contract',
       location: 'Oslo, Norway',
       roles: [
         {
