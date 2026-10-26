@@ -11,8 +11,9 @@ const top = computed(() => props.org.roles[0]!)
 
 const span = computed(() => orgSpan(props.org.roles))
 const tenure = computed(() => formatDuration(span.value.start, span.value.end, props.now))
-// "2020 – now" on the closed row; the details carry months and durations.
-const years = computed(() => `${span.value.start.slice(0, 4)} – ${span.value.end === 'present' ? 'now' : span.value.end.slice(0, 4)}`)
+// "2020 – now" on the closed row, "now" in orange; the details carry months and durations.
+const current = computed(() => span.value.end === 'present')
+const until = computed(() => (span.value.end === 'present' ? 'now' : span.value.end.slice(0, 4)))
 
 const when = (start: YearMonth, end: YearMonth | 'present') =>
   `${formatRange(start, end)} · ${formatDuration(start, end, props.now)}`
@@ -29,7 +30,7 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
           <h3 class="org__title">{{ top.title }}</h3>
           <span class="org__line">{{ org.org }}<template v-if="org.kind"> · {{ org.kind }}</template></span>
         </span>
-        <span class="org__years">{{ years }}</span>
+        <span class="org__years">{{ span.start.slice(0, 4) }} – <span :class="{ 'org__now': current }">{{ until }}</span></span>
         <span class="cv-tog" title="Details" aria-hidden="true" />
       </summary>
 
@@ -108,6 +109,9 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
   color: var(--pn-text-muted);
   white-space: nowrap;
 }
+
+/* The orange of the section numbers. */
+.org__now { color: var(--pn-accent-text); font-weight: 600; }
 
 .org__body { padding: 0 0 22px 64px; }
 

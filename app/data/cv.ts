@@ -43,19 +43,19 @@ export const cv: Cv = {
           title: 'Director of Partnerships',
           start: '2025-07',
           end: 'present',
-          desc: 'Lead strategic partnerships and acquisitions – partner relations and AI coordination across international consortia on European Defence Fund projects such as HYBRID and LODESTAR II.'
+          desc: 'Lead strategic partnerships and acquisitions for the group. On European Defence Fund projects I handle partner communication, divide the AI work and coordinate teams across international consortia, among them HYBRID (€3.3M, an AI reconnaissance drone) and LODESTAR II (€7.1M, AR and AI for soldier systems). I also run partner relations on national EU projects with AI components.'
         },
         {
           title: 'Director of Research & Development',
           start: '2021-12',
           end: '2025-08',
-          desc: 'Drove the application of AI across innovative solutions – leading projects, collaborating with global partners, and building product teams.'
+          desc: 'Led the R&D department and its AI work: projects with international partners, machine-learning models for client and in-house products, and the MLOps practice that kept them running. Also shaped hiring and built the teams behind the in-house products.'
         },
         {
           title: 'Data Scientist',
           start: '2020-12',
           end: '2021-11',
-          desc: 'Built machine-learning solutions tailored to client needs and helped form a team dedicated to in-house products.'
+          desc: 'Built machine-learning solutions tailored to client needs, and led the forming of a development team for the company\'s own products.'
         }
       ]
     },
@@ -71,7 +71,23 @@ export const cv: Cv = {
           title: 'Assistant Professor',
           start: '2026-07',
           end: 'present',
-          desc: 'Teaching computer science at the new Department of Mechatronics and Robotics and helping build its study programme.'
+          desc: 'Teaching computer science at the newly founded Department of Mechatronics and Robotics, from its first generation of students. I help build the study programme and bring industry practice and AI research into the classroom.'
+        }
+      ]
+    },
+    {
+      org: 'Stockifi',
+      url: 'https://stockifi.io',
+      logo: '/images/logos/stockifi-v2.webp',
+      monogram: 'S',
+      kind: 'Contractor',
+      location: 'Oslo, Norway',
+      roles: [
+        {
+          title: 'AI Research Engineer',
+          start: '2025-10',
+          end: 'present',
+          desc: 'Research and build agentic AI for a hospitality platform trusted by 500+ restaurants across Europe, from bars to hotel F&B, that gives them full visibility over their food costs. My focus is invoice automation: AI agents that read supplier invoices line by line and match every line to the venue\'s own items, so recipe costs follow each supplier price change.'
         }
       ]
     },
@@ -80,20 +96,20 @@ export const cv: Cv = {
       url: 'https://croai.org',
       logo: '/images/logos/croai-v2.webp',
       monogram: 'C',
-      kind: 'Nonprofit',
+      kind: 'Volunteer',
       location: 'Zagreb, Croatia',
       roles: [
         {
           title: 'Board President',
           start: '2025-12',
           end: 'present',
-          desc: 'Leading CroAI into its next chapter – new statute, Management & Supervisory Boards, and the direction of Croatia\'s AI community.'
+          desc: 'Leading CroAI into its next chapter after a year as acting President: a new statute, the Management and Supervisory Boards, and the direction of Croatia\'s AI community.'
         },
         {
           title: 'Vice President (acting President)',
           start: '2024-12',
           end: '2025-12',
-          desc: 'Shaped Croatia\'s AI ecosystem – 3,600+ educators trained through “AI se educiraj”, and a seat in the working group for Croatia\'s AI Strategy 2026–2032.'
+          desc: 'Helped grow Croatia\'s AI landscape from 200 to 500+ actors, connecting companies, startups, academia and government. 3,600+ educators trained on ethical AI through “AI se educiraj”, 80+ Heroes workshops for students, and a seat in the working group for Croatia\'s AI Strategy 2026–2032.'
         }
       ]
     },
@@ -109,7 +125,7 @@ export const cv: Cv = {
           title: 'Founder',
           start: '2025-02',
           end: 'present',
-          desc: 'My indie dev studio: I design, build and look after focused AI-powered mobile apps on the App Store and Google Play, among them Primo Notes, Primo Scale and Primo Nautic.'
+          desc: 'My indie dev studio. I design, build and look after a portfolio of 13 focused AI-powered apps on the App Store and Google Play, among them Primo Notes, Primo Scale and Primo Nautic, together with their websites, all run through an agentic AI development workflow of my own.'
         }
       ]
     },
@@ -125,29 +141,31 @@ export const cv: Cv = {
           title: 'Founder & CEO',
           start: '2017-05',
           end: '2025-12',
-          desc: 'Founded and led Sintelly, an AI + CBT mental-health app that reached over 1.5M downloads.'
+          desc: 'Founded and led Sintelly, a mobile app that pairs AI with cognitive behavioural therapy and reached over 1.5M downloads worldwide. Built and shipped the AI-driven CBT tools that guide users through therapy techniques, making mental-health support available to anyone with a smartphone.'
         }
       ]
     },
     {
-      org: 'Zadar Developers Hub · ZadarConnect',
+      org: 'ZadarConnect',
       logo: '/images/logos/zddevhub-v2.webp',
       monogram: 'Z',
+      kind: 'Volunteer',
       location: 'Zadar, Croatia',
       roles: [
         {
           title: 'President',
           start: '2022-09',
           end: '2025-06',
-          desc: 'Led the ZadarConnect project – meetups and the SheepAI Hackathon (88 participants, €35,000 prize pool), growing Zadar\'s tech community.'
+          desc: 'Led ZadarConnect, a non-profit that brings together everyone in Zadar interested in tech and business. Ran a series of meetups and co-organised the SheepAI Hackathon (88 participants, €35,000 prize pool) to grow the city\'s tech community.'
         }
       ]
     },
     {
-      org: 'Ministry of Defence (MORH) / Croatian Air Force',
+      org: 'Ministry of Defence (Croatian Air Force)',
       url: 'https://www.morh.hr',
       logo: '/images/logos/morh-v2.webp',
       monogram: 'M',
+      kind: 'Full-time',
       location: 'Zadar, Croatia',
       roles: [
         { title: 'Technician', start: '2009-02', end: '2017-02' }
