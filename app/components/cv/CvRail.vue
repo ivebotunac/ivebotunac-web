@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import type { Cv } from '~/types/cv'
 import { CV_SECTIONS } from '~/components/layout/nav'
 import { useActiveSection } from '~/composables/useActiveSection'
-import { formatUpdated } from '~/utils/cv-dates'
 import CvMonoImage from './CvMonoImage.vue'
 
 const props = defineProps<{ cv: Cv }>()
@@ -13,7 +12,6 @@ const navOpen = ref(false)
 
 const displayName = computed(() => props.cv.name.toLowerCase().replace(/ /g, '_'))
 const fullName = computed(() => [props.cv.name, props.cv.credential].filter(Boolean).join(', '))
-const updated = computed(() => formatUpdated(props.cv.updated))
 
 // Scrolls without the router, keeps the hash in the address bar, and hands focus to the section.
 const goTo = (id: string) => {
@@ -78,8 +76,6 @@ const goTo = (id: string) => {
         @click.exact.prevent="goTo(s.id)"
       ><span class="railnav__num">{{ s.num }}</span> {{ s.label }}</a>
     </nav>
-
-    <p class="rail__foot">Last updated<br>{{ updated }}</p>
   </div>
 </template>
 
@@ -223,14 +219,6 @@ const goTo = (id: string) => {
   transform: translateY(-50%);
 }
 
-.rail__foot {
-  margin: 24px 0 0;
-  font-family: var(--pn-font);
-  font-size: .68rem;
-  line-height: 1.5;
-  color: var(--pn-text-faint);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .cursor { animation: none; }
 }
@@ -308,7 +296,6 @@ const goTo = (id: string) => {
 
   .railnav a { padding: 7px 0; }
   .railnav a.active::before { display: none; }
-  .rail__foot { display: none; }
 }
 
 @media (max-width: 540px) {

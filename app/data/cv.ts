@@ -6,8 +6,8 @@ export const cv: Cv = {
   credential: 'PhD',
   photo: '/images/ive-botunac-v2.webp',
   monogram: 'ib',
-  role: ['PhD · AI Research Engineer', 'Assistant Professor · Founder'],
-  location: 'Zadar, Croatia · 45°N',
+  role: ['AI Research Engineer · Founder', 'Assistant Professor · PhD in AI'],
+  location: 'Zadar, Croatia',
   lead: [
     'AI research engineer, assistant professor and founder. I build agentic AI systems, lead partnerships, and publish – from ',
     { em: 'LLM-driven trading systems' },
@@ -62,7 +62,7 @@ export const cv: Cv = {
     {
       org: 'University of Zadar',
       url: 'https://www.unizd.hr',
-      logo: '/images/logos/unizd.webp',
+      logo: '/images/logos/unizd-v2.webp',
       monogram: 'U',
       kind: 'Part-time',
       location: 'Zadar, Croatia',

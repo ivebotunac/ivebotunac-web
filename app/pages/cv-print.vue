@@ -40,7 +40,7 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
           <a :href="`mailto:${EMAIL}`">{{ EMAIL }}</a>
           <a v-for="l in links" :key="l.href" :href="l.href">{{ l.text }}</a>
         </p>
-        <p class="head__loc">{{ cv.location.split(' · ')[0] }} · Updated {{ formatUpdated(cv.updated) }}</p>
+        <p class="head__loc">{{ cv.location }} · Updated {{ formatUpdated(cv.updated) }}</p>
       </div>
       <img v-if="cv.photo" class="head__photo" :src="cv.photo" alt="Ive Botunac" width="104" height="104">
     </header>
