@@ -67,6 +67,9 @@ export function calmHint(g: Game): boolean {
   else if (!knows(g, 'pet') && !g.coarse && knows(g, 'throw')) want.push('pet')
   // the quest comes after half a minute, until the first agent is found
   if (!knows(g, 'team') && g.t > 1800) want.push('team')
+  // carrying agents and luring with the trend, once there is a team to throw and a trend in the air
+  if (!knows(g, 'toss') && g.team.length > 0 && knows(g, 'throw')) want.push('toss')
+  if (!knows(g, 'lure') && g.trend && !g.trend.held && knows(g, 'hit')) want.push('lure')
   // a hint not yet said goes before a repeat of another
   const s = want.find(k => !g.hintSaid[k]) ?? want.find(k => (g.hintSaid[k] || 0) < MAX_SAID)
   // a first hint speaks at once; a repeat, or the quest hint queued behind another, waits REPEAT

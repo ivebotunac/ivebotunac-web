@@ -1,10 +1,7 @@
 // Tuning constants, palette and every text bank; pure data plus two pure helpers.
 
-export type CritterName =
-  | 'sparky' | 'flarewing' | 'emberling' | 'seedling' | 'shellback' | 'puffball' | 'shadowfang' | 'fennec' | 'slumberlump' | 'dazeduck' | 'coincat'
-  | 'flamequill' | 'mudfin' | 'aurapup' | 'flipperkin' | 'sandshark' | 'shadefrog' | 'ribbonfay' | 'ragghost' | 'blazebun' | 'leafkit'
-
-export type FormName = 'robot' | CritterName
+// 'robot', or the key of a critter sprite in critters/.
+export type FormName = string
 
 export type Mood = 'idle' | 'happy' | 'attack' | 'mad' | 'knock'
 
@@ -38,11 +35,6 @@ export const col: Palette = {
   spark: ['#ff5a1f', '#36c6e0', '#ffffff']
 }
 
-export const CRITTERS: CritterName[] = [
-  'sparky', 'flarewing', 'emberling', 'seedling', 'shellback', 'puffball', 'shadowfang', 'fennec', 'slumberlump', 'dazeduck', 'coincat',
-  'flamequill', 'mudfin', 'aurapup', 'flipperkin', 'sandshark', 'shadefrog', 'ribbonfay', 'ragghost', 'blazebun', 'leafkit'
-]
-
 // Responsive floor 0.9 keeps it clearly visible on phones.
 export function dispScale(W: number): number {
   return BASE * Math.max(0.9, Math.min(1, W / 720))
@@ -63,15 +55,19 @@ export const recoverLines: string[] = ['✦ recompiling ✦', 'back, and fine-tu
 export const hitLines: string[] = ['Gotcha, human.', 'Cursor acquired.', 'Target locked.', 'Tag, you\'re trained.']
 export const missLines: string[] = ['missed. recalibrating…', 'lag. blame the GPU.', 'you dodged. impressive.']
 export const stealLines: string[] = ['Hey! That trend was MINE.', 'Give it back, human!', 'Stealing my trends? rude.', 'That\'s MY alpha, attack mode on.', 'You\'ll regret that catch.']
+// Said when the visitor drags the trend tag around instead of popping it.
+export const lureLines: string[] = ['ooh. a trend. come here.', 'give me that!', 'I must have it.', 'stop waving it, I\'m coming!']
 export const caughtTpl: string[] = ['Caught the ', 'Acquired: ', 'Shipped: ']
 // The tutorial, one skill at a time; `touch` replaces `mouse` on phones.
-export const TUT_LINES: Record<'hit' | 'juggle' | 'pop' | 'throw' | 'pet' | 'team', { mouse: string, touch: string }> = {
+export const TUT_LINES: Record<'hit' | 'juggle' | 'pop' | 'throw' | 'pet' | 'team' | 'toss' | 'lure', { mouse: string, touch: string }> = {
   hit: { mouse: 'psst. click me.', touch: 'psst. tap me.' },
   juggle: { mouse: 'hit me again before I land!', touch: 'tap me again before I land!' },
   pop: { mouse: 'careful. every hit inflates me.', touch: 'careful. every hit inflates me.' },
   throw: { mouse: 'fine. now grab me, drag, and let go.', touch: 'fine. now hold me, drag, and let go.' },
   pet: { mouse: 'or be nice: move slowly over me.', touch: '' },
-  team: { mouse: 'psst. my sub-agents ran off into the CV. open a few rows to find them.', touch: 'psst. my sub-agents ran off into the CV. open a few rows to find them.' }
+  team: { mouse: 'psst. my sub-agents ran off into the CV. open a few rows to find them.', touch: 'psst. my sub-agents ran off into the CV. open a few rows to find them.' },
+  toss: { mouse: 'my agents can be grabbed and thrown too. gently.', touch: 'my agents can be grabbed and thrown too. gently.' },
+  lure: { mouse: 'grab that trend and drag it. I\'ll follow.', touch: 'hold that trend and drag it. I\'ll follow.' }
 }
 export const welcomeLines: string[] = ['welcome back, human.', 'oh. you again.', 'back for more?']
 export const welcomePopLines: string[] = ['welcome back. I still remember the pop.', 'oh, it\'s the one who popped me.']
@@ -125,6 +121,11 @@ export const restartLines: string[] = ['factory reset complete. who are you agai
 // The recruited team's small talk.
 export const reviewLines: string[] = ['LGTM', 'nit: rename this', 'needs tests', 'approved ✓', 'ship it', 'nit: typo', 'left 1 comment', 'why not a const?']
 export const bossReviewLines: string[] = ['changes requested', 'REJECTED', 'blocking: AGI', 'needs alignment']
+// A carried agent, a thrown one, its landing, and the robot watching its teammate fly.
+export const agentGrabLines: string[] = ['hey!', 'put me down', 'out of scope!', 'not in my prompt']
+export const agentTossLines: string[] = ['wheee!', 'yeet()', 'async!', 'airborne!']
+export const agentLandLines: string[] = ['@_@', 'recalibrating', 'which way is prod?', 'again!']
+export const agentTossRobotLines: string[] = ['hey! that\'s my {r}.', 'careful, the {r} bruises.', 'nice throw. poor {r}.']
 // The AGI boss.
 export const bossStartLines: string[] = ['AGI incoming. team, assemble!', 'it\'s here. everyone, attack!', 'AGI arrived early. fight it!']
 export const bossHalfLines: string[] = ['it\'s adapting. keep hitting!', 'half way. don\'t stop now.', 'it\'s scaling. so are we.']
@@ -136,31 +137,8 @@ export const CONFETTI: string[] =['#ff5a1f', '#36c6e0', '#0b6bcb', '#9b6bff', '#
 
 export const trends: string[] = ['Agentic AI', 'Reasoning models', 'World models', 'Multi-agent', 'MCP', 'Computer use', 'Test-time compute', 'Vision-Language-Action', 'On-device AI', 'Physical AI', 'Voice agents', 'Long context', 'Mixture-of-Experts', 'Synthetic data', 'RAG 2.0', 'Inference scaling']
 
-// The one-liner each form says on morph.
-export const FORM_LINE: Record<FormName, string[]> = {
-  sparky: ['A wild SPARKY appeared!', 'pika? …pika.', '10,000 volts of compute.'],
-  flarewing: ['FLAREWING evolved!', 'rawr, GPU\'s on fire.', 'this CV is straight fire.'],
-  emberling: ['EMBERLING is fired up.', 'tiny lizard, big flame.', 'compiling… with heat.'],
-  seedling: ['SEEDLING used Growth.', 'planting neural seeds.', 'photosynthesizing data.'],
-  shellback: ['SHELLBACK splashed in!', 'water-cooled inference.', 'turtle power, basically.'],
-  puffball: ['PUFFBALL wants to sing.', '♪ don\'t fall asleep ♪', 'rounder than your loss curve.'],
-  shadowfang: ['a SHADOW slips in…', 'boo. trained on nightmares.', 'ghost in the machine, literally.'],
-  fennec: ['FENNEC is adorable.', 'so many possible evolutions.', 'fluffiest model in the zoo.'],
-  slumberlump: ['SLUMBERLUMP yawns.', 'zzz… inference later.', 'big model, low power mode.'],
-  dazeduck: ['DAZEDUCK has a headache.', '…what was I computing?', 'psy-ay-ay. confusion.'],
-  coincat: ['COINCAT smells profit.', 'pay-day, human.', 'monetizing this CV as we speak.'],
-  flamequill: ['EMBERSPINE sparks up.', 'back flames, back-end heat.', 'Gen 2, still cooking.'],
-  mudfin: ['so I herd u liek MUDFIN?', 'water types > your tests.', 'splash damage incoming.'],
-  aurapup: ['AURAWOLF senses your aura.', 'I read your commit history.', 'aura sphere → straight to prod.'],
-  flipperkin: ['TUXFLIPPER, dressed to deploy.', 'proud little penguin.', 'ice-cold inference.'],
-  sandshark: ['DUNESHARK at mach speed.', 'land-shark, meet your CV.', 'outspeeds your CI.'],
-  shadefrog: ['SHADEFROG vanishes…', 'ninja-merged that PR.', 'water-shuriken your bugs.'],
-  ribbonfay: ['RIBBONFAY says hi 🎀', 'fairy-type charm offensive.', 'tied your loose ends in ribbons.'],
-  ragghost: ['RAGGHOST just wants a friend.', 'don\'t look under the cloth.', 'cosplaying as your favorite.'],
-  blazebun: ['PYREHARE is warming up.', 'blaze kick on legacy code.', 'fast feet, hot takes.'],
-  leafkit: ['LEAFKIT, freshly sprouted.', 'Gen 9 and growing.', 'photosynthesizing your data.'],
-  robot: ['the magic fades, robot again.', 'transformation complete: me.', 'beep boop, true form restored.']
-}
+// Said on morphing back from a critter; each critter brings its own morph lines.
+export const ROBOT_LINES: string[] = ['the magic fades, robot again.', 'transformation complete: me.', 'beep boop, true form restored.']
 
 export function rand(a: number, b: number): number {
   return a + Math.random() * (b - a)

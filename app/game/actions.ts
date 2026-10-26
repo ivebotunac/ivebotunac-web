@@ -1,13 +1,15 @@
 // What the robot and the visitor do: attacks, trends, input and hit reactions.
-import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
+import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, lureLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
 import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
 import { hitPeek, questPop } from './quest'
 import { hitBoss } from './boss'
-import { onTrendCaught } from './team'
+import { agentAt, grabAgent, onTrendCaught, tossAgent } from './team'
+import { linesFor } from './critters'
 import { postPop } from './stats-client'
 import { track } from '~/utils/track'
 import type { Game } from './core'
+import type { Carry } from './types'
 
 export function segDist(px: number, py: number, ax: number, ay: number, bx: number, by: number): number {
   const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
@@ -91,11 +93,12 @@ export function updateBullets(g: Game, recent: boolean): void {
 // ---- trends (the flying AI-trend tags) ----
 export function spawnTrend(g: Game): void {
   const fromLeft = Math.random() < 0.5;
-  g.trend = { x: fromLeft ? -90 : g.W + 90, baseY: rand(110, Math.max(150, g.H - 200)), y: 0, vx: (fromLeft ? 1 : -1) * rand(1.2, 1.7), tt: 0, label: pick(trends), hits: 0 };
+  g.trend = { x: fromLeft ? -90 : g.W + 90, baseY: rand(110, Math.max(150, g.H - 200)), y: 0, vx: (fromLeft ? 1 : -1) * rand(1.2, 1.7), tt: 0, label: pick(trends), hits: 0, held: false, fvx: 0, fvy: 0 };
   g.trend.y = g.trend.baseY; g.trendEl.textContent = g.trend.label; g.trendEl.hidden = false;
 }
 
 export function clearTrend(g: Game): void {
+  if (g.carry?.kind === 'trend') g.carry = null;
   g.trend = null; g.trendEl.hidden = true; g.trendCD = 520 + (rand(0, 420) | 0);
 }
 
@@ -108,19 +111,31 @@ export function humanGrab(g: Game): void {
   clearTrend(g); g.angryT = 260;
 }
 
+// A dragged tag sits where the hand puts it; a thrown one carries the throw, which fades back into its cruise.
 export function updateTrendMotion(g: Game): void {
-  if (g.trend) {
-    g.trend.tt++; g.trend.x += g.trend.vx; g.trend.y = g.trend.baseY + Math.sin(g.trend.tt * 0.04) * 32;
-    g.trendEl.style.transform = 'translate(' + g.trend.x + 'px,' + g.trend.y + 'px)';
-    if (g.trend.x < -150 || g.trend.x > g.W + 150) clearTrend(g);
+  const tr = g.trend;
+  if (!tr) return;
+  tr.tt++;
+  if (!tr.held) {
+    tr.x += tr.vx + tr.fvx; tr.fvx *= 0.95;
+    tr.baseY = clamp(tr.baseY + tr.fvy, 40, Math.max(60, g.H - 60)); tr.fvy *= 0.95;
+    tr.y = tr.baseY + Math.sin(tr.tt * 0.04) * 32;
   }
+  g.trendEl.style.transform = 'translate(' + tr.x + 'px,' + tr.y + 'px)';
+  if (!tr.held && (tr.x < -150 || tr.x > g.W + 150)) clearTrend(g);
 }
 
-// Chase from behind, never on top. Only called with a trend and no anger. Returns lerp.
+// Chase from behind, never on top; a tag in the visitor's hand is followed wherever it goes. Only called with a trend and no anger. Returns lerp.
 export function chaseTarget(g: Game): number {
   const trend = g.trend!;
   g.attackT = 0; g.beamAt = 0;
   const tw = g.trendEl.offsetWidth || 90;
+  if (trend.held) {
+    const cx = trend.x + tw / 2, cy = trend.y + 12, a = Math.atan2(g.pos.y - cy, g.pos.x - cx);
+    g.tgt.x = clamp(cx + Math.cos(a) * (tw / 2 + 50), 40, g.W - 40);
+    g.tgt.y = clamp(cy + Math.sin(a) * 60, 60, g.H - 60);
+    return 0.08;
+  }
   const behindX = trend.vx > 0 ? (trend.x - 100) : (trend.x + tw + 60);
   g.tgt.x = Math.max(40, Math.min(g.W - 40, behindX));
   g.tgt.y = Math.max(60, Math.min(g.H - 60, trend.y + 6));
@@ -133,8 +148,8 @@ export function shootAndCatch(g: Game): void {
     const dT = Math.hypot(g.pos.x - g.trend.x, g.pos.y - g.trend.y);
     if (g.fireCD > 0) g.fireCD--;
     if (central && dT < 320 && g.fireCD <= 0) { fireBeam(g, g.pos.x, g.pos.y - 6, g.trend.x, g.trend.y, '#36c6e0'); fxBurst(g, g.trend.x, g.trend.y, 5, '#36c6e0'); g.fireCD = 18; g.trend.hits++; }
-    // Lets it fly about 4.5s, then catches it with a laser from behind.
-    if (g.trend.tt > 280 && g.trend.hits >= 2) {
+    // Lets it fly about 4.5s, then catches it with a laser from behind; never out of the visitor's hand, nor mid-throw.
+    if (g.trend.tt > 280 && g.trend.hits >= 2 && !g.trend.held && Math.hypot(g.trend.fvx, g.trend.fvy) < 1) {
       const cx2 = g.trend.x, cy2 = g.trend.y;
       g.say(pick(caughtTpl) + g.trend.label + ' trend!'); fireBeam(g, g.pos.x, g.pos.y - 6, cx2, cy2, '#ff5a1f'); feedback(g, cx2, cy2, 'CAUGHT!', '#ff5a1f'); emit(g, 10, 12); onTrendCaught(g); clearTrend(g);
     }
@@ -164,7 +179,7 @@ export function knockRobot(g: Game, dirx: number): void {
   g.kvx = clamp(dirx, -7, 7); g.kvy = -4; g.krot = 0;
   // The more it is knocked, the angrier it gets and the more it targets the visitor.
   g.angryT = Math.min(900, g.angryT + 240);
-  emit(g, 16, 16); g.say(pick(knockLines)); feedback(g, g.pos.x, g.pos.y, 'POW!', '#0b6bcb');
+  emit(g, 16, 16); g.say(pick(linesFor(g, 'hit') ?? knockLines)); feedback(g, g.pos.x, g.pos.y, 'POW!', '#0b6bcb');
   impact(g, 5);
   if (g.gone <= 0) onKnock(g);
 }
@@ -207,7 +222,7 @@ export function pet(g: Game): void {
   g.petAcc++; g.angryT = Math.max(0, g.angryT - 6); g.puff = Math.max(0, g.puff - 0.004);
   g.attackT = 0; g.attackCD = Math.max(g.attackCD, 120);
   if (g.petAcc % 22 === 1) g.popups.push({ x: g.pos.x + rand(-14, 14), y: g.pos.y - 24 * g.size() * g.DS, text: '♥', life: 0, max: 50, c: '#ff6fa3', size: 17 });
-  if (g.petAcc === 90) { g.say(pick(petLines), 220); learn(g, 'pet'); }
+  if (g.petAcc === 90) { g.say(pick(linesFor(g, 'pet') ?? petLines), 220); learn(g, 'pet'); }
 }
 
 // Idle wandering target, lower and slower while asleep. Returns lerp.
@@ -225,11 +240,22 @@ function pointerDown(g: Game, x: number, y: number, robot = true): boolean {
   if (hitPeek(g, x, y)) { g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true; return true; }
   // the boss sits over the page, so it wins over the robot and stays hittable while the robot is popped
   if (hitBoss(g, x, y)) { g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true; return true; }
+  // a teammate is picked up at once, no hit; it stays grabbable while the robot is popped
+  const m = robot ? agentAt(g, x, y) : null;
+  if (m) {
+    g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true;
+    g.carry = { kind: 'agent', m, sx: x, sy: y, ox: m.x - x, oy: m.y - y, moved: true, hist: [{ x, y, ms: performance.now() }] };
+    grabAgent(g, m);
+    return true;
+  }
   if (g.gone > 0 || !robot) return false;
+  // the trend tag: a tap destroys it as before, a drag carries it and the robot follows
   if (g.trend && !g.trendEl.hidden) {
     const r = g.trendEl.getBoundingClientRect(), pad = g.coarse ? 16 : 12;
     if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
-      g.mouseX = x; g.mouseY = y; g.lastMove = g.t; humanGrab(g); g.swallowClick = true; return true;
+      g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true;
+      g.carry = { kind: 'trend', m: null, sx: x, sy: y, ox: g.trend.x - x, oy: g.trend.y - y, moved: false, hist: [{ x, y, ms: performance.now() }] };
+      return true;
     }
   }
   if (Math.hypot(x - g.pos.x, y - g.pos.y) >= g.hitR()) return false;
@@ -240,7 +266,51 @@ function pointerDown(g: Game, x: number, y: number, robot = true): boolean {
   return true;
 }
 
+function carryMove(g: Game, c: Carry, x: number, y: number): void {
+  c.hist.push({ x, y, ms: performance.now() }); if (c.hist.length > 8) c.hist.shift();
+  if (c.kind === 'agent') {
+    // a restart can take the member away mid-carry
+    if (!c.m || !g.team.includes(c.m)) { g.carry = null; return; }
+    c.m.x = clamp(x + c.ox, 12, g.W - 12); c.m.y = clamp(y + c.oy, 12, g.H - 12);
+    return;
+  }
+  const tr = g.trend;
+  if (!tr) { g.carry = null; return; }
+  if (!c.moved && Math.hypot(x - c.sx, y - c.sy) > 10) {
+    c.moved = true; tr.held = true; tr.fvx = 0; tr.fvy = 0;
+    if (g.angryT <= 0 && !g.held) g.say(pick(lureLines), 160);
+  }
+  if (!c.moved) return;
+  tr.x = x + c.ox; tr.y = y + c.oy;
+  // keeps the bob continuous for when it is let go
+  tr.baseY = tr.y - Math.sin(tr.tt * 0.04) * 32;
+  if (Math.abs(x - c.hist[0]!.x) > 2) tr.vx = (x < c.hist[0]!.x ? -1 : 1) * Math.abs(tr.vx);
+}
+
+// Throw velocity is the pointer's over its last ~90ms, in pixels per tick.
+function flingVelocity(hist: { x: number, y: number, ms: number }[]): { vx: number, vy: number } {
+  const now = performance.now(), last = hist[hist.length - 1]!, first = hist.find(h => now - h.ms < 90) ?? last;
+  const k = (1000 / 60) / Math.max(16, last.ms - first.ms);
+  return { vx: clamp((last.x - first.x) * k, -24, 24), vy: clamp((last.y - first.y) * k, -24, 24) };
+}
+
+function carryUp(g: Game, c: Carry): void {
+  g.carry = null;
+  const v = flingVelocity(c.hist);
+  if (c.kind === 'agent') {
+    if (c.m && g.team.includes(c.m)) { tossAgent(g, c.m, v.vx, v.vy); learn(g, 'toss'); }
+    return;
+  }
+  const tr = g.trend;
+  if (!tr) return;
+  if (!c.moved) { humanGrab(g); return; }
+  tr.held = false; tr.fvx = v.vx * 0.8; tr.fvy = v.vy * 0.8;
+  if (Math.abs(v.vx) > 1) tr.vx = (v.vx < 0 ? -1 : 1) * Math.abs(tr.vx);
+  learn(g, 'lure');
+}
+
 function pointerMove(g: Game, x: number, y: number): void {
+  if (g.carry) { carryMove(g, g.carry, x, y); return; }
   const p = g.press; if (!p) return;
   p.hist.push({ x, y, ms: performance.now() }); if (p.hist.length > 8) p.hist.shift();
   p.x = x; p.y = y;
@@ -250,14 +320,12 @@ function pointerMove(g: Game, x: number, y: number): void {
   }
 }
 
-// Throw velocity is the pointer's over its last ~90ms, in pixels per tick.
 function pointerUp(g: Game): void {
+  if (g.carry) { carryUp(g, g.carry); return; }
   const p = g.press; g.press = null;
   if (!p || !g.held) return;
   g.held = false;
-  const now = performance.now(), last = p.hist[p.hist.length - 1]!, first = p.hist.find(h => now - h.ms < 90) ?? last;
-  const k = (1000 / 60) / Math.max(16, last.ms - first.ms);
-  g.kvx = clamp((last.x - first.x) * k, -24, 24); g.kvy = clamp((last.y - first.y) * k, -24, 24);
+  ({ vx: g.kvx, vy: g.kvy } = flingVelocity(p.hist));
   const sp = Math.hypot(g.kvx, g.kvy);
   g.knockT = (70 + Math.min(60, sp * 3)) | 0; g.krot = 0;
   learn(g, 'throw');
@@ -276,7 +344,7 @@ export function bindInput(g: Game): () => void {
     if (fromTouch()) return;
     const cx = e.clientX, cy = e.clientY;
     g.wake();
-    if (g.press) pointerMove(g, cx, cy);
+    if (g.press || g.carry) pointerMove(g, cx, cy);
     else if (g.pmX > -900 && g.gone <= 0) {
       const sp = Math.hypot(cx - g.pmX, cy - g.pmY);
       const canHit = g.knockT > 0 ? g.jugCD <= 0 : g.hitCD <= 0;
@@ -307,7 +375,8 @@ export function bindInput(g: Game): () => void {
   };
   // the click, if any, is dispatched before this timeout runs, so the swallow cannot outlive it
   const onMouseUp = () => { pointerUp(g); setTimeout(() => { g.swallowClick = false; }, 0); };
-  const onBlur = () => { g.swallowClick = false; pointerUp(g); };
+  // losing focus mid-press is not a tap, so a trend still in place is let go rather than destroyed
+  const onBlur = () => { g.swallowClick = false; if (g.carry?.kind === 'trend' && !g.carry.moved) g.carry = null; pointerUp(g); };
   // The click that follows a press on the robot or the trend must not reach a link underneath.
   const onClick = (e: MouseEvent) => { if (g.swallowClick) { e.preventDefault(); e.stopPropagation(); g.swallowClick = false; } };
   // Swallows the touch only when it lands, so taps elsewhere still scroll and click.
@@ -322,7 +391,7 @@ export function bindInput(g: Game): () => void {
   };
   const onTouchMove = (e: TouchEvent) => {
     const tch = e.touches[0];
-    if (!g.press || !tch) return;
+    if ((!g.press && !g.carry) || !tch) return;
     e.preventDefault(); pointerMove(g, tch.clientX, tch.clientY);
   };
   const onTouchEnd = () => { pointerUp(g); };

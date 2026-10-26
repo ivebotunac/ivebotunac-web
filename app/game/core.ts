@@ -1,8 +1,11 @@
 // The orchestrator: one Game owns all state and element refs; frame() steps it at a fixed 60 ticks a second.
-import { CRITTERS, CX, CY, FORM_LINE, HALF, MAX_SIZE, MORPH, SECTION_LINES, U, col, dispScale, pick, quips, rand, recoverLines, respawnLines, scrollLines, sleepLines, wakeLines } from './config'
+import { CX, CY, HALF, MAX_SIZE, MORPH, ROBOT_LINES, SECTION_LINES, U, col, dispScale, pick, quips, rand, recoverLines, respawnLines, scrollLines, sleepLines, wakeLines } from './config'
 import type { FormName, Mood } from './config'
 import { draw } from './forms'
 import type { Pxl } from './forms'
+import { CRITTERS, actAlpha, actLook, actTarget, copyPalette, drawCritter, gait, linesFor, nextForm, pace, tickCritter } from './critters'
+import { agentAt } from './team'
+import type { Act } from './critters'
 import { emit, magic, renderFx, renderSparks } from './effects'
 import { bindInput, chaseTarget, idleTarget, pet, resolveBeam, runAttack, scheduleAttack, shootAndCatch, spawnTrend, updateBullets, updateTrendMotion } from './actions'
 import { calmHint, endCombo, loadMemory } from './guide'
@@ -10,7 +13,7 @@ import { bindQuest, drawQuest, flybyTarget, initQuest, peekAt, tickQuest } from 
 import { bindBoss, bossAt, bossFighting, bossRobotTarget, withBoss } from './boss'
 import type { GameMemory } from './boss'
 import type { Skill } from './guide'
-import type { AttackKind, AttackPhase, Ball, Beam, Boss, Bullet, Confetti, Crew, Debris, GameRefs, Mode, Peek, Point, Popup, Press, QuestBridge, Ring, Role, Spark, TeamBehaviour, TeamMember, Trend } from './types'
+import type { AttackKind, AttackPhase, Ball, Beam, Boss, Bullet, Carry, Confetti, Crew, Debris, GameRefs, Mode, Peek, Point, Popup, Press, QuestBridge, Ring, Role, Spark, TeamBehaviour, TeamMember, Trend } from './types'
 
 const STEP = 1000 / 60
 
@@ -117,6 +120,8 @@ export class Game {
   gone = 0
   // grab and throw
   press: Press | null = null
+  // an agent or the trend tag in the visitor's hand
+  carry: Carry | null = null
   held = false
   swallowClick = false
   // performance.now() of the last touchstart, to drop the mouse events a tap sends after it
@@ -137,6 +142,11 @@ export class Game {
   curForm: FormName = 'robot'
   morphFlash = 0
   formCD = 300 + (rand(0, 240) | 0)
+  // the critter's quirk under way, the ticks to the next one and to its next particle, and how long a shy one keeps hiding
+  act: Act | null = null
+  actCD = 300
+  partCD = 0
+  shyT = 0
   // last pose, redrawn unchanged during hit-stop
   st: Mood = 'idle'
   bob = 0
@@ -243,7 +253,9 @@ export class Game {
 
   morphTo(f: FormName): void {
     this.curForm = f; this.morphFlash = MORPH; magic(this);
-    if (FORM_LINE[f] && this.knockT <= 0 && this.attackT <= 0 && !this.trend) this.say(pick(FORM_LINE[f]), 240);
+    this.act = null; this.actCD = 240 + (rand(0, 240) | 0); this.partCD = 30;
+    const lines = linesFor(this, 'morph') ?? ROBOT_LINES;
+    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend) this.say(pick(lines), 240);
   }
 }
 
@@ -261,7 +273,7 @@ function frame(g: Game, now: number): void {
 function respawn(g: Game): void {
   g.pos.x = g.W * 0.8; g.pos.y = g.H * 0.48; g.tgt.x = g.pos.x; g.tgt.y = g.pos.y; g.prevX = g.pos.x; g.prevY = g.pos.y;
   g.scale = 1; g.scaleTarget = 1; g.krot = 0; g.kvx = 0; g.kvy = 0;
-  g.curForm = 'robot'; g.morphFlash = MORPH; magic(g);
+  g.curForm = 'robot'; g.act = null; g.morphFlash = MORPH; magic(g);
   g.angryT = 300; g.say(g.afterRespawn || pick(respawnLines), 240); g.afterRespawn = '';
 }
 
@@ -278,8 +290,10 @@ function drawPet(g: Game): void {
   const sx = 1 + g.sq + wob, sy = 1 - g.sq - wob;
   const ox = g.shake > 0 ? (Math.random() - 0.5) * g.shake : 0, oy = g.shake > 0 ? (Math.random() - 0.5) * g.shake : 0;
   c.save();
+  c.globalAlpha = actAlpha(g);
   c.translate(CX + ox, CY + g.bob + oy); c.rotate(g.lean + g.krot); c.scale(g.dir * S * sx, S * sy); c.translate(-24, -24);
-  draw(g.pxl, col, g.t, g.curForm, g.st, g.closed, g.moving);
+  if (g.act?.kind === 'copy') draw(g.pxl, copyPalette(g.curForm, col), g.t, g.st, g.closed, g.moving);
+  else if (!drawCritter(c, g.curForm, g.st, g.closed, g.moving, g.t)) draw(g.pxl, col, g.t, g.st, g.closed, g.moving);
   c.restore();
   if (g.flash > 0) {
     c.globalCompositeOperation = 'source-atop'; c.globalAlpha = Math.min(1, g.flash / 4) * 0.8;
@@ -332,7 +346,8 @@ function tick(g: Game): void {
   else if (bossFighting(g)) { mode = 'idle'; lerp = bossRobotTarget(g); }
   else if (g.trend && g.angryT <= 0) { mode = 'chase'; lerp = chaseTarget(g); }
   else if (g.attackT > 0) { mode = 'attack'; lerp = runAttack(g, recent); }
-  else { mode = 'idle'; lerp = idleTarget(g); }
+  else { mode = 'idle'; lerp = actTarget(g, recent) ?? idleTarget(g); }
+  if (mode !== 'held' && mode !== 'knock') lerp *= pace(g);
 
   if (mode === 'held') {
     g.pos.x = g.press!.x + g.press!.ox; g.pos.y = g.press!.y + g.press!.oy;
@@ -390,10 +405,11 @@ function tick(g: Game): void {
   g.pet.style.transform = 'translate(' + (g.pos.x - HALF) + 'px,' + (g.pos.y - HALF) + 'px)';
   // A fixed gap above the robot's scaled top, so the bubble never overlaps it.
   g.bubble.style.bottom = (132 + 24 * g.size() * g.DS) + 'px';
-  // The cursor turns into a hand over the robot and a fist while holding it.
+  // The cursor turns into a hand over the robot or a teammate and a fist while holding one.
   if (!g.coarse) {
-    const over = g.t - g.lastMove < 600 && Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR();
-    const cur = g.held ? 'robot-grabbing' : (over ? 'robot-grab' : ((g.peeks.length && g.t - g.lastMove < 600 && peekAt(g, g.mouseX, g.mouseY)) || (g.boss && g.t - g.lastMove < 600 && bossAt(g, g.mouseX, g.mouseY)) ? 'robot-point' : ''));
+    const live = g.t - g.lastMove < 600;
+    const over = live && (Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR() || !!agentAt(g, g.mouseX, g.mouseY));
+    const cur = g.held || g.carry?.moved ? 'robot-grabbing' : (over ? 'robot-grab' : ((g.peeks.length && g.t - g.lastMove < 600 && peekAt(g, g.mouseX, g.mouseY)) || (g.boss && g.t - g.lastMove < 600 && bossAt(g, g.mouseX, g.mouseY)) ? 'robot-point' : ''));
     if (cur !== g.cursor) {
       const cl = document.documentElement.classList;
       if (g.cursor) cl.remove(g.cursor);
@@ -404,19 +420,23 @@ function tick(g: Game): void {
 
   g.bob = (mode === 'knock' || mode === 'held') ? 0 : Math.sin(g.t * (g.asleep ? 0.025 : 0.05)) * (spd > 1 ? 1.1 : 2);
   g.lean = mode === 'knock' ? 0 : (mode === 'held' ? Math.max(-0.5, Math.min(0.5, dx * 0.04)) : Math.max(-0.18, Math.min(0.18, dx * 0.02)));
-  // Morph cycle is robot to critter and back only, never critter to critter.
+  const gt = mode !== 'knock' && mode !== 'held' && !g.asleep ? gait(g, spd) : null;
+  if (gt) { g.bob = gt.bob; g.lean += gt.lean; }
+  // Morph cycle is robot to critter and back; the only critter to critter step is an evolution.
   g.formCD--;
   if (g.formCD <= 0 && g.knockT <= 0 && !g.held && !g.asleep) {
     if (g.curForm === 'robot') {
-      const nf = pick(CRITTERS);
-      g.morphTo(nf); g.formCD = 420 + (rand(0, 360) | 0);
+      g.morphTo(pick(CRITTERS)); g.formCD = 420 + (rand(0, 360) | 0);
     } else {
-      g.morphTo('robot'); g.formCD = 540 + (rand(0, 600) | 0);
+      const nf = nextForm(g);
+      g.morphTo(nf); g.formCD = nf === 'robot' ? 540 + (rand(0, 600) | 0) : 420 + (rand(0, 360) | 0);
     }
   }
   if (g.morphFlash > 0) g.morphFlash--;
+  tickCritter(g, mode === 'idle' && g.flyby <= 0 && !g.boss && !g.trend && g.attackT <= 0 && !g.asleep);
   g.st = mode === 'knock' ? 'knock' : (mode === 'held' || g.angryT > 0 ? 'mad' : (mode === 'attack' || g.beamAt > 0 || bossFighting(g) ? 'attack' : (mode === 'chase' || g.flyby > 0 || g.t - g.petT < 30 ? 'happy' : 'idle')));
   g.closed = g.asleep || g.t % 200 < 7;
+  ({ st: g.st, closed: g.closed } = actLook(g, g.st, g.closed));
   g.moving = spd > 1 && mode !== 'knock' && mode !== 'held';
   drawPet(g);
 
@@ -436,6 +456,8 @@ function tick(g: Game): void {
     if (!calmHint(g) && !g.trend) {
       if (g.pendingSection && g.t > 720) {
         const s = g.pendingSection; g.pendingSection = ''; g.seenSections.add(s); g.say(pick(SECTION_LINES[s]!), 260);
+      } else if (g.t > g.nextQuip && linesFor(g, 'idle')) {
+        g.say(pick(linesFor(g, 'idle')!));
       } else if (g.t > g.nextQuip) {
         let j: number; do { j = (Math.random() * quips.length) | 0; } while (j === g.lastQuip && quips.length > 1);
         g.lastQuip = j; g.say(quips[j]!);

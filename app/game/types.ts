@@ -23,15 +23,19 @@ export interface Ball { x: number, y: number, vx: number, vy: number, spin: numb
 export interface Debris { x: number, y: number, vx: number, vy: number, sz: number, c: string, life: number, max: number, landed: boolean }
 export interface Ring { x: number, y: number, life: number, max: number, c?: string }
 export interface Popup { x: number, y: number, text: string, life: number, max: number, c?: string, size?: number }
-export interface Trend { x: number, baseY: number, y: number, vx: number, tt: number, label: string, hits: number }
+// `held` while the visitor drags it; `fvx`/`fvy` is the throw, which decays back into its own cruise.
+export interface Trend { x: number, baseY: number, y: number, vx: number, tt: number, label: string, hits: number, held: boolean, fvx: number, fvy: number }
 // A press that landed on the robot: becomes a grab once it moves, a throw when released.
 export interface Press { sx: number, sy: number, x: number, y: number, ox: number, oy: number, t0: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
+// An agent or the trend tag in the visitor's hand: `ox`/`oy` keep the grab point, `hist` gives the throw, `moved` turns a trend press from a tap into a drag.
+export interface Carry { kind: 'agent' | 'trend', m: TeamMember | null, sx: number, sy: number, ox: number, oy: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
 
 // ---- the "Assemble the team" quest ----
 export type Role = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' | 'deployer'
 // A recruited sub-agent trailing the robot; `tx`/`ty` is its formation spot, set before the behaviours run.
 // `cd` is the behaviour cooldown in ticks; `note`/`noteT` is a tiny speech popup above the member.
-export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number }
+// `held` while the visitor carries it, `air` the ticks left of a throw at `vx`/`vy`, `rot` its spin.
+export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number }
 // Runs once per tick per member, before formation; returning true means it moved the member itself.
 export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
 // An agent that popped out of an opened CV row and waits to be clicked; it follows the row as the page scrolls.

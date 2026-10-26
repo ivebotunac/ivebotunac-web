@@ -4,7 +4,7 @@ import { ROLES, ROLE_INFO, drawAgent } from './agents'
 import { fxBurst } from './effects'
 import { recruitLine, saveMemory } from './guide'
 import { bossFighting, drawBoss, drawBossOver, tickBoss } from './boss'
-import { deployRocket, drawCrew, drawPlanPath, teamBehaviour, tickCrew } from './team'
+import { deployRocket, drawCrew, drawPlanPath, flyAgent, teamBehaviour, tickCrew } from './team'
 import { track } from '~/utils/track'
 import { drawScorch, healNow, tickScorch } from './scorch'
 import type { Game } from './core'
@@ -44,7 +44,7 @@ function pickHides(g: Game): void {
 }
 
 function addMember(g: Game, role: Role, x: number, y: number): void {
-  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: 300 + (rand(0, 600) | 0), note: '', noteT: 0 });
+  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: 300 + (rand(0, 600) | 0), note: '', noteT: 0, held: false, air: 0, vx: 0, vy: 0, rot: 0 });
 }
 
 export function initQuest(g: Game): void {
@@ -174,7 +174,7 @@ export function tickQuest(g: Game): void {
     const m = g.team[i]!, row = (i >> 1) + 1, side = i % 2 ? 1 : -1;
     m.tx = clamp(g.pos.x - g.dir * (reach + row * 28 * g.DS), 20, g.W - 20);
     m.ty = clamp(g.pos.y + side * (8 + row * 7) * g.DS - 4 * g.DS + Math.sin(g.t * 0.06 + i * 1.3) * 4, 20, g.H - 20);
-    if (g.teamBehaviours.some(b => b(g, m))) continue;
+    if (flyAgent(g, m) || g.teamBehaviours.some(b => b(g, m))) continue;
     const px = m.x, k = 0.085 - i * 0.008;
     m.x += (m.tx - m.x) * k; m.y += (m.ty - m.y) * k;
     const dx = m.x - px;
@@ -209,7 +209,10 @@ export function drawQuest(g: Game): void {
   drawScorch(g);
   drawBoss(g);
   drawPlanPath(g);
-  for (const m of g.team) drawAgent(c, m.role, m.x, m.y, TEAM_P, m.dir, g.t, m.slot);
+  for (const m of g.team) {
+    if (!m.rot) { drawAgent(c, m.role, m.x, m.y, TEAM_P, m.dir, g.t, m.slot); continue; }
+    c.save(); c.translate(m.x, m.y); c.rotate(m.rot); drawAgent(c, m.role, 0, 0, TEAM_P, m.dir, g.t, m.slot); c.restore();
+  }
   drawCrew(g);
   for (const pk of g.peeks) {
     const k = peekScale(pk);
@@ -224,7 +227,7 @@ export function restartGame(g: Game): void {
   const m = g.mem;
   m.team = []; m.teamStartedAt = null; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null;
   m.learned = m.learned.filter(s => s !== 'team');
-  g.boss = null; g.flyby = 0; g.team.length = 0; g.peeks.length = 0; g.confetti.length = 0; g.hides = {};
+  g.boss = null; g.flyby = 0; g.team.length = 0; g.carry = null; g.peeks.length = 0; g.confetti.length = 0; g.hides = {};
   saveMemory(g); pickHides(g); syncQuest(g);
   speak(g, pick(restartLines));
   track('game_restart');

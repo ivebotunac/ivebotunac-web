@@ -1,5 +1,5 @@
 // What a recruited team does besides following the robot. Everything lands on the fx canvas, rate-limited and capped.
-import { bossReviewLines, pick, rand, reviewLines } from './config'
+import { agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, pick, rand, reviewLines } from './config'
 import { ROLE_INFO } from './agents'
 import { fireBeam, fxBurst } from './effects'
 import { bossFighting, bossR, hurtBoss } from './boss'
@@ -252,4 +252,57 @@ export function drawCrew(g: Game): void {
   for (const r of cr.rockets) drawRocket(c, r);
   for (const q of cr.glyphs) { if (q.kind === 'chart') drawChart(c, q); else drawSparkle(c, g, q); }
   for (const m of g.team) if (m.noteT > 0 && m.note) drawNote(c, m);
+}
+
+// ---- the visitor carries and throws agents: no damage, only a short flight and a dizzy landing ----
+const TEAM_HALF = 16
+
+// The member under a press, the one drawn last winning.
+export function agentAt(g: Game, x: number, y: number): TeamMember | null {
+  const r = TEAM_HALF + g.tapPad;
+  for (let i = g.team.length - 1; i >= 0; i--) {
+    const m = g.team[i]!;
+    if (Math.abs(x - m.x) < r && Math.abs(y - m.y) < r) return m;
+  }
+  return null;
+}
+
+export function grabAgent(g: Game, m: TeamMember): void {
+  m.held = true; m.air = 0;
+  note(m, pick(agentGrabLines));
+  fxBurst(g, m.x, m.y, 6, ROLE_INFO[m.role].c);
+  g.buzz(12);
+}
+
+// `vx`/`vy` in pixels per tick, the same scale the robot's throw uses.
+export function tossAgent(g: Game, m: TeamMember, vx: number, vy: number): void {
+  const sp = Math.hypot(vx, vy);
+  m.held = false; m.vx = vx; m.vy = vy; m.air = (30 + Math.min(70, sp * 4)) | 0;
+  if (sp > 9) {
+    note(m, pick(agentTossLines));
+    if (Math.random() < 0.35 && g.gone <= 0 && !g.held) g.say(pick(agentTossRobotLines).replace('{r}', ROLE_INFO[m.role].label), 180);
+  }
+}
+
+// Per tick before the behaviours: true while the member is carried or still flying, so formation leaves it alone.
+export function flyAgent(g: Game, m: TeamMember): boolean {
+  if (m.held) {
+    if (m.noteT > 0) m.noteT--;
+    // a little struggle in the hand
+    m.rot = Math.sin(g.t * 0.45) * 0.22;
+    return true;
+  }
+  if (m.air <= 0) {
+    if (m.rot !== 0) { m.rot *= 0.82; if (Math.abs(m.rot) < 0.02) m.rot = 0; }
+    return false;
+  }
+  if (m.noteT > 0) m.noteT--;
+  m.air--;
+  m.x += m.vx; m.y += m.vy; m.vx *= 0.955; m.vy *= 0.955;
+  m.rot += m.vx * 0.05;
+  if (m.x < TEAM_HALF || m.x > g.W - TEAM_HALF) { m.x = clamp(m.x, TEAM_HALF, g.W - TEAM_HALF); m.vx *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c); }
+  if (m.y < TEAM_HALF || m.y > g.H - TEAM_HALF) { m.y = clamp(m.y, TEAM_HALF, g.H - TEAM_HALF); m.vy *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c); }
+  if (Math.abs(m.vx) > 0.5) m.dir = m.vx < 0 ? -1 : 1;
+  if (m.air === 0) note(m, pick(agentLandLines));
+  return true;
 }
