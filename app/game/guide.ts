@@ -1,6 +1,7 @@
 // Teaches the game one skill at a time and remembers the visitor, in their own browser only.
 import { LINK_LINES, TUT_LINES, deployerLines, lastAgentLine, lastDeployerLine, pick, recruitLines, rowRecruitLine, welcomeLines, welcomePopLines } from './config'
 import { ROLES, ROLE_INFO } from './agents'
+import { CRITTERS } from './critters'
 import type { Game } from './core'
 import type { Role } from './types'
 
@@ -8,10 +9,10 @@ export type Skill = keyof typeof TUT_LINES
 
 // team: roles recruited so far; teamActiveMs: time on the page while the team was incomplete, summed over visits;
 // teamMs: the finished time; bossRun: the server's id for the fastest finished boss fight, with its time, kept
-// through a restart so an unsigned record can still be signed.
+// through a restart so an unsigned record can still be signed; seen: the critter forms met so far, by key.
 export interface Memory {
   learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamActiveMs: number, teamMs: number | null,
-  bossRun: string | null, bossRunMs: number | null
+  bossRun: string | null, bossRunMs: number | null, seen: string[]
 }
 
 const KEY = 'ib-robot-v1'
@@ -20,7 +21,7 @@ const REPEAT = 2700
 const MAX_SAID = 3
 
 export function loadMemory(): Memory {
-  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamActiveMs: 0, teamMs: null, bossRun: null, bossRunMs: null }
+  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamActiveMs: 0, teamMs: null, bossRun: null, bossRunMs: null, seen: [] }
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
     if (Array.isArray(raw.learned)) m.learned = raw.learned
@@ -32,6 +33,7 @@ export function loadMemory(): Memory {
     if (typeof raw.teamMs === 'number') m.teamMs = raw.teamMs
     if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
     if (typeof raw.bossRunMs === 'number') m.bossRunMs = raw.bossRunMs
+    if (Array.isArray(raw.seen)) m.seen = CRITTERS.filter(k => raw.seen.includes(k))
   } catch { /* storage blocked or corrupt: start fresh */ }
   m.visits++
   return m

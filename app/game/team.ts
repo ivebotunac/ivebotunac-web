@@ -1,7 +1,8 @@
 // What a recruited team does besides following the robot. Everything lands on the fx canvas, rate-limited and capped.
-import { agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, pick, rand, reviewLines } from './config'
+import { agentBossHitLines, agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, pick, rand, reviewLines } from './config'
 import { ROLE_INFO } from './agents'
-import { fireBeam, fxBurst } from './effects'
+import { feedback, fireBeam, fxBurst } from './effects'
+import { knockTrend } from './actions'
 import { bossFighting, bossR, hurtBoss } from './boss'
 import type { Game } from './core'
 import type { Glyph, Role, TeamBehaviour, TeamMember } from './types'
@@ -254,7 +255,7 @@ export function drawCrew(g: Game): void {
   for (const m of g.team) if (m.noteT > 0 && m.note) drawNote(c, m);
 }
 
-// ---- the visitor carries and throws agents: no damage, only a short flight and a dizzy landing ----
+// ---- the visitor carries and throws agents: a short flight, a hit on whatever it flies into, a dizzy landing ----
 const TEAM_HALF = 16
 
 // The member under a press, the one drawn last winning.
@@ -277,10 +278,31 @@ export function grabAgent(g: Game, m: TeamMember): void {
 // `vx`/`vy` in pixels per tick, the same scale the robot's throw uses.
 export function tossAgent(g: Game, m: TeamMember, vx: number, vy: number): void {
   const sp = Math.hypot(vx, vy);
-  m.held = false; m.vx = vx; m.vy = vy; m.air = (30 + Math.min(70, sp * 4)) | 0;
+  m.held = false; m.vx = vx; m.vy = vy; m.air = (30 + Math.min(70, sp * 4)) | 0; m.struck = false;
   if (sp > 9) {
     note(m, pick(agentTossLines));
     if (Math.random() < 0.35 && g.gone <= 0 && !g.held) g.say(pick(agentTossRobotLines).replace('{r}', ROLE_INFO[m.role].label), 180);
+  }
+}
+
+// A thrown agent hits what it flies into, once a throw: the boss takes damage by the throw's speed, the trend tag drops.
+function strike(g: Game, m: TeamMember): void {
+  const b = g.boss, sp = Math.hypot(m.vx, m.vy), c = ROLE_INFO[m.role].c;
+  if (b && b.phase === 'fight' && Math.hypot(m.x - b.x, m.y - b.y) < bossR(g)) {
+    m.struck = true;
+    hurtBoss(g, Math.min(12, 2 + sp * 0.5), sp > 14);
+    g.freeze = 3; g.buzz(20);
+    fxBurst(g, m.x, m.y, 14, c); fxBurst(g, m.x, m.y, 8, '#ffffff');
+    feedback(g, m.x, m.y, 'THROWN!', c); note(m, pick(agentBossHitLines));
+    m.vx *= -0.5; m.vy *= -0.5;
+    return;
+  }
+  const tr = g.trend;
+  if (!tr || tr.held || g.trendEl.hidden) return;
+  const w = g.trendEl.offsetWidth || 90, h = g.trendEl.offsetHeight || 24;
+  if (m.x > tr.x - 12 && m.x < tr.x + w + 12 && m.y > tr.y - 12 && m.y < tr.y + h + 12) {
+    m.struck = true;
+    knockTrend(g, ROLE_INFO[m.role].label);
   }
 }
 
@@ -300,6 +322,7 @@ export function flyAgent(g: Game, m: TeamMember): boolean {
   m.air--;
   m.x += m.vx; m.y += m.vy; m.vx *= 0.955; m.vy *= 0.955;
   m.rot += m.vx * 0.05;
+  if (!m.struck && Math.hypot(m.vx, m.vy) > 5) strike(g, m);
   if (m.x < TEAM_HALF || m.x > g.W - TEAM_HALF) { m.x = clamp(m.x, TEAM_HALF, g.W - TEAM_HALF); m.vx *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c); }
   if (m.y < TEAM_HALF || m.y > g.H - TEAM_HALF) { m.y = clamp(m.y, TEAM_HALF, g.H - TEAM_HALF); m.vy *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c); }
   if (Math.abs(m.vx) > 0.5) m.dir = m.vx < 0 ? -1 : 1;

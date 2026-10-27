@@ -8,6 +8,8 @@ import type { Game } from './core'
 type Move = 'walk' | 'hop' | 'float' | 'waddle' | 'slow' | 'dash'
 type Particle = 'spark' | 'ember' | 'bubble' | 'leaf' | 'heart' | 'shadow' | 'star' | 'psychic' | 'none'
 type Quirk = 'none' | 'nap' | 'copy' | 'daze' | 'vanish' | 'shy' | 'evolve' | 'proud'
+// How it flies when hit or thrown; floaters are light without saying so.
+type Weight = 'heavy' | 'light'
 export type LineKind = 'morph' | 'pet' | 'hit' | 'idle'
 
 // A 24x24 map of palette characters, '.' transparent; the outline and the eyes are drawn on top.
@@ -18,7 +20,7 @@ export interface Sprite {
   outline?: string
   eyes: { l: number[], r: number[], color?: string }
   frames: { idle: string[], walk: string[] }
-  trait: { move: Move, particle: Particle, quirk: Quirk }
+  trait: { move: Move, particle: Particle, quirk: Quirk, weight?: Weight }
   lines: Record<LineKind, string[]>
 }
 
@@ -101,6 +103,37 @@ export function drawCritter(c: CanvasRenderingContext2D, form: string, st: Mood,
   c.imageSmoothingEnabled = false
   c.drawImage(img, 0, 0, 48, 48)
   return true
+}
+
+// The form's own ammunition for a cursor attack: its particle glyphs and colour; null for the robot and particle-less forms.
+export function attackStyle(g: Game): { t: string[], c: string } | null {
+  const p = SPRITES[g.curForm]?.trait.particle
+  return p && p !== 'none' ? PARTICLES[p] : null
+}
+
+// Knock physics per tick and the share of a fling it takes: heavy ones drop and barely travel, light ones drift.
+export function heft(g: Game): { grav: number, drag: number, fling: number, kind: Weight | 'normal' } {
+  const t = SPRITES[g.curForm]?.trait
+  const w = t?.weight ?? (t?.move === 'float' ? 'light' : undefined)
+  if (w === 'heavy') return { grav: 0.85, drag: 0.96, fling: 0.6, kind: w }
+  if (w === 'light') return { grav: 0.12, drag: 0.993, fling: 1.1, kind: w }
+  return { grav: 0.45, drag: 0.985, fling: 1, kind: 'normal' }
+}
+
+// A 24px collection tile: the form in its colours once seen, a flat silhouette until then.
+export function drawFormIcon(c: CanvasRenderingContext2D, form: string, seen: boolean): void {
+  const s = SPRITES[form]
+  if (!s) return
+  let img = baked.get(form + 'idleidle')
+  if (!img) { img = bake(s, 'idle', 'idle'); baked.set(form + 'idleidle', img) }
+  c.clearRect(0, 0, N, N)
+  c.imageSmoothingEnabled = false
+  c.drawImage(img, 0, 0)
+  if (seen) return
+  c.globalCompositeOperation = 'source-in'
+  c.fillStyle = '#9fb3c6'
+  c.fillRect(0, 0, N, N)
+  c.globalCompositeOperation = 'source-over'
 }
 
 // The copying blob turns into the robot, in its own colours.

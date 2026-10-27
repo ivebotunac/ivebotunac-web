@@ -22,7 +22,7 @@ const bubbleEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
-const quest = reactive<QuestView>({ team: [], done: false, ms: null, bossRun: null, bossMs: null, boss: false })
+const quest = reactive<QuestView>({ team: [], done: false, ms: null, bossRun: null, bossMs: null, boss: false, seen: [] })
 // The fight just won, by the game's clock; the card's title shows it, not the board's kept fight.
 const fightMs = ref<number | null>(null)
 const announce = ref('')
@@ -88,11 +88,12 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
     </div>
     <!-- Outside the aria-hidden, pointer-events:none layers, so it takes clicks and speaks. -->
     <div class="quest">
-      <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :announce="announce" @card="openCard" />
+      <QuestHud :team="quest.team" :done="quest.done" :boss="quest.boss" :seen="quest.seen" :announce="announce" @card="openCard" />
       <TeamCard
         :open="cardOpen"
         :mode="cardMode"
         :ms="quest.ms"
+        :seen="quest.seen"
         :boss-ms="fightMs"
         :boss-run="quest.bossRun"
         :stats="stats"

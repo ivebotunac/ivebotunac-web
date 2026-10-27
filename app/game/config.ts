@@ -127,6 +127,15 @@ export const agentGrabLines: string[] = ['hey!', 'put me down', 'out of scope!',
 export const agentTossLines: string[] = ['wheee!', 'yeet()', 'async!', 'airborne!']
 export const agentLandLines: string[] = ['@_@', 'recalibrating', 'which way is prod?', 'again!']
 export const agentTossRobotLines: string[] = ['hey! that\'s my {r}.', 'careful, the {r} bruises.', 'nice throw. poor {r}.']
+// A thrown agent that lands on the boss or knocks the trend tag out of the air.
+export const agentBossHitLines: string[] = ['direct hit!', 'agent-to-AGI: bonk', 'thrown and shipped']
+export const agentTrendLines: string[] = ['my {r} took out the trend. fine. teamwork.', 'the {r} knocked it down before I could.', 'trend dropped by the {r}. noted.']
+// Fetch: a trend tag thrown away is brought back to the visitor.
+export const fetchGoLines: string[] = ['fetch? fetch!', 'I\'ll get it!', 'mine mine mine']
+export const fetchBackLines: string[] = ['here. throw it again.', 'fetched. again?', 'good throw. again!']
+// The collection of forms: `{n}` seen of `{m}`.
+export const formSeenLines: string[] = ['new form logged. {n}/{m}.', '{n} of {m} forms seen.', 'collection: {n}/{m}. keep watching.']
+export const formAllLine = 'all {m} forms seen. full dataset.'
 // The AGI boss.
 export const bossStartLines: string[] = ['AGI incoming. team, assemble!', 'it\'s here. everyone, attack!', 'AGI arrived early. fight it!']
 export const bossHalfLines: string[] = ['it\'s adapting. keep hitting!', 'half way. don\'t stop now.', 'it\'s scaling. so are we.']

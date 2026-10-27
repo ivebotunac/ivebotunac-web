@@ -1,11 +1,11 @@
 // What the robot and the visitor do: attacks, trends, input and hit reactions.
-import { COMBO_LINES, caughtTpl, dispScale, grabLines, knockLines, lureLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
+import { COMBO_LINES, agentTrendLines, caughtTpl, dispScale, fetchBackLines, fetchGoLines, grabLines, knockLines, lureLines, missLines, petLines, pick, puffLines, rand, stealLines, throwLines, trends } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
 import { learn, linkLine, onJuggle, onKnock, onPop } from './guide'
 import { hitPeek, questPop } from './quest'
 import { hitBoss } from './boss'
 import { agentAt, grabAgent, onTrendCaught, tossAgent } from './team'
-import { actAlpha, linesFor } from './critters'
+import { actAlpha, attackStyle, heft, linesFor } from './critters'
 import { track } from '~/utils/track'
 import type { Game } from './core'
 import type { Carry, Press } from './types'
@@ -18,11 +18,12 @@ function segDist(px: number, py: number, ax: number, ay: number, bx: number, by:
 }
 
 // ---- attacks ----
+// A critter fires its own particle (embers, bubbles, leaves) instead of the robot's pellets.
 function fireBullets(g: Game, txx: number, tyy: number, n: number): void {
-  const ang = Math.atan2(tyy - g.pos.y, txx - g.pos.x);
+  const ang = Math.atan2(tyy - g.pos.y, txx - g.pos.x), st = attackStyle(g);
   for (let i = 0; i < n; i++) {
     const a = ang + (i - (n - 1) / 2) * 0.14;
-    g.bullets.push({ x: g.pos.x, y: g.pos.y, vx: Math.cos(a) * 4.4, vy: Math.sin(a) * 4.4, life: 0, max: 80 });
+    g.bullets.push({ x: g.pos.x, y: g.pos.y, vx: Math.cos(a) * 4.4, vy: Math.sin(a) * 4.4, life: 0, max: 80, glyph: st ? pick(st.t) : undefined, c: st?.c });
   }
 }
 
@@ -72,7 +73,8 @@ export function runAttack(g: Game, recent: boolean): number {
 // The laser fires a few frames after locking, which is the dodge window.
 export function resolveBeam(g: Game, recent: boolean): void {
   if (g.beamAt > 0 && g.t >= g.beamAt) {
-    fireBeam(g, g.pos.x, g.pos.y, g.lockX, g.lockY, '#ff5a1f'); fxBurst(g, g.lockX, g.lockY, 12, '#ff5a1f');
+    const c = attackStyle(g)?.c ?? '#ff5a1f';
+    fireBeam(g, g.pos.x, g.pos.y, g.lockX, g.lockY, c); fxBurst(g, g.lockX, g.lockY, 12, c);
     if (Math.hypot(g.mouseX - g.lockX, g.mouseY - g.lockY) < 46 && recent) { cursorHit(g, g.mouseX, g.mouseY); }
     else if (Math.random() < 0.5) g.say(pick(missLines), 170);
     g.beamAt = 0;
@@ -98,6 +100,7 @@ export function spawnTrend(g: Game): void {
 
 export function clearTrend(g: Game): void {
   if (g.carry?.kind === 'trend') g.carry = null;
+  g.fetch = 0;
   g.trend = null; g.trendEl.hidden = true; g.trendCD = 520 + (rand(0, 420) | 0);
 }
 
@@ -110,12 +113,29 @@ function humanGrab(g: Game): void {
   clearTrend(g); g.angryT = 260;
 }
 
+// A thrown agent knocks the tag out of the air; no anger, since the team took it and not the visitor.
+export function knockTrend(g: Game, role: string): void {
+  if (!g.trend) return;
+  const tx = g.trend.x, ty = g.trend.y;
+  explode(g, tx, ty); fxBurst(g, tx, ty, 14, '#36c6e0'); feedback(g, tx, ty, 'KNOCKED OUT', '#36c6e0');
+  if (g.gone <= 0 && !g.held) g.say(pick(agentTrendLines).replace('{r}', role), 200);
+  clearTrend(g);
+}
+
 // A dragged tag sits where the hand puts it; a thrown one carries the throw, which fades back into its cruise.
 export function updateTrendMotion(g: Game): void {
   const tr = g.trend;
   if (!tr) return;
   tr.tt++;
-  if (!tr.held) {
+  if (g.fetch && (++g.fetchT > 900 || g.angryT > 0 || g.held || g.knockT > 0 || g.gone > 0 || g.asleep || g.boss || tr.held)) {
+    // a tag dropped from its mouth cruises on from where it hung
+    if (g.fetch === 2) tr.baseY = tr.y - Math.sin(tr.tt * 0.04) * 32;
+    g.fetch = 0;
+  }
+  if (g.fetch === 2) {
+    // carried in its mouth: the tag hangs just under the robot until it is dropped
+    tr.x = g.pos.x - (g.trendEl.offsetWidth || 90) / 2; tr.y = g.pos.y + 10 * g.size() * g.DS; tr.fvx = 0; tr.fvy = 0;
+  } else if (!tr.held) {
     tr.x += tr.vx + tr.fvx; tr.fvx *= 0.95;
     tr.baseY = clamp(tr.baseY + tr.fvy, 40, Math.max(60, g.H - 60)); tr.fvy *= 0.95;
     tr.y = tr.baseY + Math.sin(tr.tt * 0.04) * 32;
@@ -129,6 +149,7 @@ export function chaseTarget(g: Game): number {
   const trend = g.trend!;
   g.attackT = 0; g.beamAt = 0;
   const tw = g.trendEl.offsetWidth || 90;
+  if (g.fetch) return fetchTarget(g, trend, tw);
   if (trend.held) {
     const cx = trend.x + tw / 2, cy = trend.y + 12, a = Math.atan2(g.pos.y - cy, g.pos.x - cx);
     g.tgt.x = clamp(cx + Math.cos(a) * (tw / 2 + 50), 40, g.W - 40);
@@ -141,8 +162,27 @@ export function chaseTarget(g: Game): number {
   return 0.08;
 }
 
+// Fetch: run to the thrown tag, pick it up, bring it back beside the cursor and drop it for another throw.
+function fetchTarget(g: Game, tr: NonNullable<Game['trend']>, tw: number): number {
+  if (g.fetch === 1) {
+    const cx = tr.x + tw / 2, cy = tr.y + 12;
+    g.tgt.x = clamp(cx, 40, g.W - 40); g.tgt.y = clamp(cy - 10, 60, g.H - 60);
+    if (Math.hypot(g.pos.x - cx, g.pos.y - cy) < 40) { g.fetch = 2; g.fetchT = 0; g.kick(0.3); feedback(g, cx, cy, 'GOT IT', '#36c6e0'); }
+    return 0.11;
+  }
+  const side = g.pos.x < g.mouseX ? -1 : 1;
+  g.tgt.x = clamp(g.mouseX + side * 80, 40, g.W - 40); g.tgt.y = clamp(g.mouseY, 60, g.H - 60);
+  if (Math.hypot(g.pos.x - g.tgt.x, g.pos.y - g.tgt.y) < 30 || g.fetchT > 420) {
+    // dropped where it is, as a fresh tag: the bob restarts and the catch clock with it, so there is time to throw again
+    g.fetch = 0; tr.tt = 0; tr.hits = 0; tr.baseY = tr.y;
+    g.kick(0.35); g.say(pick(fetchBackLines), 160); feedback(g, g.pos.x, g.pos.y - 20, 'FETCH!', '#0b6bcb');
+    for (let i = 0; i < 3; i++) g.popups.push({ x: g.pos.x + rand(-16, 16), y: g.pos.y - 26 * g.size() * g.DS, text: '♥', life: -i * 8, max: 50, c: '#ff6fa3', size: 15 });
+  }
+  return 0.09;
+}
+
 export function shootAndCatch(g: Game): void {
-  if (g.trend && g.angryT <= 0) {
+  if (g.trend && g.angryT <= 0 && !g.fetch) {
     const central = g.trend.x > 70 && g.trend.x < g.W - 70;
     const dT = Math.hypot(g.pos.x - g.trend.x, g.pos.y - g.trend.y);
     if (g.fireCD > 0) g.fireCD--;
@@ -175,7 +215,8 @@ function impact(g: Game, freeze: number): void {
 
 function knockRobot(g: Game, dirx: number): void {
   g.knockT = 120; g.hitCD = 20; g.attackT = 0; g.beamAt = 0;
-  g.kvx = clamp(dirx, -7, 7); g.kvy = -4; g.krot = 0;
+  const hf = heft(g);
+  g.kvx = clamp(dirx, -7, 7) * hf.fling; g.kvy = -4 * Math.min(1, hf.fling); g.krot = 0;
   // The more it is knocked, the angrier it gets and the more it targets the visitor.
   g.angryT = Math.min(900, g.angryT + 240); g.attackCD = Math.min(g.attackCD, 30);
   emit(g, 16, 16); g.say(pick(linesFor(g, 'hit') ?? knockLines)); feedback(g, g.pos.x, g.pos.y, 'POW!', '#0b6bcb');
@@ -253,6 +294,7 @@ function pointerDown(g: Game, x: number, y: number, robot = true, hold = false):
     const r = g.trendEl.getBoundingClientRect(), pad = g.coarse ? 16 : 12;
     if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
       g.mouseX = x; g.mouseY = y; g.lastMove = g.t; g.swallowClick = true;
+      g.fetch = 0;
       g.carry = { kind: 'trend', m: null, sx: x, sy: y, ox: g.trend.x - x, oy: g.trend.y - y, moved: false, hist: [{ x, y, ms: performance.now() }] };
       return true;
     }
@@ -308,6 +350,8 @@ function carryUp(g: Game, c: Carry): void {
   tr.held = false; tr.fvx = v.vx * 0.8; tr.fvy = v.vy * 0.8;
   if (Math.abs(v.vx) > 1) tr.vx = (v.vx < 0 ? -1 : 1) * Math.abs(tr.vx);
   learn(g, 'lure');
+  // a real throw sends the robot after it
+  if (Math.hypot(v.vx, v.vy) > 8 && !g.held && g.gone <= 0 && g.angryT <= 0 && !g.boss && !g.asleep) { g.fetch = 1; g.fetchT = 0; g.say(pick(fetchGoLines), 120); }
 }
 
 function pointerMove(g: Game, x: number, y: number): void {
@@ -324,6 +368,7 @@ function pointerUp(g: Game): void {
   if (!p || !g.held) return;
   g.held = false;
   ({ vx: g.kvx, vy: g.kvy } = flingVelocity(p.hist));
+  const fl = heft(g).fling; g.kvx *= fl; g.kvy *= fl;
   const sp = Math.hypot(g.kvx, g.kvy);
   g.knockT = (70 + Math.min(60, sp * 3)) | 0; g.krot = 0;
   learn(g, 'throw');

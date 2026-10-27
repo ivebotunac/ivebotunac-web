@@ -57,7 +57,7 @@ useSchemaOrg([
     <div class="container privacy__doc">
       <header class="privacy__head">
         <h1 class="privacy__title">Privacy Policy</h1>
-        <p class="privacy__updated">Last updated: October 25, 2026</p>
+        <p class="privacy__updated">Last updated: October 27, 2026</p>
       </header>
 
       <article class="pn-prose">
@@ -86,13 +86,13 @@ useSchemaOrg([
           <li>
             <strong>The robot game:</strong> the little robot remembers, in your browser’s local storage, which tricks
             you have tried, your best combo, how many times you have popped it, how often you have visited, which
-            sub-agents you found, when you found the first one and how long the whole team took, and your best boss
-            time, plus whether you have already seen the two first-visit tips. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
+            sub-agents you found, how long you have spent on the page while finding them and how long the whole team took,
+            which of its forms you have seen, and your best boss time, plus whether you have already seen the two first-visit tips. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
             site-wide totals described next, and game events (hits, pops, agents found, the team time, boss fights and
-            their times, and clicks on the team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
+            their times, new forms seen, and clicks on the team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
           </li>
           <li>
-            <strong>Game counters:</strong> the game sends anonymous events (a pop, or a finished team with its time)
+            <strong>Game counters:</strong> the game sends anonymous events (a finished team with its time, a boss fight and its time)
             to our server, which adds them to site-wide totals stored in Google Cloud Firestore. No IP address is stored in Firestore; the IP address is held in memory for about ten minutes only to stop abuse,
             under our legitimate interest (Art. 6(1)(f) GDPR), and the request itself appears in the hosting logs
             described under Visits.

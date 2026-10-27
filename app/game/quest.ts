@@ -1,5 +1,6 @@
 // "Assemble the team": six sub-agents hide in CV rows, the visitor recruits them, and they trail the robot.
-import { CONFETTI, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines } from './config'
+import { CONFETTI, formAllLine, formSeenLines, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines } from './config'
+import { CRITTERS } from './critters'
 import { ROLES, ROLE_INFO, drawAgent } from './agents'
 import { fxBurst } from './effects'
 import { recruitLine, saveMemory } from './guide'
@@ -37,7 +38,19 @@ export function speak(g: Game, line: string): void {
 
 export function syncQuest(g: Game): void {
   const m = g.mem;
-  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: bossFighting(g) });
+  g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: bossFighting(g), seen: [...m.seen] });
+}
+
+// A form met for the first time joins the collection; returns the line for a milestone, every sixth and the last.
+export function noteForm(g: Game, form: string): string {
+  const m = g.mem;
+  if (!CRITTERS.includes(form) || m.seen.includes(form)) return '';
+  m.seen.push(form); saveMemory(g); syncQuest(g);
+  const n = m.seen.length, all = CRITTERS.length;
+  g.popups.push({ x: g.pos.x, y: g.pos.y - 34 * g.size() * g.DS, text: 'NEW ' + n + '/' + all, life: 0, max: 70, c: '#0b6bcb', size: 14 });
+  track('form_seen', { count: n });
+  if (n === all) return formAllLine.replace('{m}', String(all));
+  return n % 6 === 0 ? pick(formSeenLines).replace('{n}', String(n)).replace('{m}', String(all)) : '';
 }
 
 // One random row per section, picked once a page view, among the rows on show: the CvMore "show all" wrapper and the
@@ -52,7 +65,7 @@ function pickHides(g: Game): void {
 }
 
 function addMember(g: Game, role: Role, x: number, y: number): void {
-  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: 300 + (rand(0, 600) | 0), note: '', noteT: 0, held: false, air: 0, vx: 0, vy: 0, rot: 0 });
+  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: 300 + (rand(0, 600) | 0), note: '', noteT: 0, held: false, air: 0, vx: 0, vy: 0, rot: 0, struck: false });
 }
 
 export function initQuest(g: Game): void {
@@ -260,7 +273,7 @@ export function drawQuest(g: Game): void {
 // and the fastest finished boss fight stays, so a record not yet signed can still be.
 function restartGame(g: Game): void {
   const m = g.mem;
-  m.team = []; m.teamActiveMs = 0; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null;
+  m.team = []; m.teamActiveMs = 0; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null; m.seen = [];
   m.learned = m.learned.filter(s => s !== 'team');
   g.boss = null; g.flyby = 0; g.team.length = 0; g.carry = null; g.peeks.length = 0; g.confetti.length = 0; g.hides = {};
   saveMemory(g); pickHides(g); syncQuest(g);

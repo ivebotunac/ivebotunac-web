@@ -18,7 +18,8 @@ export interface Point { x: number, y: number }
 
 export interface Spark { x: number, y: number, vx: number, vy: number, life: number, max: number, c: string }
 export interface Beam { x1: number, y1: number, x2: number, y2: number, life: number, max: number, c: string }
-export interface Bullet { x: number, y: number, vx: number, vy: number, life: number, max: number }
+// `glyph`/`c`: a critter's own ammunition instead of the robot's orange pellet.
+export interface Bullet { x: number, y: number, vx: number, vy: number, life: number, max: number, glyph?: string, c?: string }
 export interface Ball { x: number, y: number, vx: number, vy: number, spin: number, dspin: number, life: number, max: number }
 export interface Debris { x: number, y: number, vx: number, vy: number, sz: number, c: string, life: number, max: number, landed: boolean }
 export interface Ring { x: number, y: number, life: number, max: number, c?: string }
@@ -35,7 +36,7 @@ export type Role = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' |
 // A recruited sub-agent trailing the robot; `tx`/`ty` is its formation spot, set before the behaviours run.
 // `cd` is the behaviour cooldown in ticks; `note`/`noteT` is a tiny speech popup above the member.
 // `held` while the visitor carries it, `air` the ticks left of a throw at `vx`/`vy`, `rot` its spin.
-export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number }
+export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number, struck: boolean }
 // Runs once per tick per member, before formation; returning true means it moved the member itself.
 export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
 // An agent that popped out of an opened CV row and waits to be clicked; it follows the row as the page scrolls.
@@ -43,7 +44,8 @@ export interface Peek { role: Role, row: HTMLDetailsElement, x: number, y: numbe
 export interface Confetti { x: number, y: number, vx: number, vy: number, rot: number, vr: number, c: string, life: number, max: number }
 // What the HUD shows; the component holds it reactively.
 // bossRun: the fastest finished boss fight the card shows and offers to sign; bossMs: its time.
-export interface QuestView { team: Role[], done: boolean, ms: number | null, bossRun: string | null, bossMs: number | null, boss: boolean }
+// seen: the critter forms this visitor has met, for the collection grid.
+export interface QuestView { team: Role[], done: boolean, ms: number | null, bossRun: string | null, bossMs: number | null, boss: boolean, seen: string[] }
 // The game's way out to the Vue layer: HUD state, screen-reader lines, and the finished team.
 export interface QuestBridge {
   view(v: QuestView): void

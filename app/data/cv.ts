@@ -236,7 +236,7 @@ export const cv: Cv = {
   ],
   education: [
     {
-      start: 2017,
+      start: 2018,
       end: 2025,
       degree: 'PhD, Informatics',
       sub: 'Intelligent Computer Systems',
@@ -245,16 +245,16 @@ export const cv: Cv = {
       thesis: 'An Automated Stock Market Trading System Based on Deep Reinforcement Learning'
     },
     {
-      start: 2015,
-      end: 2017,
+      start: 2016,
+      end: 2018,
       degree: 'MSc, Management',
       institution: 'University of Zadar, Department of Economics',
       eqf: 7,
       thesis: 'Applying machine learning methods to predict the movement of the stock market index'
     },
     {
-      start: 2012,
-      end: 2015,
+      start: 2013,
+      end: 2016,
       degree: 'BSc, Nautical Studies & Maritime Transport Technology',
       institution: 'University of Zadar, Maritime Department',
       eqf: 6,

@@ -7,12 +7,13 @@ import { formatDuration as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 import PnIcon from '~/components/ui/PnIcon.vue'
 import LeaderBoard from './LeaderBoard.vue'
+import FormsGrid from './FormsGrid.vue'
 
 // mode: the team's card after the quest, or the boss's after a win; bossRun: the fight it offers to sign;
 // bossMs: the time of the fight just won, by the game's clock.
 const props = defineProps<{
   open: boolean, mode: 'team' | 'boss', ms: number | null, bossMs: number | null
-  bossRun: string | null, stats: GameStats | null, statsOff: boolean
+  bossRun: string | null, stats: GameStats | null, statsOff: boolean, seen: string[]
 }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'stats', s: GameStats): void }>()
 
@@ -151,6 +152,7 @@ function onKeydown(e: KeyboardEvent) {
         :loading="!stats"
         @stats="s => emit('stats', s)"
       />
+      <FormsGrid class="tcard__forms" :seen="seen" />
       <div class="tcard__actions">
         <div class="tcard__social">
           <a class="tcard__btn tcard__btn--linkedin" :href="LINKEDIN" target="_blank" rel="noopener" @click="cta('linkedin')">
@@ -245,6 +247,10 @@ function onKeydown(e: KeyboardEvent) {
 /* Two lines, the length "347 visitors have assembled the team so far." wraps to. */
 .tcard__skel { width: 100%; }
 .tcard__skel--short { width: 45%; }
+
+.tcard__forms {
+  margin-top: 14px;
+}
 
 .tcard__body {
   margin: 10px 0 0;

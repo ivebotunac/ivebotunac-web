@@ -3,13 +3,13 @@ import { CX, CY, HALF, MAX_SIZE, MORPH, ROBOT_LINES, SECTION_LINES, U, col, disp
 import type { FormName, Mood } from './config'
 import { draw } from './forms'
 import type { Pxl } from './forms'
-import { CRITTERS, actAlpha, actLook, actTarget, copyPalette, drawCritter, gait, linesFor, nextForm, pace, tickCritter } from './critters'
+import { CRITTERS, actAlpha, actLook, actTarget, copyPalette, drawCritter, gait, heft, linesFor, nextForm, pace, tickCritter } from './critters'
 import { agentAt } from './team'
 import type { Act } from './critters'
 import { emit, magic, renderFx, renderSparks } from './effects'
 import { bindInput, chaseTarget, idleTarget, pet, resolveBeam, runAttack, scheduleAttack, shootAndCatch, spawnTrend, updateBullets, updateTrendMotion } from './actions'
 import { calmHint, endCombo, loadMemory } from './guide'
-import { bindQuest, drawQuest, flybyTarget, initQuest, peekAt, tickQuest } from './quest'
+import { bindQuest, drawQuest, flybyTarget, initQuest, noteForm, peekAt, tickQuest } from './quest'
 import { bindBoss, bossAt, bossFighting, bossRobotTarget, withBoss } from './boss'
 import type { GameMemory } from './boss'
 import type { Skill } from './guide'
@@ -92,6 +92,9 @@ export class Game {
   homeHold = 0
   trend: Trend | null = null
   trendCD = 220
+  // fetch: 1 while it runs after a thrown trend tag, 2 while it carries the tag back to the cursor
+  fetch: 0 | 1 | 2 = 0
+  fetchT = 0
   scale = 1
   scaleTarget = 1
   sizeCD = 120
@@ -268,9 +271,9 @@ export class Game {
   morphTo(f: FormName): void {
     this.curForm = f; this.morphFlash = MORPH; magic(this);
     this.act = null; this.actCD = 240 + (rand(0, 240) | 0); this.partCD = 30;
-    const lines = linesFor(this, 'morph') ?? ROBOT_LINES;
+    const lines = linesFor(this, 'morph') ?? ROBOT_LINES, seen = noteForm(this, f);
     // the boss's arrival keeps the bubble for itself
-    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend && !this.boss) this.say(pick(lines), 240);
+    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend && !this.boss) this.say(seen || pick(lines), 240);
   }
 }
 
@@ -374,9 +377,16 @@ function tick(g: Game): void {
     g.pos.x = g.press!.x + g.press!.ox; g.pos.y = g.press!.y + g.press!.oy;
     g.krot *= 0.8;
   } else if (mode === 'knock') {
-    g.kvy += 0.45; g.pos.x += g.kvx; g.pos.y += g.kvy; g.kvx *= 0.985;
+    // a heavy form drops and lands with a thud, a light one drifts down
+    const hf = heft(g);
+    g.kvy += hf.grav; g.pos.x += g.kvx; g.pos.y += g.kvy; g.kvx *= hf.drag; if (hf.kind === 'light') g.kvy *= hf.drag;
     const gnd = g.H - 30;
-    if (g.pos.y > gnd) { g.pos.y = gnd; if (g.kvy > 1.6) { g.kick(Math.min(0.4, g.kvy * 0.035)); g.kvy *= -0.32; } else g.kvy = 0; g.kvx *= 0.6; }
+    if (g.pos.y > gnd) {
+      g.pos.y = gnd;
+      if (hf.kind === 'heavy' && g.kvy > 5) { g.shake = 8; emit(g, 10, 10); g.popups.push({ x: g.pos.x, y: g.pos.y - 20, text: 'THUD', life: 0, max: 40, c: '#5a6b7c', size: 14 }); }
+      if (g.kvy > 1.6) { g.kick(Math.min(0.4, g.kvy * 0.035)); g.kvy *= hf.kind === 'heavy' ? -0.12 : -0.32; } else g.kvy = 0;
+      g.kvx *= 0.6;
+    }
     if (g.pos.y < 30) { g.pos.y = 30; g.kvy = Math.abs(g.kvy) * 0.5; }
     // side walls bounce it back, hard hits shake it
     if (g.pos.x < 24 || g.pos.x > g.W - 24) {

@@ -90,6 +90,12 @@ export function renderFx(g: Game, recent: boolean): void {
   fxc.globalAlpha = 1;
   for (let m = 0; m < g.bullets.length; m++) {
     const bb = g.bullets[m]!;
+    if (bb.glyph) {
+      fxc.font = '700 14px ui-monospace, SFMono-Regular, Menlo, monospace'; fxc.textAlign = 'center'; fxc.textBaseline = 'middle';
+      fxc.fillStyle = bb.c ?? '#ff5a1f'; fxc.fillText(bb.glyph, Math.round(bb.x), Math.round(bb.y));
+      fxc.textBaseline = 'alphabetic';
+      continue;
+    }
     fxc.fillStyle = '#ff5a1f'; fxc.fillRect(Math.round(bb.x) - 2, Math.round(bb.y) - 2, 4, 4);
     fxc.globalAlpha = 0.4; fxc.fillStyle = '#ffd9c7'; fxc.fillRect(Math.round(bb.x - bb.vx) - 1, Math.round(bb.y - bb.vy) - 1, 2, 2);
     fxc.globalAlpha = 1;

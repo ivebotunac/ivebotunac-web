@@ -5,8 +5,9 @@ import type { Role } from '~/game/types'
 import { mdiClose } from '@mdi/js'
 import { useActiveSection } from '~/composables/useActiveSection'
 import PnIcon from '~/components/ui/PnIcon.vue'
+import FormsGrid from './FormsGrid.vue'
 
-const props = defineProps<{ team: Role[], done: boolean, boss?: boolean, announce: string }>()
+const props = defineProps<{ team: Role[], done: boolean, boss?: boolean, seen: string[], announce: string }>()
 const emit = defineEmits<{ (e: 'card'): void }>()
 
 const active = useActiveSection()
@@ -142,6 +143,7 @@ const goTo = (id: string) => {
           <span v-else class="qhud__state">shows up when the robot pops</span>
         </li>
       </ul>
+      <FormsGrid class="qhud__forms" :seen="seen" />
       <div class="qhud__reset">
         <button v-if="!confirming" type="button" class="qhud__reset-btn" @click="confirming = true">Restart game</button>
         <template v-else>
@@ -399,6 +401,10 @@ const goTo = (id: string) => {
 .qhud__where:hover { color: var(--pn-link-hover); text-decoration-color: currentColor; }
 
 /* Restart sits under the list, quiet until asked to confirm. */
+.qhud__forms {
+  margin-top: 10px;
+}
+
 .qhud__reset {
   display: flex;
   flex-wrap: wrap;
