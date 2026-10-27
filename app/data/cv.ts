@@ -92,6 +92,22 @@ export const cv: Cv = {
       ]
     },
     {
+      org: 'Martian & Machine',
+      url: 'https://www.martian-machine.ai',
+      logo: '/images/logos/martian-machine-v2.webp',
+      monogram: 'M',
+      kind: 'Contract',
+      location: 'Berlin, Germany',
+      roles: [
+        {
+          title: 'AI Research Engineer',
+          start: '2025-09',
+          end: 'present',
+          desc: 'Research and build agentic AI at Martian & Machine, an agentic AI company that helps enterprises move from AI pilots to an AI workforce. I work with the team on autonomous coding agent systems for a large enterprise client, taking on real engineering work inside its codebases.'
+        }
+      ]
+    },
+    {
       org: 'CroAI – Croatian AI Association',
       url: 'https://croai.org',
       logo: '/images/logos/croai-v2.webp',
