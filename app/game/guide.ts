@@ -1,16 +1,16 @@
 // Teaches the game one skill at a time and remembers the visitor, in their own browser only.
-import { LINK_LINES, TUT_LINES, deployerLines, lastAgentLine, lastDeployerLine, pick, recruitLines, welcomeLines, welcomePopLines } from './config'
+import { LINK_LINES, TUT_LINES, deployerLines, lastAgentLine, lastDeployerLine, pick, recruitLines, rowRecruitLine, welcomeLines, welcomePopLines } from './config'
 import { ROLES, ROLE_INFO } from './agents'
 import type { Game } from './core'
 import type { Role } from './types'
 
 export type Skill = keyof typeof TUT_LINES
 
-// team: roles recruited so far; teamStartedAt: Date.now() at the first recruit; teamMs: the finished time;
-// bossRun: the server's id for the fastest finished boss fight, with its time, kept through a restart so an
-// unsigned record can still be signed.
+// team: roles recruited so far; teamActiveMs: time on the page while the team was incomplete, summed over visits;
+// teamMs: the finished time; bossRun: the server's id for the fastest finished boss fight, with its time, kept
+// through a restart so an unsigned record can still be signed.
 export interface Memory {
-  learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamStartedAt: number | null, teamMs: number | null,
+  learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamActiveMs: number, teamMs: number | null,
   bossRun: string | null, bossRunMs: number | null
 }
 
@@ -20,13 +20,16 @@ const REPEAT = 2700
 const MAX_SAID = 3
 
 export function loadMemory(): Memory {
-  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamStartedAt: null, teamMs: null, bossRun: null, bossRunMs: null }
+  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamActiveMs: 0, teamMs: null, bossRun: null, bossRunMs: null }
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
     if (Array.isArray(raw.learned)) m.learned = raw.learned
     for (const k of ['best', 'pops', 'visits'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
     if (Array.isArray(raw.team)) m.team = ROLES.filter(r => raw.team.includes(r))
-    for (const k of ['teamStartedAt', 'teamMs'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
+    if (typeof raw.teamActiveMs === 'number') m.teamActiveMs = raw.teamActiveMs
+    // memory from before the active clock kept only the start, so a team under way carries its wall time, at most an hour
+    else if (m.team.length && typeof raw.teamStartedAt === 'number') m.teamActiveMs = Math.max(0, Math.min(Date.now() - raw.teamStartedAt, 3600000))
+    if (typeof raw.teamMs === 'number') m.teamMs = raw.teamMs
     if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
     if (typeof raw.bossRunMs === 'number') m.bossRunMs = raw.bossRunMs
   } catch { /* storage blocked or corrupt: start fresh */ }
@@ -115,8 +118,9 @@ export function linkLine(g: Game, href: string): void {
   g.say(pick(LINK_LINES[kind]!), 220)
 }
 
-// The progress line after a recruit; the sixth one gets the completion line instead.
-export function recruitLine(g: Game, role: Role): string {
+// The progress line after a recruit, naming the CV row it was found in when there is one; the sixth one gets the
+// completion line instead.
+export function recruitLine(g: Game, role: Role, row = ''): string {
   learn(g, 'team')
   const left = ROLES.filter(r => !g.mem.team.includes(r))
   if (!left.length) return ''
@@ -124,5 +128,6 @@ export function recruitLine(g: Game, role: Role): string {
   const last = left.length === 1 ? left[0]! : null
   if (last === 'deployer') return lastDeployerLine
   if (last) return lastAgentLine.replace('{r}', ROLE_INFO[last].label).replace('{s}', ROLE_INFO[last].where)
-  return pick(recruitLines).replace('{r}', ROLE_INFO[role].label) + ' ' + g.mem.team.length + '/' + ROLES.length + '.'
+  const line = row ? rowRecruitLine.replace('{row}', () => row) : pick(recruitLines)
+  return line.replace('{r}', ROLE_INFO[role].label) + ' ' + g.mem.team.length + '/' + ROLES.length + '.'
 }

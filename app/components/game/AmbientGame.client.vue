@@ -23,6 +23,8 @@ const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 // The team quest's view of the game: the HUD chip, screen-reader lines and the finished-team card.
 const quest = reactive<QuestView>({ team: [], done: false, ms: null, bossRun: null, bossMs: null, boss: false })
+// The fight just won, by the game's clock; the card's title shows it, not the board's kept fight.
+const fightMs = ref<number | null>(null)
 const announce = ref('')
 const cardOpen = ref(false)
 // Which board leads the card: the team's after the quest, the boss's after a win.
@@ -48,10 +50,12 @@ const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  finished: (ms) => { postTeam(ms, quest.bossRun).then(gotStats) },
+  // A time the server refuses, such as one under its floor, still shows the board rather than calling it offline.
+  finished: (ms) => { postTeam(ms, quest.bossRun).then(s => (s ? gotStats(s) : refresh())) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) { cardMode.value = 'team'; cardOpen.value = true } },
-  bossDone: (run) => {
+  bossDone: (run, ms) => {
+    fightMs.value = ms
     if (run) postBoss(run).then(s => (s && run === quest.bossRun ? gotStats(s) : refresh()))
     else void refresh()
     clearTimeout(bossTimer)
@@ -89,7 +93,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
         :open="cardOpen"
         :mode="cardMode"
         :ms="quest.ms"
-        :boss-ms="quest.bossMs"
+        :boss-ms="fightMs"
         :boss-run="quest.bossRun"
         :stats="stats"
         :stats-off="statsOff"
@@ -323,5 +327,13 @@ html.robot-grabbing * {
 html.robot-point,
 html.robot-point * {
   cursor: pointer !important;
+}
+
+/* While a finger holds the robot or a teammate, so a long press starts no text selection or callout (actions.ts). */
+html.robot-hold,
+html.robot-hold * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 </style>

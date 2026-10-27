@@ -8,7 +8,8 @@ import { track } from '~/utils/track'
 import PnIcon from '~/components/ui/PnIcon.vue'
 import LeaderBoard from './LeaderBoard.vue'
 
-// mode: the team's card after the quest, or the boss's after a win; bossRun: the fight it offers to sign.
+// mode: the team's card after the quest, or the boss's after a win; bossRun: the fight it offers to sign;
+// bossMs: the time of the fight just won, by the game's clock.
 const props = defineProps<{
   open: boolean, mode: 'team' | 'boss', ms: number | null, bossMs: number | null
   bossRun: string | null, stats: GameStats | null, statsOff: boolean
@@ -28,11 +29,8 @@ const titleId = useId()
 let opener: HTMLElement | null = null
 
 const time = computed(() => (props.ms === null ? '' : fmt(props.ms)))
-// The server's time for the fight when it answered, the game's own until then.
-const bossTime = computed(() => {
-  const ms = props.stats?.mine?.ms ?? props.bossMs
-  return ms === null ? '' : fmt(ms)
-})
+// The board's own fight can be an older, faster one, so the title keeps to the fight just won.
+const bossTime = computed(() => (props.bossMs === null ? '' : fmt(props.bossMs)))
 
 const globalLine = computed(() => {
   const s = props.stats

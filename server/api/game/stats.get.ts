@@ -1,7 +1,11 @@
-import { parseRun, readGameStats } from '../../utils/game-stats'
+import { GLOBAL_READS_PER_MIN, LIMITS, LIMIT_MAX_KEYS, LIMIT_WINDOW_MS, clientKey, createGameLimiter, parseRun, readGameStats } from '../../utils/game-stats'
+
+const limiter = createGameLimiter(LIMIT_WINDOW_MS, LIMITS, LIMIT_MAX_KEYS, GLOBAL_READS_PER_MIN)
 
 export default defineEventHandler(async (event) => {
   const run = parseRun(getQuery(event).run)
+  // Held only as a limiter key for the window; never logged or stored.
+  if (!limiter.allow(clientKey(event), 'read')) throw createError({ statusCode: 429, statusMessage: 'Too many board reads' })
   try {
     const stats = await readGameStats(run)
     // a visitor's own fight is personal, so only the anonymous answer may sit in a shared cache

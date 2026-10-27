@@ -52,8 +52,8 @@ export interface QuestBridge {
   finished(ms: number): void
   // the end of the fly-by: opens the team card
   complete(): void
-  // a won boss fight and its run: posts it, then opens the card on the boss board
-  bossDone(run: string | null): void
+  // a won boss fight, its run and its time by the game's clock: posts it, then opens the card on the boss board
+  bossDone(run: string | null, ms: number): void
 }
 
 // ---- team behaviours (team.ts) ----

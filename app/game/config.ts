@@ -20,7 +20,7 @@ export const CX = 110
 export const CY = 110
 export const HALF = 110
 // Size, bubble gap and hit radius all derive from DS, so BASE rescales them together.
-export const BASE = 1.56
+const BASE = 1.56
 // Morph "poof" duration in frames.
 export const MORPH = 20
 // Largest drawn size, random growth plus inflation, that still fits the 220px canvas.
@@ -113,6 +113,7 @@ export const peekLines: { mouse: string[], touch: string[] } = {
 }
 export const notHereLines: string[] = ['not here. try another row in {s}.', 'warm… but not this row. {s} still hides one.', 'nope. someone\'s hiding elsewhere in {s}.']
 export const recruitLines: string[] = ['{r} reporting for duty.', '{r} is back on the team.', 'found my {r}. good human.', '{r} recruited.']
+export const rowRecruitLine = 'found the {r} in "{row}".'
 export const lastAgentLine = 'one left: the {r}, somewhere in {s}.'
 export const lastDeployerLine = 'one left: the Deployer. it only shows up when I pop.'
 export const deployerLines: string[] = ['the Deployer! it only comes out when things blow up.', 'something exploded, so the Deployer showed up.']

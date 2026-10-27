@@ -18,7 +18,6 @@ export interface MyRun {
 }
 
 export interface GameStatsResponse {
-  pops: number
   teams: number
   bestMs: number | null
   fasterThanPct: number | null
@@ -30,13 +29,14 @@ export interface GameStatsResponse {
 
 // The leaderboard is the AGI fight's alone; a finished team only adds to the totals.
 export type GameEvent =
-  | { kind: 'pop' }
   | { kind: 'run' }
   // run: the visitor's boss fight, so the answer carries its place on the board
   | { kind: 'team', ms: number, run: string | null }
   | { kind: 'boss', run: string }
   | { kind: 'name', run: string, initials: string }
 export type GameEventKind = GameEvent['kind']
+// A board read is limited like an event, on a limiter of its own so reads never use up the write budget.
+export type LimitKind = GameEventKind | 'read'
 
 export const GAME_STATS_DOC = 'ivebotunac/stats'
 // One doc per boss fight, from its entry; the id is the visitor's claim on the time.
@@ -61,11 +61,13 @@ const BLOCKED = new Set([
 ])
 
 export const LIMIT_WINDOW_MS = 10 * 60_000
-export const LIMITS: Record<GameEventKind, number> = { pop: 20, run: 12, team: 2, boss: 10, name: 10 }
+export const LIMITS: Record<LimitKind, number> = { run: 12, team: 2, boss: 10, name: 10, read: 30 }
 // Bounds the map; when full, the oldest key makes room for the new one.
 export const LIMIT_MAX_KEYS = 50_000
 // Firestore writes per instance per minute across all keys, so cost and the hot document stay bounded.
 export const GLOBAL_LIMIT_PER_MIN = 120
+// A board read costs about a dozen Firestore reads, so reads get their own cap per instance per minute.
+export const GLOBAL_READS_PER_MIN = 240
 
 const RUN_ID = /^[A-Za-z0-9]{20}$/
 
@@ -82,7 +84,7 @@ export function parseGameEvent(body: unknown): GameEvent | null {
   const { kind, ms, run: r, initials } = body as { kind?: unknown, ms?: unknown, run?: unknown, initials?: unknown }
   if (ms !== undefined && !Number.isInteger(ms)) return null
   const run = parseRun(r)
-  if (kind === 'pop' || kind === 'run') return { kind }
+  if (kind === 'run') return { kind }
   if (kind === 'boss') return run ? { kind, run } : null
   if (kind === 'name') {
     const i = parseInitials(initials)
@@ -125,9 +127,15 @@ export function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, pr
   return Math.max(0, Math.min(100, Math.round((100 * (slower + same / 2)) / total)))
 }
 
+// App Hosting sets x-fah-client-ip after its own proxies; the leftmost X-Forwarded-For entry is whatever the client sent.
+export function clientKey(event: Parameters<typeof getRequestIP>[0]): string {
+  const fah = process.env.K_SERVICE ? getRequestHeader(event, 'x-fah-client-ip')?.split(',')[0]?.trim() : undefined
+  return fah || getRequestIP(event) || 'unknown'
+}
+
 // Fixed window per key, in memory and per instance; the key never leaves this map.
 export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, maxKeys = LIMIT_MAX_KEYS, globalPerMin = GLOBAL_LIMIT_PER_MIN) {
-  const hits = new Map<string, { start: number, n: Record<GameEventKind, number> }>()
+  const hits = new Map<string, { start: number, n: Record<LimitKind, number> }>()
   let lastSweep = 0
   let minuteStart = 0
   let minuteCount = 0
@@ -140,7 +148,7 @@ export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, m
   setInterval(() => sweep(Date.now()), 60_000).unref?.()
 
   return {
-    allow(key: string, kind: GameEventKind, now = Date.now()): boolean {
+    allow(key: string, kind: LimitKind, now = Date.now()): boolean {
       if (now - lastSweep >= windowMs) sweep(now)
       if (now - minuteStart >= 60_000) { minuteStart = now; minuteCount = 0 }
       if (minuteCount >= globalPerMin) return false
@@ -150,7 +158,7 @@ export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, m
         if (hits.size >= maxKeys) sweep(now)
         // Map keeps insertion order, so the first key is the oldest window
         if (hits.size >= maxKeys) { const oldest = hits.keys().next().value; if (oldest !== undefined) hits.delete(oldest) }
-        entry = { start: now, n: { pop: 0, run: 0, team: 0, boss: 0, name: 0 } }
+        entry = { start: now, n: { run: 0, team: 0, boss: 0, name: 0, read: 0 } }
         hits.delete(key)
         hits.set(key, entry)
       }
@@ -166,7 +174,6 @@ export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, m
 function toStats(data: Record<string, unknown> | undefined): GameStatsResponse {
   const best = data?.bestMs
   return {
-    pops: count(data?.pops),
     teams: count(data?.teams),
     bestMs: typeof best === 'number' && Number.isFinite(best) ? best : null,
     fasterThanPct: null,
@@ -202,12 +209,6 @@ const runData = async (run: string | null): Promise<Data> => (run ? (await getGa
 export async function readGameStats(run: string | null = null): Promise<GameStatsResponse> {
   const [snap, data] = await Promise.all([getGameDb().doc(GAME_STATS_DOC).get(), runData(run)])
   return withBoard(toStats(snap.data()), data)
-}
-
-// The client ignores the answer to a pop, so it costs one write and no read.
-export async function recordPop(): Promise<{ ok: true }> {
-  await getGameDb().doc(GAME_STATS_DOC).set({ pops: FieldValue.increment(1) }, { merge: true })
-  return { ok: true }
 }
 
 export async function startRun(): Promise<{ run: string }> {

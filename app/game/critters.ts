@@ -139,13 +139,14 @@ export function gait(g: Game, spd: number): { bob: number, lean: number } | null
   return null
 }
 
-// A quirk may hold the target itself: napping, dazed and posing critters stand still, a shy one backs away from the cursor.
-export function actTarget(g: Game, recent: boolean): number | null {
+// A quirk may hold the target itself: napping, dazed and posing critters stand still, a shy one backs away from a fast cursor.
+export function actTarget(g: Game): number | null {
   const s = SPRITES[g.curForm]
   if (!s) return null
   const k = g.act?.kind
   if (k === 'nap' || k === 'daze' || k === 'proud' || k === 'copy') { g.tgt.x = g.pos.x; g.tgt.y = g.pos.y; return 0.02 }
-  if (s.trait.quirk === 'shy' && recent && Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < 150) {
+  // faster than petting speed, so a slow hand can still reach it
+  if (s.trait.quirk === 'shy' && g.t - g.lastMove < 10 && g.mouseV > 0.8 && Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < 150) {
     const a = Math.atan2(g.pos.y - g.mouseY, g.pos.x - g.mouseX)
     g.tgt.x = Math.max(40, Math.min(g.W - 40, g.pos.x + Math.cos(a) * 120))
     g.tgt.y = Math.max(60, Math.min(g.H - 60, g.pos.y + Math.sin(a) * 120))

@@ -31,6 +31,8 @@ export class Game {
   pxl: Pxl
   getSection: () => string
   raf = 0
+  // set while asleep with nothing going on, when frames come from a 100ms timer instead of rAF
+  idleTO: ReturnType<typeof setTimeout> | undefined = undefined
   unbind: (() => void) | null = null
   // fixed timestep, so the speed does not follow the display's refresh rate
   lastNow = 0
@@ -55,6 +57,11 @@ export class Game {
   lastMove = -999
   pmX = -999
   pmY = -999
+  pmMs = 0
+  // cursor speed over the last mousemove, in px per ms
+  mouseV = 0
+  // the cursor is over a link or a row toggle, which takes the click
+  overPage = false
   t = 0
   // particles + flags
   sparks: Spark[] = []
@@ -186,10 +193,13 @@ export class Game {
     this.sizeFx()
   }
 
-  // The CSS size follows the bitmap, so drawing stays 1:1 with clientX/clientY under a dynamic toolbar.
+  // The CSS size is set with the bitmap, so drawing stays 1:1 with clientX/clientY under a dynamic toolbar; the bitmap is at
+  // devicePixelRatio, capped lower on phones, so text and lasers stay sharp.
   sizeFx(): void {
-    this.fx.width = this.W; this.fx.height = this.H
+    const r = Math.min(this.coarse ? 1.5 : 2, devicePixelRatio || 1)
+    this.fx.width = Math.round(this.W * r); this.fx.height = Math.round(this.H * r)
     this.fx.style.width = this.W + 'px'; this.fx.style.height = this.H + 'px'
+    this.fxc?.setTransform(r, 0, 0, r, 0, 0)
   }
 
   start(): void {
@@ -202,6 +212,8 @@ export class Game {
   destroy(): void {
     cancelAnimationFrame(this.raf)
     this.raf = 0
+    clearTimeout(this.idleTO)
+    this.idleTO = undefined
     this.unbind?.()
     this.unbind = null
     clearTimeout(this.rageTO)
@@ -229,8 +241,10 @@ export class Game {
     try { navigator.vibrate(pattern) } catch { /* blocked without a user gesture */ }
   }
 
+  // Back to rAF at once if the loop was dozing on its timer.
   wake(): void {
     this.lastInput = this.t
+    if (this.idleTO !== undefined) { clearTimeout(this.idleTO); this.idleTO = undefined; this.raf = requestAnimationFrame(now => frame(this, now)) }
     if (this.asleep) { this.asleep = false; this.say(pick(wakeLines), 180) }
   }
 
@@ -255,19 +269,25 @@ export class Game {
     this.curForm = f; this.morphFlash = MORPH; magic(this);
     this.act = null; this.actCD = 240 + (rand(0, 240) | 0); this.partCD = 30;
     const lines = linesFor(this, 'morph') ?? ROBOT_LINES;
-    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend) this.say(pick(lines), 240);
+    // the boss's arrival keeps the bubble for itself
+    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend && !this.boss) this.say(pick(lines), 240);
   }
 }
 
 // Runs as many 60Hz ticks as real time allows (at most 3), then reschedules until destroy() cancels it.
+// A dozing frame from the timer runs one tick, so the nap plays slowed down instead of redrawing six times. A hidden tab
+// never dozes: the timer would keep ticking there, while rAF pauses.
 function frame(g: Game, now: number): void {
+  const max = g.idleTO === undefined ? 3 : 1;
+  g.idleTO = undefined;
   g.acc += g.lastNow ? Math.min(100, now - g.lastNow) : STEP;
   g.lastNow = now;
   let n = 0;
-  while (g.acc >= STEP - 1.5 && n < 3) { g.acc = Math.max(0, g.acc - STEP); tick(g); n++; }
+  while (g.acc >= STEP - 1.5 && n < max) { g.acc = Math.max(0, g.acc - STEP); tick(g); n++; }
   // below 20 fps the backlog is dropped, or it would replay later at triple speed
-  if (n === 3) g.acc = Math.min(g.acc, STEP);
-  g.raf = requestAnimationFrame(t => frame(g, t));
+  if (n === max) g.acc = Math.min(g.acc, STEP);
+  if (g.asleep && !document.hidden && g.bubble.hidden && !g.boss && !g.flyby && !g.peeks.length && !g.carry) g.idleTO = setTimeout(() => frame(g, performance.now()), 100);
+  else g.raf = requestAnimationFrame(t => frame(g, t));
 }
 
 function respawn(g: Game): void {
@@ -309,7 +329,8 @@ function tick(g: Game): void {
   g.t++;
   if (g.hitCD > 0) g.hitCD--;
   if (g.jugCD > 0) g.jugCD--;
-  if (g.angryT > 0) g.angryT--;
+  // anger does not drain while it is knocked down, so a single hit still ends in a counter-attack
+  if (g.angryT > 0 && g.knockT <= 0) g.angryT--;
   if (g.flash > 0) g.flash--;
   if (g.shake > 0) g.shake--;
   if (g.scrollCD > 0) g.scrollCD--;
@@ -346,7 +367,7 @@ function tick(g: Game): void {
   else if (bossFighting(g)) { mode = 'idle'; lerp = bossRobotTarget(g); }
   else if (g.trend && g.angryT <= 0) { mode = 'chase'; lerp = chaseTarget(g); }
   else if (g.attackT > 0) { mode = 'attack'; lerp = runAttack(g, recent); }
-  else { mode = 'idle'; lerp = actTarget(g, recent) ?? idleTarget(g); }
+  else { mode = 'idle'; lerp = actTarget(g) ?? idleTarget(g); }
   if (mode !== 'held' && mode !== 'knock') lerp *= pace(g);
 
   if (mode === 'held') {
@@ -405,10 +426,12 @@ function tick(g: Game): void {
   g.pet.style.transform = 'translate(' + (g.pos.x - HALF) + 'px,' + (g.pos.y - HALF) + 'px)';
   // A fixed gap above the robot's scaled top, so the bubble never overlaps it.
   g.bubble.style.bottom = (132 + 24 * g.size() * g.DS) + 'px';
-  // The cursor turns into a hand over the robot or a teammate and a fist while holding one.
+  // Near the right edge the bubble shifts to stay on screen.
+  if (!g.bubble.hidden) { const hw = g.bubble.offsetWidth / 2; g.bubble.style.marginLeft = (Math.max(8 + hw, Math.min(g.W - 8 - hw, g.pos.x)) - g.pos.x) + 'px'; }
+  // The cursor turns into a hand over the robot or a teammate and a fist while holding one; a link or row toggle under them keeps its own.
   if (!g.coarse) {
     const live = g.t - g.lastMove < 600;
-    const over = live && (Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR() || !!agentAt(g, g.mouseX, g.mouseY));
+    const over = live && !g.overPage && ((Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR() && actAlpha(g) >= 0.3) || !!agentAt(g, g.mouseX, g.mouseY));
     const cur = g.held || g.carry?.moved ? 'robot-grabbing' : (over ? 'robot-grab' : ((g.peeks.length && g.t - g.lastMove < 600 && peekAt(g, g.mouseX, g.mouseY)) || (g.boss && g.t - g.lastMove < 600 && bossAt(g, g.mouseX, g.mouseY)) ? 'robot-point' : ''));
     if (cur !== g.cursor) {
       const cl = document.documentElement.classList;
@@ -422,14 +445,16 @@ function tick(g: Game): void {
   g.lean = mode === 'knock' ? 0 : (mode === 'held' ? Math.max(-0.5, Math.min(0.5, dx * 0.04)) : Math.max(-0.18, Math.min(0.18, dx * 0.02)));
   const gt = mode !== 'knock' && mode !== 'held' && !g.asleep ? gait(g, spd) : null;
   if (gt) { g.bob = gt.bob; g.lean += gt.lean; }
-  // Morph cycle is robot to critter and back; the only critter to critter step is an evolution.
+  // Morph cycle is robot to critter and back; the only critter to critter step is an evolution. A robot never turns into a
+  // critter during the fly-by, a waiting agent or a trend chase, and the boss always fights the robot.
   g.formCD--;
-  if (g.formCD <= 0 && g.knockT <= 0 && !g.held && !g.asleep) {
-    if (g.curForm === 'robot') {
-      g.morphTo(pick(CRITTERS)); g.formCD = 420 + (rand(0, 360) | 0);
-    } else {
+  if (g.boss && g.curForm !== 'robot') { g.morphTo('robot'); g.formCD = 540 + (rand(0, 600) | 0); }
+  else if (g.formCD <= 0 && g.knockT <= 0 && !g.held && !g.asleep) {
+    if (g.curForm !== 'robot') {
       const nf = nextForm(g);
       g.morphTo(nf); g.formCD = nf === 'robot' ? 540 + (rand(0, 600) | 0) : 420 + (rand(0, 360) | 0);
+    } else if (!g.boss && g.flyby <= 0 && !g.peeks.length && !g.trend) {
+      g.morphTo(pick(CRITTERS)); g.formCD = 420 + (rand(0, 360) | 0);
     }
   }
   if (g.morphFlash > 0) g.morphFlash--;

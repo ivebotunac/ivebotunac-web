@@ -49,7 +49,7 @@ const cell = (g: Game) => (g.W < 520 ? 3 : 4);
 export const bossR = (g: Game) => 12 * cell(g) + 6 + g.tapPad;
 export const bossFighting = (g: Game) => !!g.boss && (g.boss.phase === 'enter' || g.boss.phase === 'fight');
 
-export function fmtMs(ms: number): string {
+function fmtMs(ms: number): string {
   const s = Math.round(ms / 1000);
   return ((s / 60) | 0) + ':' + String(s % 60).padStart(2, '0');
 }
@@ -58,8 +58,9 @@ function homeY(g: Game): number {
   return Math.max(110, g.H * 0.26);
 }
 
-export function startBoss(g: Game): void {
-  if (g.boss || g.printing) return;
+function startBoss(g: Game): void {
+  // the HUD offers a new fight as soon as the old one ends, so a boss still flying off is replaced
+  if ((g.boss && g.boss.phase !== 'leave') || g.printing) return;
   g.boss = {
     phase: 'enter', x: g.W / 2, y: -14 * cell(g), t: 0, hp: HP, max: HP, shown: HP, flash: 0, shake: 0,
     combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90, run: null,
@@ -125,7 +126,7 @@ export function hurtBoss(g: Game, dmg: number, big: boolean): void {
     if (q === 2) speak(g, pick(bossHalfLines));
     deployRocket(g, true);
   }
-  if (b.hp <= 0) { b.phase = 'dying'; b.t = 0; b.tele = null; b.orbs.length = 0; }
+  if (b.hp <= 0) { b.phase = 'dying'; b.t = 0; b.tele = null; b.orbs.length = 0; syncQuest(g); }
 }
 
 // The robot fights from beside the boss with its cyan laser. Returns lerp.
@@ -275,7 +276,7 @@ function defeat(g: Game, b: Boss): void {
   g.bridge?.announce('AGI defeated in ' + fmtMs(ms) + '.' + (best === null ? '' : record ? ' New best.' : ' Best ' + fmtMs(best) + '.'));
   g.boss = null; g.angryT = 0;
   syncQuest(g);
-  g.bridge?.bossDone(b.run);
+  g.bridge?.bossDone(b.run, ms);
 }
 
 function leave(g: Game, b: Boss): void {
@@ -283,6 +284,7 @@ function leave(g: Game, b: Boss): void {
   repairAll(g);
   speak(g, pick(bossLeaveLines));
   g.bridge?.announce('AGI left. Fight it again from the team button.');
+  syncQuest(g);
 }
 
 // Runs from tickQuest, so it keeps going while the robot is popped; it only counts time while the fight is on.

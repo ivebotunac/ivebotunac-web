@@ -1,12 +1,6 @@
-import { createGameLimiter, nameRun, parseGameEvent, recordBoss, recordPop, recordTeam, startRun } from '../../utils/game-stats'
+import { clientKey, createGameLimiter, nameRun, parseGameEvent, recordBoss, recordTeam, startRun } from '../../utils/game-stats'
 
 const limiter = createGameLimiter()
-
-// App Hosting sets x-fah-client-ip after its own proxies; the leftmost X-Forwarded-For entry is whatever the client sent.
-function clientKey(event: Parameters<typeof getRequestIP>[0]): string {
-  const fah = process.env.K_SERVICE ? getRequestHeader(event, 'x-fah-client-ip')?.split(',')[0]?.trim() : undefined
-  return fah || getRequestIP(event) || 'unknown'
-}
 
 export default defineEventHandler(async (event) => {
   let body: unknown
@@ -24,7 +18,6 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'cache-control', 'no-store')
   let result
   try {
-    if (parsed.kind === 'pop') return await recordPop()
     if (parsed.kind === 'run') return await startRun()
     if (parsed.kind === 'team') return await recordTeam(parsed.ms, parsed.run)
     result = parsed.kind === 'boss' ? await recordBoss(parsed.run) : await nameRun(parsed.run, parsed.initials)

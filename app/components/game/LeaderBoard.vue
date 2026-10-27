@@ -40,13 +40,21 @@ const saving = ref(false)
 const error = ref('')
 const onInput = (e: Event) => { initials.value = (e.target as HTMLInputElement).value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3) }
 
+// postName answers the HTTP status when it fails, 0 when nothing answered; only a 400 is the letters' fault.
+const NAME_ERRORS: Record<number, string> = {
+  400: 'Those letters cannot be used. Try others.',
+  409: 'This fight cannot be signed any more.',
+  429: 'Too many tries. Wait a few minutes, then sign again.',
+}
+const OFFLINE = 'The board is not answering right now. Try again in a minute.'
+
 async function save() {
   if (!props.run || initials.value.length !== 3 || saving.value) return
   saving.value = true
   error.value = ''
   const s = await postName(props.run, initials.value)
   saving.value = false
-  if (!s) { error.value = 'Those letters cannot be used. Try others.'; return }
+  if (typeof s === 'number') { error.value = NAME_ERRORS[s] ?? OFFLINE; return }
   track('board_name', { place: s.mine?.place ?? 0 })
   initials.value = ''
   emit('stats', s)
