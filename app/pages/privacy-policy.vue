@@ -14,9 +14,11 @@ onMounted(() => {
   loadGoogleAnalytics()
 })
 
+// Reachable and linked, but only the homepage is for search.
 useSeoMeta({
   title: pageTitle,
   description: pageDescription,
+  robots: 'noindex, follow',
   ogType: 'website',
   ogTitle: pageTitle,
   ogDescription: pageDescription,

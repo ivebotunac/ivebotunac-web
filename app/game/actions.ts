@@ -417,7 +417,7 @@ export function bindInput(g: Game): () => void {
   const onMouseOut = (e: MouseEvent) => { if (!e.relatedTarget) g.lastMove = -999; };
   // The quest HUD and team card take their own clicks, even with the robot flying over them.
   const onUi = (e: Event) => !!(e.target as Element | null)?.closest?.('[data-game-ui]');
-  // A link or a row toggle does what it shows; only a waiting agent or the boss wins over it.
+  // Under a mouse, a link or a row toggle does what it shows; only a waiting agent or the boss wins over it.
   const onPage = (e: Event) => !!(e.target as Element | null)?.closest?.('a[href],button,summary,[role=button]');
   // Cleared on every primary press, so a swallow left by a press that sent no click never eats a HUD click.
   const onMouseDown = (e: MouseEvent) => {
@@ -446,7 +446,7 @@ export function bindInput(g: Game): () => void {
     const p = { sx: tch.clientX, sy: tch.clientY };
     // a waiting agent or the boss takes the touch at once; a cancelled touchstart sends no click, so a pending swallow would eat the next tap
     if (pointerDown(g, p.sx, p.sy, false)) { e.preventDefault(); g.swallowClick = false; return; }
-    if (onPage(e)) return;
+    // no onPage guard: on a phone the CV rows span the screen, so the robot sits over one; hitR alone decides
     pend = p;
     pendTO = setTimeout(() => { pend = null; if (pointerDown(g, p.sx, p.sy, true, true)) holdCls(true); g.swallowClick = false; }, 220);
   };

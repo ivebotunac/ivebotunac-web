@@ -48,8 +48,8 @@ export default defineNuxtConfig({
     indexable: true
   },
 
-  // The PDF CV's source page is not for search.
-  sitemap: { exclude: ['/cv-print'] },
+  // Only the homepage is for search: the PDF CV's source page and the privacy policy stay out.
+  sitemap: { exclude: ['/cv-print', '/privacy-policy'] },
 
   robots: {
     allow: ['/'],
@@ -105,6 +105,8 @@ export default defineNuxtConfig({
     // Enable prerendering for public pages (SEO)
     '/': { prerender: true, headers: htmlCache },
     '/privacy-policy': { prerender: true, headers: htmlCache },
+    // The PDF has no head, so the header carries its noindex.
+    '/ive-botunac-cv.pdf': { headers: { 'x-robots-tag': 'noindex' } },
     // The PDF CV's source page: built so the script can print it; the page itself says noindex.
     '/cv-print': { prerender: true },
   },
