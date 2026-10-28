@@ -15,10 +15,10 @@ const now = useState<YearMonth>('cv-print-now', () => {
 
 const SITE = 'ivebotunac.com'
 const EMAIL = 'info@techprimo.ai'
-// Profiles read as their address; Scholar and CroRIS addresses are ids, so they keep their names.
+// Profiles read as their address; Scholar's is an opaque id, so it keeps its name.
 const links = cv.contacts.map(c => ({
   href: c.href,
-  text: /scholar\.google|croris/.test(c.href) ? c.label : c.href.replace(/^https?:\/\/(www\.)?/, '')
+  text: /scholar\.google/.test(c.href) ? c.label : c.href.replace(/^https?:\/\/(www\.)?/, '')
 }))
 
 const years = (start: YearMonth, end: YearMonth | 'present') =>
@@ -79,7 +79,16 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
         </section>
 
         <section class="sec">
-          <h2 class="shead"><span>03</span>Publications</h2>
+          <h2 class="shead"><span>03</span>Education</h2>
+          <div v-for="e in cv.education" :key="e.degree" class="edu">
+            <p class="edu__deg"><strong>{{ e.degree }}</strong></p>
+            <p class="meta">{{ e.institution }} · {{ e.start }} – {{ e.end }}</p>
+            <p v-if="e.thesis" class="edu__thesis">{{ e.thesis }}</p>
+          </div>
+        </section>
+
+        <section class="sec">
+          <h2 class="shead"><span>04</span>Publications</h2>
       <article v-for="p in cv.publications" :key="p.title" class="pub">
         <span class="yr">{{ p.year }}</span>
         <div>
@@ -94,19 +103,10 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
 
       <aside class="side">
         <section class="sec">
-          <h2 class="shead"><span>04</span>Skills</h2>
+          <h2 class="shead"><span>05</span>Skills</h2>
           <div v-for="s in cv.skills" :key="s.label" class="skill">
             <p class="skill__label">{{ s.label }}</p>
             <p class="skill__tools"><strong>{{ s.core.join(' · ') }}</strong><template v-if="s.also?.length"> · {{ s.also.join(' · ') }}</template></p>
-          </div>
-        </section>
-
-        <section class="sec">
-          <h2 class="shead"><span>05</span>Education</h2>
-          <div v-for="e in cv.education" :key="e.degree" class="edu">
-            <p class="edu__deg"><strong>{{ e.degree }}</strong></p>
-            <p class="meta">{{ e.institution }} · {{ e.start }} – {{ e.end }}</p>
-            <p v-if="e.thesis" class="edu__thesis">{{ e.thesis }}</p>
           </div>
         </section>
 

@@ -132,12 +132,12 @@ onUnmounted(() => {
           <CvExperience :orgs="cv.experience" :now="now" />
         </CvSection>
 
-        <CvSection v-bind="head('publications', `${cv.publications.length} papers`)">
-          <CvPublications :publications="cv.publications" :self="cv.name" :scholar="scholar" />
-        </CvSection>
-
         <CvSection v-bind="head('education', degrees)">
           <CvEducation :education="cv.education" />
+        </CvSection>
+
+        <CvSection v-bind="head('publications', `${cv.publications.length} papers`)">
+          <CvPublications :publications="cv.publications" :self="cv.name" :scholar="scholar" />
         </CvSection>
 
         <CvSection v-bind="head('certifications', `${cv.certifications.length} programmes`)">

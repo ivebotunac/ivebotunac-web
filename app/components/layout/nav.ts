@@ -7,8 +7,8 @@ export const NAV_LINKS = [
 export const CV_SECTIONS = [
   { id: 'about', num: '01', label: 'About', title: 'About' },
   { id: 'experience', num: '02', label: 'Experience', title: 'Experience' },
-  { id: 'publications', num: '03', label: 'Publications', title: 'Publications' },
-  { id: 'education', num: '04', label: 'Education', title: 'Education' },
+  { id: 'education', num: '03', label: 'Education', title: 'Education' },
+  { id: 'publications', num: '04', label: 'Publications', title: 'Publications' },
   { id: 'certifications', num: '05', label: 'Certifications', title: 'Certifications' },
   { id: 'skills', num: '06', label: 'Skills', title: 'Skills' }
 ] as const

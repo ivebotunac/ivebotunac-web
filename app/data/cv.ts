@@ -19,7 +19,7 @@ export const cv: Cv = {
   contacts: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ivebotunac', external: true },
     { label: 'Google Scholar', href: 'https://scholar.google.com/citations?user=Yr-Z7D0AAAAJ', external: true },
-    { label: 'CroRIS', href: 'https://www.croris.hr/osobe/profil/39063', external: true },
+    { label: 'ORCID', href: 'https://orcid.org/0000-0003-3561-7089', external: true },
     { label: 'GitHub', href: 'https://github.com/ivebotunac', external: true },
     { label: 'X', href: 'https://x.com/ivebotunac', external: true }
   ],

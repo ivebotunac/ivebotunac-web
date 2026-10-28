@@ -77,7 +77,7 @@ export const LINK_LINES: Record<string, string[]> = {
   'https://x.com': ['he posts about building apps there.', 'follow him. I can\'t, no thumbs.'],
   'linkedin.com': ['go on, connect.', 'he accepts invites. I checked.'],
   'scholar.google': ['peer reviewed. unlike me.', 'citations go brrr.'],
-  'croris': ['the official record. very serious.'],
+  'orcid.org': ['one id for every paper. very serious.'],
   'techprimo.ai': ['his studio. I\'m the intern.'],
   'doi.org': ['actual science. go read it.'],
   'coursera.org': ['he did the homework. I just scraped it.']
