@@ -1,5 +1,5 @@
-// The share card's path once it exists, as /images/share-<n>.jpg; while unset, no image tags are written.
-export const CV_SHARE_IMAGE: string | undefined = undefined
+// The share card; a redraw gets the next /images/share-<n>.jpg, since /images is cached immutable.
+export const CV_SHARE_IMAGE: string | undefined = '/images/share-1.jpg'
 
 export const CV_TITLE = 'Ive Botunac, PhD · AI Research Engineer & Assistant Professor'
 

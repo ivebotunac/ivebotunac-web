@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CV_SHARE_IMAGE } from '~/composables/useCvSeo'
+import { CV_SHARE_IMAGE, CV_TITLE } from '~/composables/useCvSeo'
 
 const site = useSiteConfig()
 const siteUrl = site.url
@@ -25,6 +25,10 @@ useSeoMeta({
   ogUrl: pageUrl,
   ogSiteName: site.name,
   ogImage: image,
+  ogImageWidth: image ? 1200 : undefined,
+  ogImageHeight: image ? 630 : undefined,
+  ogImageType: image ? 'image/jpeg' : undefined,
+  ogImageAlt: image ? CV_TITLE : undefined,
   twitterCard: 'summary_large_image',
   twitterTitle: pageTitle,
   twitterDescription: pageDescription,
