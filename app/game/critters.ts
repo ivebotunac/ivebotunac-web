@@ -73,12 +73,7 @@ function bake(s: Sprite, frame: 'idle' | 'walk', eyes: Eyes): HTMLCanvasElement 
     // brows slope down toward the face's centre line
     const brow = () => { if (side === 'l') { put(x, y - 2, ec); put(x + 1, y - 1, ec) } else { put(x + 1, y - 2, ec); put(x, y - 1, ec) } }
     const iris = () => { put(x, y, ec); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    if (eyes === 'idle') { iris(); put(x, y, '#ffffff') }
-    else if (eyes === 'blink') { put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else if (eyes === 'happy') { iris(); put(x, y - 1, '#ffffff'); put(x + 1, y - 1, ec) }
-    else if (eyes === 'attack') { brow(); iris() }
-    else if (eyes === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else {
+    if (eyes === 'idle') { iris(); put(x, y, '#ffffff') } else if (eyes === 'blink') { put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (eyes === 'happy') { iris(); put(x, y - 1, '#ffffff'); put(x + 1, y - 1, ec) } else if (eyes === 'attack') { brow(); iris() } else if (eyes === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) } else {
       const o = x - 1
       put(o, y - 1, col.dizzy); put(o + 2, y - 1, col.dizzy); put(o + 1, y, col.dizzy); put(o, y + 1, col.dizzy); put(o + 2, y + 1, col.dizzy)
     }
@@ -231,8 +226,7 @@ export function tickCritter(g: Game, calm: boolean): void {
   if (!t) return
   g.act = { kind: q, t }
   if (q === 'daze') g.popups.push({ x: g.pos.x, y: top, text: '?', life: 0, max: 60, c: '#9b6bff', size: 16 })
-  else if (q === 'proud') { g.kick(0.3); fxBurst(g, g.pos.x, top + 10, 10, '#ffd23b'); g.popups.push({ x: g.pos.x, y: top, text: '★', life: 0, max: 50, c: '#f2c500', size: 16 }) }
-  else if (q === 'vanish' || q === 'copy') fxBurst(g, g.pos.x, g.pos.y, 12, '#9b6bff')
+  else if (q === 'proud') { g.kick(0.3); fxBurst(g, g.pos.x, top + 10, 10, '#ffd23b'); g.popups.push({ x: g.pos.x, y: top, text: '★', life: 0, max: 50, c: '#f2c500', size: 16 }) } else if (q === 'vanish' || q === 'copy') fxBurst(g, g.pos.x, g.pos.y, 12, '#9b6bff')
 }
 
 // How visible the critter is: a vanishing one fades out and back in.

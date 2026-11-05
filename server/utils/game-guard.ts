@@ -1,12 +1,12 @@
 import type { H3Event } from 'h3'
 
 // The leaderboard is the AGI fight's alone; a finished team only adds to the totals.
-export type GameEvent =
-  | { kind: 'run' }
+export type GameEvent
+  = | { kind: 'run' }
   // run: the visitor's boss fight, so the answer carries its place on the board
-  | { kind: 'team', ms: number, run: string | null }
-  | { kind: 'boss', run: string }
-  | { kind: 'name', run: string, initials: string }
+    | { kind: 'team', ms: number, run: string | null }
+    | { kind: 'boss', run: string }
+    | { kind: 'name', run: string, initials: string }
 export type GameEventKind = GameEvent['kind']
 // Board reads are limited like events, on their own limiter so they never use up the write budget.
 export type LimitKind = GameEventKind | 'read'

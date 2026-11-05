@@ -86,15 +86,15 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
 
         <section class="sec">
           <h2 class="shead"><span>04</span>Publications</h2>
-      <article v-for="p in cv.publications" :key="p.title" class="pub">
-        <span class="yr">{{ p.year }}</span>
-        <div>
-          <p class="pub__title">{{ p.title }}</p>
-          <p class="pub__meta">
-            <template v-for="(a, i) in p.authors" :key="a"><template v-if="i">, </template><strong v-if="a === cv.name">{{ a }}</strong><template v-else>{{ a }}</template></template><template v-if="p.venue"> · <em>{{ p.venue }}</em></template><template v-if="p.doi"> · <a :href="`https://doi.org/${p.doi}`">doi.org/{{ p.doi }}</a></template>
-          </p>
-        </div>
-      </article>
+          <article v-for="p in cv.publications" :key="p.title" class="pub">
+            <span class="yr">{{ p.year }}</span>
+            <div>
+              <p class="pub__title">{{ p.title }}</p>
+              <p class="pub__meta">
+                <template v-for="(a, i) in p.authors" :key="a"><template v-if="i">, </template><strong v-if="a === cv.name">{{ a }}</strong><template v-else>{{ a }}</template></template><template v-if="p.venue"> · <em>{{ p.venue }}</em></template><template v-if="p.doi"> · <a :href="`https://doi.org/${p.doi}`">doi.org/{{ p.doi }}</a></template>
+              </p>
+            </div>
+          </article>
         </section>
       </main>
 

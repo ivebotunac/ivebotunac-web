@@ -2,10 +2,6 @@
 const htmlCache = { 'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400' }
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: false },
-
-  experimental: { viewTransition: true },
 
   modules: [
     '@nuxtjs/sitemap',
@@ -16,41 +12,11 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
   ],
 
-  // For LCP. 'entry' strips the entry CSS on every route, so global CSS must ship from a component.
-  vitalizer: {
-    disableStylesheets: 'entry',
-    disablePrefetchLinks: true,
-  },
-
   // Only .vue files are components, so data and helpers can sit beside the component that uses them.
   components: [
     { path: '~/components', extensions: ['.vue'] },
   ],
-
-  // Self-hosted and named here, since the CSS names these families only inside the font tokens.
-  // One entry per family so weights and styles cross; a face no page uses is never fetched.
-  // No metric fallbacks: the font tokens carry their own fallback stacks.
-  fonts: {
-    processCSSVariables: true,
-    families: [
-      { name: 'IBM Plex Mono', weights: [400, 500, 600], styles: ['normal', 'italic'], fallbacks: [] },
-      { name: 'Space Mono', weights: [400, 700], styles: ['normal', 'italic'], fallbacks: [] },
-    ],
-  },
-
-  site: {
-    url: 'https://ivebotunac.com',
-    name: 'Ive Botunac',
-    indexable: true
-  },
-
-  // Only the homepage is for search: the PDF CV's source page and the privacy policy stay out.
-  sitemap: { exclude: ['/cv-print', '/privacy-policy'] },
-
-  robots: {
-    allow: ['/'],
-    sitemap: ['/sitemap.xml']
-  },
+  devtools: { enabled: false },
 
   // Global head, a fallback only; pages set their own.
   app: {
@@ -80,6 +46,12 @@ export default defineNuxtConfig({
     },
   },
 
+  site: {
+    url: 'https://ivebotunac.com',
+    name: 'Ive Botunac',
+    indexable: true
+  },
+
   routeRules: {
     // Static assets: an image gets a new filename when replaced, so a year and immutable are safe.
     // /_nuxt/** is absent on purpose: its filenames are hashed and Nitro sets its headers.
@@ -99,7 +71,38 @@ export default defineNuxtConfig({
     '/cv-print': { prerender: true },
   },
 
+  experimental: { viewTransition: true },
+  compatibilityDate: '2025-07-15',
+
   nitro: {
     compressPublicAssets: true,
   },
-});
+
+  // Code style is enforced by lint: no semicolons, single quotes, two spaces.
+  eslint: { config: { stylistic: { semi: false, quotes: 'single', indent: 2, braceStyle: '1tbs', commaDangle: 'only-multiline', arrowParens: false } } },
+
+  // Self-hosted and named here, since the CSS names these families only inside the font tokens.
+  // One entry per family so weights and styles cross; a face no page uses is never fetched.
+  // No metric fallbacks: the font tokens carry their own fallback stacks.
+  fonts: {
+    processCSSVariables: true,
+    families: [
+      { name: 'IBM Plex Mono', weights: [400, 500, 600], styles: ['normal', 'italic'], fallbacks: [] },
+      { name: 'Space Mono', weights: [400, 700], styles: ['normal', 'italic'], fallbacks: [] },
+    ],
+  },
+
+  robots: {
+    allow: ['/'],
+    sitemap: ['/sitemap.xml']
+  },
+
+  // Only the homepage is for search: the PDF CV's source page and the privacy policy stay out.
+  sitemap: { exclude: ['/cv-print', '/privacy-policy'] },
+
+  // For LCP. 'entry' strips the entry CSS on every route, so global CSS must ship from a component.
+  vitalizer: {
+    disableStylesheets: 'entry',
+    disablePrefetchLinks: true,
+  },
+})

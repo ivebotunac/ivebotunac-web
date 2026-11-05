@@ -109,8 +109,7 @@ function onKeydown(e: KeyboardEvent) {
   const items = [...(dialogEl.value?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])]
   if (!items.length) return
   const first = items[0]!, last = items[items.length - 1]!
-  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
 }
 </script>
 

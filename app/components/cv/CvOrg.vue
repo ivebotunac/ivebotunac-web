@@ -30,7 +30,7 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
           <h3 class="org__title">{{ top.title }}</h3>
           <span class="org__line">{{ org.org }}<template v-if="org.kind"> · {{ org.kind }}</template></span>
         </span>
-        <span class="org__years">{{ span.start.slice(0, 4) }} – <span :class="{ 'org__now': current }">{{ until }}</span></span>
+        <span class="org__years">{{ span.start.slice(0, 4) }} – <span :class="{ org__now: current }">{{ until }}</span></span>
         <span class="cv-tog" title="Details" aria-hidden="true" />
       </summary>
 

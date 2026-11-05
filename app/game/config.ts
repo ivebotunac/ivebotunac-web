@@ -152,7 +152,7 @@ export const bossHalfLines: string[] = ['it\'s adapting. keep hitting!', 'half w
 export const bossBurnLines: string[] = ['it\'s burning the CV! hit it!', 'hey! that was a whole job title.', 'it\'s rewriting your CV. stop it!']
 export const bossWinLines: string[] = ['AGI defeated. back to being a CV.', 'we beat AGI. put that on the CV.', 'alignment achieved. by force.']
 export const bossLeaveLines: string[] = ['AGI got bored and left. the HUD can call it back.', 'it wandered off. fight it again from the HUD.']
-export const CONFETTI: string[] =['#ff5a1f', '#36c6e0', '#0b6bcb', '#9b6bff', '#ffd23b', '#3b7cc0']
+export const CONFETTI: string[] = ['#ff5a1f', '#36c6e0', '#0b6bcb', '#9b6bff', '#ffd23b', '#3b7cc0']
 
 export const trends: string[] = ['Agentic AI', 'Reasoning models', 'World models', 'Multi-agent', 'MCP', 'Computer use', 'Test-time compute', 'Vision-Language-Action', 'On-device AI', 'Physical AI', 'Voice agents', 'Long context', 'Mixture-of-Experts', 'Synthetic data', 'RAG 2.0', 'Inference scaling']
 

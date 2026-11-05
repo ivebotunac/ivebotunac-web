@@ -11,7 +11,7 @@ const BG = [242, 246, 251]
 const DIZZY = '#9fb3c6'
 const MOODS = ['idle', 'blink', 'happy', 'attack', 'mad', 'knock', 'walk']
 
-const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255] }
+const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255] }
 
 function validate(s) {
   const err = []
@@ -59,12 +59,7 @@ function cells(s, mood) {
     const m = mood === 'walk' ? 'idle' : mood
     // brows slope down toward the face's centre line
     const brow = () => side === 'l' ? (put(x, y - 2, ec), put(x + 1, y - 1, ec)) : (put(x + 1, y - 2, ec), put(x, y - 1, ec))
-    if (m === 'idle') { put(x, y, '#ffffff'); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else if (m === 'blink') { put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else if (m === 'happy') { put(x, y - 1, '#ffffff'); put(x + 1, y - 1, ec); for (const yy of [y, y + 1]) { put(x, yy, ec); put(x + 1, yy, ec) } }
-    else if (m === 'attack') { brow(); put(x, y, ec); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else if (m === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
-    else if (m === 'knock') {
+    if (m === 'idle') { put(x, y, '#ffffff'); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (m === 'blink') { put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (m === 'happy') { put(x, y - 1, '#ffffff'); put(x + 1, y - 1, ec); for (const yy of [y, y + 1]) { put(x, yy, ec); put(x + 1, yy, ec) } } else if (m === 'attack') { brow(); put(x, y, ec); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (m === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (m === 'knock') {
       const o = x - 1
       put(o, y - 1, DIZZY); put(o + 2, y - 1, DIZZY); put(o + 1, y, DIZZY); put(o, y + 1, DIZZY); put(o + 2, y + 1, DIZZY)
     }
@@ -76,7 +71,7 @@ function png(w, h, rgb) {
   const raw = Buffer.alloc((w * 3 + 1) * h)
   for (let y = 0; y < h; y++) { raw[y * (w * 3 + 1)] = 0; rgb.copy(raw, y * (w * 3 + 1) + 1, y * w * 3, (y + 1) * w * 3) }
   const crcT = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0 })
-  const crc = b => { let c = 0xffffffff; for (const v of b) c = crcT[(c ^ v) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0 }
+  const crc = (b) => { let c = 0xffffffff; for (const v of b) c = crcT[(c ^ v) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0 }
   const chunk = (type, data) => {
     const len = Buffer.alloc(4); len.writeUInt32BE(data.length)
     const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td))

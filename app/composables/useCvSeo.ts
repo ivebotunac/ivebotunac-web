@@ -35,12 +35,12 @@ export function useCvSeo(): void {
     {
       '@type': 'ProfilePage' as const,
       '@id': `${siteUrl}/#webpage`,
-      url: siteUrl,
-      name: CV_TITLE,
+      'url': siteUrl,
+      'name': CV_TITLE,
       description,
-      isPartOf: { '@id': `${siteUrl}/#website` },
-      mainEntity: { '@id': `${siteUrl}/#person` },
-      inLanguage: 'en-US'
+      'isPartOf': { '@id': `${siteUrl}/#website` },
+      'mainEntity': { '@id': `${siteUrl}/#person` },
+      'inLanguage': 'en-US'
     }
   ])
 }

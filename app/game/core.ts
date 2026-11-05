@@ -185,7 +185,7 @@ export class Game {
     this.fxc = refs.fx.getContext('2d')
     this.rageEl = refs.rage
     this.getSection = getSection
-    this.pxl = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x * U), Math.round(y * U), Math.ceil(w * U), Math.ceil(h * U)); }
+    this.pxl = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x * U), Math.round(y * U), Math.ceil(w * U), Math.ceil(h * U)) }
     this.sizeFx()
   }
 
@@ -246,27 +246,27 @@ export class Game {
 
   // Peak-anger flash: an orange tint and faint blur over the viewport; `brand` mixes in cyan and blue.
   rage(brand = false): void {
-    const el = this.rageEl;
-    el.classList.remove('rage--on');
-    el.classList.toggle('rage--brand', brand);
+    const el = this.rageEl
+    el.classList.remove('rage--on')
+    el.classList.toggle('rage--brand', brand)
     // reflow restarts the animation when re-triggered
-    void el.offsetWidth;
-    el.classList.add('rage--on');
-    clearTimeout(this.rageTO);
-    this.rageTO = setTimeout(() => { el.classList.remove('rage--on', 'rage--brand'); }, 2600);
+    void el.offsetWidth
+    el.classList.add('rage--on')
+    clearTimeout(this.rageTO)
+    this.rageTO = setTimeout(() => { el.classList.remove('rage--on', 'rage--brand') }, 2600)
   }
 
   say(txt: string, dur?: number): void {
-    this.bubble.textContent = txt; this.bubble.hidden = false;
-    this.bubbleUntil = this.t + (dur || 280); this.nextQuip = vary(this.bubbleUntil + 1200, 900);
+    this.bubble.textContent = txt; this.bubble.hidden = false
+    this.bubbleUntil = this.t + (dur || 280); this.nextQuip = vary(this.bubbleUntil + 1200, 900)
   }
 
   morphTo(f: FormName): void {
-    this.curForm = f; this.morphFlash = MORPH; magic(this);
-    this.act = null; this.actCD = vary(240, 240); this.partCD = 30;
-    const lines = linesFor(this, 'morph') ?? ROBOT_LINES, seen = noteForm(this, f);
+    this.curForm = f; this.morphFlash = MORPH; magic(this)
+    this.act = null; this.actCD = vary(240, 240); this.partCD = 30
+    const lines = linesFor(this, 'morph') ?? ROBOT_LINES, seen = noteForm(this, f)
     // the boss's arrival keeps the bubble for itself
-    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend && !this.boss) this.say(seen || pick(lines), 240);
+    if (this.knockT <= 0 && this.attackT <= 0 && !this.trend && !this.boss) this.say(seen || pick(lines), 240)
   }
 }
 
