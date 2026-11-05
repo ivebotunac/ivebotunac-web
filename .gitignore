@@ -156,9 +156,7 @@ dist
 .firebase/
 firebase-debug*.log
 
-# Share image working files: inputs tracked, renders ignored
-/context/art-assets/**
-!/context/art-assets/**/
-!/context/art-assets/**/*.json
+# Local working files
+/context/
 rendercv/
 .venv/
