@@ -1,15 +1,9 @@
-import { clientKey, createGameLimiter, nameRun, parseGameEvent, recordBoss, recordTeam, startRun } from '../../utils/game-stats'
+import { clientKey, createGameLimiter, nameRun, parseGameEvent, readEventBody, recordBoss, recordTeam, startRun } from '../../utils/game-stats'
 
 const limiter = createGameLimiter()
 
 export default defineEventHandler(async (event) => {
-  let body: unknown
-  try {
-    body = await readBody(event)
-  } catch {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid body' })
-  }
-  const parsed = parseGameEvent(body)
+  const parsed = parseGameEvent(await readEventBody(event))
   if (!parsed) throw createError({ statusCode: 400, statusMessage: 'Invalid game event' })
 
   // Held only as a limiter key for the window; never logged or stored.

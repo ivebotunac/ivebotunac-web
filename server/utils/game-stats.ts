@@ -57,7 +57,9 @@ export const OVERFLOW_BUCKET = 'over'
 // Arcade initials can still spell things; these never reach the board.
 const BLOCKED = new Set([
   'ASS', 'CUM', 'DIC', 'DIK', 'DIX', 'FAG', 'FCK', 'FUC', 'FUK', 'FUQ', 'JIZ', 'KKK', 'KYS', 'NAZ', 'NGR', 'NIG',
-  'PIS', 'SEX', 'SHT', 'SUX', 'TIT', 'VAG', 'WTF', 'XXX', 'JEB', 'KUR', 'PIZ', 'PUS', 'SRA', 'HIV', 'GAS', 'SSS'
+  'PIS', 'SEX', 'SHT', 'SUX', 'TIT', 'VAG', 'WTF', 'XXX', 'JEB', 'KUR', 'PIZ', 'PUS', 'SRA', 'HIV', 'GAS', 'SSS',
+  'FGT', 'FGS', 'FAP', 'CNT', 'KNT', 'NGA', 'NGG', 'NGS', 'GAY', 'HOE', 'JAP', 'SPK', 'WOP', 'CHK', 'COK', 'COC',
+  'KOK', 'RAP', 'RPE', 'PNS', 'SLT', 'WHR', 'HOR', 'BCH', 'TWT', 'DCK', 'KMS', 'KIL', 'HHH', 'NDH', 'PDR', 'GOV'
 ])
 
 export const LIMIT_WINDOW_MS = 10 * 60_000
@@ -127,10 +129,32 @@ export function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, pr
   return Math.max(0, Math.min(100, Math.round((100 * (slower + same / 2)) / total)))
 }
 
-// App Hosting sets x-fah-client-ip after its own proxies; the leftmost X-Forwarded-For entry is whatever the client sent.
+// App Hosting sets x-fah-client-ip after its own proxies; its last entry is the one a client cannot have written.
 export function clientKey(event: Parameters<typeof getRequestIP>[0]): string {
-  const fah = process.env.K_SERVICE ? getRequestHeader(event, 'x-fah-client-ip')?.split(',')[0]?.trim() : undefined
+  const fah = process.env.K_SERVICE ? getRequestHeader(event, 'x-fah-client-ip')?.split(',').pop()?.trim() : undefined
   return fah || getRequestIP(event) || 'unknown'
+}
+
+// A valid event is under 100 bytes; anything larger is refused before it is buffered or parsed.
+export const MAX_BODY_BYTES = 1024
+
+export async function readEventBody(event: Parameters<typeof getRequestIP>[0]): Promise<unknown> {
+  const tooLarge = () => createError({ statusCode: 413, statusMessage: 'Body too large' })
+  if (Number(getRequestHeader(event, 'content-length')) > MAX_BODY_BYTES) throw tooLarge()
+  const chunks: Buffer[] = []
+  let size = 0
+  // a chunked body has no content-length, so the cap holds while reading too; the rest is drained, not kept,
+  // since breaking out of the stream destroys the socket under the response
+  for await (const chunk of event.node.req) {
+    size += (chunk as Buffer).length
+    if (size <= MAX_BODY_BYTES) chunks.push(chunk as Buffer)
+  }
+  if (size > MAX_BODY_BYTES) throw tooLarge()
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+  } catch {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid body' })
+  }
 }
 
 // Fixed window per key, in memory and per instance; the key never leaves this map.
