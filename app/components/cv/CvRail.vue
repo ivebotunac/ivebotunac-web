@@ -154,7 +154,6 @@ const goTo = (id: string) => {
   letter-spacing: .02em;
 }
 
-/* Contacts */
 .contacts {
   list-style: none;
   margin: 20px 0;

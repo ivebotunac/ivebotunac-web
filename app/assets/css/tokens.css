@@ -1,23 +1,23 @@
-/* Design tokens, the site's single :root. Light blueprint paper #F5F9FD, navy ink #0C2236, one vivid orange #FF5A1F, blue links #0B6BCB. */
-/* Every value is the pre-Nuxt static CV's, kept 1:1; contrast notes describe, they do not override it. */
-/* Breakpoints, the old site's (media queries cannot read tokens): 1024 to 861 narrow rail, 860 one column, 700 game, 540 tight type. */
+/* Design tokens, the site's single :root: blueprint paper, navy ink, one vivid orange, blue links. */
+/* Values are fixed by design; a low contrast note is deliberate, not a fix to make. */
+/* Breakpoints (queries cannot read tokens): 1024 narrow rail, 860 one column, 700 game, 540 type. */
 :root {
   /* 1. Colour */
 
-  /* Primary ramp from #FF5A1F, hue held. Components consume the --pn-accent-* roles, not stops. */
+  /* Primary ramp from #FF5A1F, hue held. Only the game and .pn-prose read stops directly. */
   --pn-primary-50:  #FFF3EE;  /* tinted fill                                */
   --pn-primary-200: #FFC4AA;  /* border on a tinted surface                 */
-  --pn-primary-500: #FF5A1F;  /* the brand: cursor, markers, dots, numbers, years, labels (2.95:1 paper) */
-  --pn-primary-600: #BF3F0B;  /* deeper orange, kit text on tinted fills (5.05:1 paper) */
+  --pn-primary-500: #FF5A1F;  /* cursor, markers, dots, numbers, years, labels (2.95:1 paper) */
+  --pn-primary-600: #BF3F0B;  /* deeper orange: game text where 500 fails contrast (5.05:1 paper) */
   --pn-primary-800: #852B07;  /* deepest orange (8.46:1)                     */
 
   /* Accent roles, one name per job. Components consume these. */
-  --pn-accent-display: var(--pn-primary-500);  /* #FF5A1F, the old design's one orange */
-  --pn-accent-text:    var(--pn-primary-500);  /* #FF5A1F: numbers, years, labels, the lead's emphasis */
-  --pn-accent-ui:      var(--pn-primary-500);  /* #FF5A1F: cursor, active dot, timeline rings; decorative */
+  --pn-accent-display: var(--pn-primary-500);  /* #FF5A1F, the one vivid orange */
+  --pn-accent-text:    var(--pn-primary-500);  /* #FF5A1F: numbers, years, labels, lead emphasis */
+  --pn-accent-ui:      var(--pn-primary-500);  /* cursor, active dot, timeline rings; decorative */
 
   /* Blue accent roles, picked by job like the orange trio. Components never write --pn-cool-*. */
-  --pn-accent2-text: var(--pn-cool-deep);    /* #0B6BCB: links, card hover border; 4.99:1 paper */
+  --pn-accent2-text: var(--pn-cool-deep);    /* #0B6BCB: links, eyebrows, focus ring; 4.99:1 paper */
   /* No --pn-accent2-display on purpose: blue is never a heading half. */
 
   /* Secondary: the flying trend tag's wing cyan. Ground only, never text (1.9:1). */
@@ -37,11 +37,11 @@
   --pn-surface:      #FFFFFF;                 /* cards, logo tiles          */
   /* No dark surface tokens: the only ink fill is the monogram tile, on --pn-text. */
 
-  /* Card treatment: retro print, white on paper, square corners, a hard offset shadow that grows on hover. */
+  /* Cards: retro print, white on paper, square corners, a hard offset shadow that grows on hover. */
   --pn-shadow-offset-rest:  #D3DEEE;   /* offset shadow at rest */
   --pn-shadow-offset-hover: #C6D8EC;   /* offset shadow on hover; also the game's bubble and tag */
 
-  /* Print: white paper, black ink, a grey card stroke. */
+  /* Print: white paper, black ink. */
   --pn-print-paper: #FFFFFF;
   --pn-print-ink:   #000000;
 
@@ -64,13 +64,13 @@
 
   /* Semantic state */
   --pn-error:   #E0483F;  --pn-error-text:   #B3261E;
-  /* Accent, separate from primary, with its own gradient and tile. */
+  /* Accent, separate from primary, with its own gradient. */
   --pn-accent:          #BF3F0B;   /* button ground: white on it 5.34:1 */
   --pn-accent-gradient: linear-gradient(150deg, #BF3F0B, #A63609);
 
   /* Blue accent, the link family. Consume the roles. */
-  --pn-cool-deep:     #0B6BCB;   /* feeds -text, -ui, -fill. 4.99:1 paper; white on it 5.28 */
-  --pn-cool-deeper:   #0A559E;   /* feeds link hover, -fill hover. 7.07:1 paper; white on it 7.48 */
+  --pn-cool-deep:     #0B6BCB;   /* feeds --pn-accent2-text. 4.99:1 paper; white on it 5.28 */
+  --pn-cool-deeper:   #0A559E;   /* feeds link hover. 7.07:1 paper; white on it 7.48 */
 
   /* --pn-accent-gradient is the only orange gradient. No text gradient, no full-bleed fill. */
 
@@ -89,7 +89,7 @@
   --pn-w-bold:     700;
   --pn-w-display:  700;   /* Space Mono ships 400 and 700 only */
 
-  /* Six steps. Fluid 375 -> 1440, then locked. The CV's small mono labels are section 11. */
+  /* Six steps. Fluid 375 -> 1440, then locked. The CV's small mono labels are section 9. */
   --pn-size-display: clamp(2.375rem, 1.6rem + 3.4vw, 4rem);   /* 38 -> 64  */
   --pn-lh-display: 1.03;  --pn-ls-display: -0.03em;
   --pn-size-2xl: clamp(1.875rem, 1.48rem + 1.7vw, 3rem);      /* 30 -> 48  */
@@ -124,7 +124,7 @@
   /* Containers */
   --pn-container:       1180px;
   --pn-container-prose: 720px;             /* the CV's content column */
-  --pn-gutter: 40px;                       /* page and masthead side padding: 32 from 1024, 22 from 860, 16 from 540 */
+  --pn-gutter: 40px;                       /* side padding: 32 from 1024, 22 from 860, 16 from 540 */
 
   /* Sticky rail beside the content column, above 860; one column below. */
   --pn-rail:     248px;
@@ -133,10 +133,10 @@
 
   /* 4. Radius: one root, everything derived */
   --pn-radius: 8px;
-  --pn-radius-sm:  calc(var(--pn-radius) - 6px);   /*  2: photo, bubbles     */
+  --pn-radius-sm:  calc(var(--pn-radius) - 6px);   /*  2: buttons, focus ring, prose :target */
 
 
-  /* 6. Motion */
+  /* 5. Motion */
   --pn-motion-fast: 140ms;   /* colour, opacity, border, focus, card lift  */
   --pn-motion-base: 240ms;   /* transform, elevation                       */
   --pn-ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -144,29 +144,29 @@
   --pn-lift: -2px;           /* the only hover translate on the site       */
 
 
-  /* 7. Focus */
-  --pn-focus-ring:   var(--pn-accent2-text);  /* one ring, whole site: 4.99:1 paper */
+  /* 6. Focus */
+  --pn-focus-ring:   var(--pn-accent2-text);  /* the default ring: 4.99:1 paper */
   --pn-focus-width:  2px;
   --pn-focus-offset: 2px;
 
 
-  /* 8. Z-index: six values, nothing else */
+  /* 7. Z-index: base and raised; the masthead and game layers set their own */
   --pn-z-base: 0;
   --pn-z-raised: 10;
 
-  /* Anchor clearance: the masthead is static, so this is breathing room above a jumped-to section. */
+  /* Anchor clearance: breathing room above a jumped-to section; the masthead is static. */
   --pn-header-offset: 60px;
 
 
-  /* 9. Brand hooks: the kit reads these with no fallback, so every site declares all eight. */
-  /* Display face and case: .pn-h2, the banner title, the prompt and post CTA titles only. */
+  /* 8. Brand hooks: read with no fallback, so all four are declared. */
+  /* Display face: the lead, stats, rail name, monogram tiles, team cards and the print CV. */
   --pn-font-display: 'Space Mono', 'IBM Plex Mono', ui-monospace, monospace;
   --pn-btn-radius:    var(--pn-radius-sm);
   --pn-btn-font-size: 0.875rem;             /* 14px */
   --pn-btn-weight:    var(--pn-w-semibold);
 
 
-  /* 11. CV type: the mono label sizes the six steps cannot hold. */
+  /* 9. CV type: the mono label sizes the six steps cannot hold. */
   --pn-size-micro:   0.68rem;   /* masthead, rail foot, place, issuer, group label */
   --pn-size-label:   0.72rem;   /* section heads, dates, years, card links, contacts */
   --pn-size-caption: 0.82rem;   /* rail index, org line, publication meta, card copy */
@@ -191,7 +191,7 @@
     --pn-rail-gap:     44px;
   }
 }
-/* Below the desktop grid the kit's section rhythm steps down; only /privacy-policy uses it. */
+/* Below 1024 the section rhythm steps down; /privacy-policy and the error page use it. */
 @media (max-width: 1024px) {
   :root {
     --pn-section-y:    var(--pn-space-64);

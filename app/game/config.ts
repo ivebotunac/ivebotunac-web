@@ -1,4 +1,4 @@
-// Tuning constants, palette and every text bank; pure data plus two pure helpers.
+// Tuning constants, palette and every text bank; pure data plus a few pure helpers.
 
 // 'robot', or the key of a critter sprite in critters/.
 export type FormName = string

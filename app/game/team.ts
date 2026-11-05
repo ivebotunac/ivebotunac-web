@@ -1,4 +1,4 @@
-// What a recruited team does besides following the robot. Everything lands on the fx canvas, rate-limited and capped.
+// What a recruited team does besides following the robot, on the fx canvas, rate-limited and capped.
 import { agentBossHitLines, agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, pick, rand, reviewLines } from './config'
 import { ROLE_INFO } from './agents'
 import { feedback, fireBeam, fxBurst } from './effects'
@@ -255,7 +255,7 @@ export function drawCrew(g: Game): void {
   for (const m of g.team) if (m.noteT > 0 && m.note) drawNote(c, m);
 }
 
-// ---- the visitor carries and throws agents: a short flight, a hit on whatever it flies into, a dizzy landing ----
+// The visitor carries and throws agents: a short flight, a hit on what it meets, a dizzy landing.
 const TEAM_HALF = 16
 
 // The member under a press, the one drawn last winning.
@@ -285,7 +285,7 @@ export function tossAgent(g: Game, m: TeamMember, vx: number, vy: number): void 
   }
 }
 
-// A thrown agent hits what it flies into, once a throw: the boss takes damage by the throw's speed, the trend tag drops.
+// A thrown agent hits what it meets once a throw: the boss takes damage by speed, the trend tag drops.
 function strike(g: Game, m: TeamMember): void {
   const b = g.boss, sp = Math.hypot(m.vx, m.vy), c = ROLE_INFO[m.role].c;
   if (b && b.phase === 'fight' && Math.hypot(m.x - b.x, m.y - b.y) < bossR(g)) {
@@ -306,7 +306,7 @@ function strike(g: Game, m: TeamMember): void {
   }
 }
 
-// Per tick before the behaviours: true while the member is carried or still flying, so formation leaves it alone.
+// Per tick before the behaviours: true while the member is carried or flying, so formation skips it.
 export function flyAgent(g: Game, m: TeamMember): boolean {
   if (m.held) {
     if (m.noteT > 0) m.noteT--;

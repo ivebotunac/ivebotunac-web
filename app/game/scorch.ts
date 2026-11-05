@@ -1,10 +1,10 @@
-// The boss's shots burn letters out of the CV for a while: each letter flares, burns in pixel flame, then leaves soot.
-// Only the visitor's own DOM changes, never the served HTML, and every letter heals: on a timer, on a win, before print.
+// Boss shots burn CV letters for a while: each flares, burns in pixel flame, then leaves soot.
+// Only the visitor's DOM changes, never the served HTML; letters heal on a timer, a win, or before print.
 import { fxBurst } from './effects'
 import type { Game } from './core'
 
 const CLASS = 'ib-burnt'
-// Letters stay out this long (ticks at 60 Hz), burn in flame for the first FLAME of it, and at most MAX are out at once.
+// HEAL: ticks a letter stays out at 60 Hz; FLAME: the first of those it burns; MAX: the most out at once.
 const HEAL = 1500
 const FLAME = 200
 const MAX = 260
@@ -22,7 +22,7 @@ const flames: Flame[] = []
 
 const range = typeof document === 'undefined' ? null : document.createRange()
 
-// Every letter whose centre lies within r of the impact, nearest first; lines count a little closer than columns.
+// Letters whose centre is within r of the impact, nearest first; lines count a little closer than columns.
 function lettersNear(x: number, y: number, r: number): { node: Text, i: number, d: number }[] {
   if (!range) return []
   const nodes = new Set<Text>()
@@ -76,7 +76,7 @@ export function scorch(g: Game, x: number, y: number, r = 34, most = 22): number
   return hits.length
 }
 
-// A random point inside a block of CV text on screen, for the shots that aim at the page instead of the cursor.
+// A random point in a block of on-screen CV text, for shots aimed at the page, not the cursor.
 export function textTarget(g: Game): { x: number, y: number } | null {
   const seen = [...document.querySelectorAll<HTMLElement>('.cv h3, .cv p, .cv li')].filter((el) => {
     if (el.closest(KEEP)) return false

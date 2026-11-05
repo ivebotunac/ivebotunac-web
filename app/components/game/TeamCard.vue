@@ -9,8 +9,7 @@ import PnIcon from '~/components/ui/PnIcon.vue'
 import LeaderBoard from './LeaderBoard.vue'
 import FormsGrid from './FormsGrid.vue'
 
-// mode: the team's card after the quest, or the boss's after a win; bossRun: the fight it offers to sign;
-// bossMs: the time of the fight just won, by the game's clock.
+// mode: team card after the quest, boss card after a win; bossRun and bossMs: the fight just won.
 const props = defineProps<{
   open: boolean, mode: 'team' | 'boss', ms: number | null, bossMs: number | null
   bossRun: string | null, stats: GameStats | null, statsOff: boolean, seen: string[]
@@ -55,7 +54,7 @@ function show() {
   opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null
   d.showModal()
   paintTeam()
-  // the title, not the first control: on a phone a focused initials field would pop the keyboard over the card
+  // the title, not a control: a focused initials field would pop a phone's keyboard over the card
   nextTick(() => d.querySelector<HTMLElement>('.tcard__title')?.focus({ preventScroll: true }))
 }
 

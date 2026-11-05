@@ -7,9 +7,8 @@ import type { Role } from './types'
 
 export type Skill = keyof typeof TUT_LINES
 
-// team: roles recruited so far; teamActiveMs: time on the page while the team was incomplete, summed over visits;
-// teamMs: the finished time; bossRun: the server's id for the fastest finished boss fight, with its time, kept
-// through a restart so an unsigned record can still be signed; seen: the critter forms met so far, by key.
+// team: roles recruited; teamActiveMs: page time while the team was incomplete, summed over visits.
+// teamMs: the finished time; bossRun/bossRunMs: the fastest fight's server id and time; seen: forms met.
 export interface Memory {
   learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamActiveMs: number, teamMs: number | null,
   bossRun: string | null, bossRunMs: number | null, seen: string[]
@@ -28,7 +27,7 @@ export function loadMemory(): Memory {
     for (const k of ['best', 'pops', 'visits'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
     if (Array.isArray(raw.team)) m.team = ROLES.filter(r => raw.team.includes(r))
     if (typeof raw.teamActiveMs === 'number') m.teamActiveMs = raw.teamActiveMs
-    // memory from before the active clock kept only the start, so a team under way carries its wall time, at most an hour
+    // older memory kept only teamStartedAt, so a team under way gets its wall time, capped at an hour
     else if (m.team.length && typeof raw.teamStartedAt === 'number') m.teamActiveMs = Math.max(0, Math.min(Date.now() - raw.teamStartedAt, 3600000))
     if (typeof raw.teamMs === 'number') m.teamMs = raw.teamMs
     if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
@@ -120,8 +119,7 @@ export function linkLine(g: Game, href: string): void {
   g.say(pick(LINK_LINES[kind]!), 220)
 }
 
-// The progress line after a recruit, naming the CV row it was found in when there is one; the sixth one gets the
-// completion line instead.
+// Progress line after a recruit, naming its CV row if any; the sixth recruit gets the completion line.
 export function recruitLine(g: Game, role: Role, row = ''): string {
   learn(g, 'team')
   const left = ROLES.filter(r => !g.mem.team.includes(r))

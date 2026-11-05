@@ -17,7 +17,6 @@ function segDist(px: number, py: number, ax: number, ay: number, bx: number, by:
   return Math.hypot(px - (ax + tt * dx), py - (ay + tt * dy));
 }
 
-// ---- attacks ----
 // A critter fires its own particle (embers, bubbles, leaves) instead of the robot's pellets.
 function fireBullets(g: Game, txx: number, tyy: number, n: number): void {
   const ang = Math.atan2(tyy - g.pos.y, txx - g.pos.x), st = attackStyle(g);
@@ -91,7 +90,7 @@ export function updateBullets(g: Game, recent: boolean): void {
   }
 }
 
-// ---- trends (the flying AI-trend tags) ----
+// Trends: the flying AI-trend tags.
 export function spawnTrend(g: Game): void {
   const fromLeft = Math.random() < 0.5;
   g.trend = { x: fromLeft ? -90 : g.W + 90, baseY: rand(110, Math.max(150, g.H - 200)), y: 0, vx: (fromLeft ? 1 : -1) * rand(1.2, 1.7), tt: 0, label: pick(trends), hits: 0, held: false, fvx: 0, fvy: 0 };
@@ -113,7 +112,7 @@ function humanGrab(g: Game): void {
   clearTrend(g); g.angryT = 260;
 }
 
-// A thrown agent knocks the tag out of the air; no anger, since the team took it and not the visitor.
+// A thrown agent knocks the tag out of the air; no anger, since the team took it, not the visitor.
 export function knockTrend(g: Game, role: string): void {
   if (!g.trend) return;
   const tx = g.trend.x, ty = g.trend.y;
@@ -122,7 +121,7 @@ export function knockTrend(g: Game, role: string): void {
   clearTrend(g);
 }
 
-// A dragged tag sits where the hand puts it; a thrown one carries the throw, which fades back into its cruise.
+// A dragged tag sits where the hand puts it; a thrown one carries the throw, then eases into its cruise.
 export function updateTrendMotion(g: Game): void {
   const tr = g.trend;
   if (!tr) return;
@@ -144,7 +143,7 @@ export function updateTrendMotion(g: Game): void {
   if (!tr.held && (tr.x < -150 || tr.x > g.W + 150)) clearTrend(g);
 }
 
-// Chase from behind, never on top; a tag in the visitor's hand is followed wherever it goes. Only called with a trend and no anger. Returns lerp.
+// Chase from behind, never on top, even a held tag. Called only with a trend and no anger. Returns lerp.
 export function chaseTarget(g: Game): number {
   const trend = g.trend!;
   g.attackT = 0; g.beamAt = 0;
@@ -162,7 +161,7 @@ export function chaseTarget(g: Game): number {
   return 0.08;
 }
 
-// Fetch: run to the thrown tag, pick it up, bring it back beside the cursor and drop it for another throw.
+// Fetch: run to the thrown tag, carry it back beside the cursor and drop it for another throw.
 function fetchTarget(g: Game, tr: NonNullable<Game['trend']>, tw: number): number {
   if (g.fetch === 1) {
     const cx = tr.x + tw / 2, cy = tr.y + 12;
@@ -173,7 +172,7 @@ function fetchTarget(g: Game, tr: NonNullable<Game['trend']>, tw: number): numbe
   const side = g.pos.x < g.mouseX ? -1 : 1;
   g.tgt.x = clamp(g.mouseX + side * 80, 40, g.W - 40); g.tgt.y = clamp(g.mouseY, 60, g.H - 60);
   if (Math.hypot(g.pos.x - g.tgt.x, g.pos.y - g.tgt.y) < 30 || g.fetchT > 420) {
-    // dropped where it is, as a fresh tag: the bob restarts and the catch clock with it, so there is time to throw again
+    // dropped as a fresh tag: the bob and catch clock restart, so there is time to throw again
     g.fetch = 0; tr.tt = 0; tr.hits = 0; tr.baseY = tr.y;
     g.kick(0.35); g.say(pick(fetchBackLines), 160); feedback(g, g.pos.x, g.pos.y - 20, 'FETCH!', '#0b6bcb');
     for (let i = 0; i < 3; i++) g.popups.push({ x: g.pos.x + rand(-16, 16), y: g.pos.y - 26 * g.size() * g.DS, text: '♥', life: -i * 8, max: 50, c: '#ff6fa3', size: 15 });
@@ -187,7 +186,7 @@ export function shootAndCatch(g: Game): void {
     const dT = Math.hypot(g.pos.x - g.trend.x, g.pos.y - g.trend.y);
     if (g.fireCD > 0) g.fireCD--;
     if (central && dT < 320 && g.fireCD <= 0) { fireBeam(g, g.pos.x, g.pos.y - 6, g.trend.x, g.trend.y, '#36c6e0'); fxBurst(g, g.trend.x, g.trend.y, 5, '#36c6e0'); g.fireCD = 18; g.trend.hits++; }
-    // Lets it fly about 4.5s, then catches it with a laser from behind; never out of the visitor's hand, nor mid-throw.
+    // Caught by a laser after about 4.5s of flight; never out of the visitor's hand, nor mid-throw.
     if (g.trend.tt > 280 && g.trend.hits >= 2 && !g.trend.held && Math.hypot(g.trend.fvx, g.trend.fvy) < 1) {
       const cx2 = g.trend.x, cy2 = g.trend.y;
       g.say(pick(caughtTpl) + g.trend.label + ' trend!'); fireBeam(g, g.pos.x, g.pos.y - 6, cx2, cy2, '#ff5a1f'); feedback(g, cx2, cy2, 'CAUGHT!', '#ff5a1f'); emit(g, 10, 12); onTrendCaught(g); clearTrend(g);
@@ -195,7 +194,6 @@ export function shootAndCatch(g: Game): void {
   }
 }
 
-// ---- hits, combo and inflation ----
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
 // Shared juice for every landed hit: hit-stop, flash, shake, squash, haptics, combo, inflation.
@@ -272,8 +270,8 @@ export function idleTarget(g: Game): number {
   return g.asleep ? 0.015 : 0.03;
 }
 
-// ---- pointer: press hits at once (a touch on lift), moving or holding turns it into a grab, release throws ----
-// `robot` false limits the press to a waiting agent and the boss; `hold` (a finger kept still) grabs the robot without the hit.
+// Pointer: a press hits at once (touch on lift), a move or hold grabs, a release throws.
+// `robot` false: only a waiting agent or the boss; `hold` (a still finger) grabs the robot, no hit.
 function pointerDown(g: Game, x: number, y: number, robot = true, hold = false): boolean {
   g.swallowClick = false; g.wake();
   // a waiting sub-agent wins over the robot and the trend, and is clickable while the robot is popped
@@ -289,7 +287,7 @@ function pointerDown(g: Game, x: number, y: number, robot = true, hold = false):
     return true;
   }
   if (g.gone > 0 || !robot) return false;
-  // the trend tag: a tap destroys it as before, a drag carries it and the robot follows
+  // the trend tag: a tap destroys it, a drag carries it and the robot follows
   if (g.trend && !g.trendEl.hidden) {
     const r = g.trendEl.getBoundingClientRect(), pad = g.coarse ? 16 : 12;
     if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
@@ -386,7 +384,7 @@ function grabRobot(g: Game, p: Press): void {
 
 // Binds every window listener and returns the function that removes them all.
 export function bindInput(g: Game): () => void {
-  // Browsers follow a tap with compatibility mouse events; read as a mouse, a tap would swipe through the robot.
+  // A tap is followed by compatibility mouse events; read as a mouse, it would swipe through the robot.
   const fromTouch = () => performance.now() - g.lastTouch < 800;
   const onMouseMove = (e: MouseEvent) => {
     if (fromTouch()) return;
@@ -417,9 +415,9 @@ export function bindInput(g: Game): () => void {
   const onMouseOut = (e: MouseEvent) => { if (!e.relatedTarget) g.lastMove = -999; };
   // The quest HUD and team card take their own clicks, even with the robot flying over them.
   const onUi = (e: Event) => !!(e.target as Element | null)?.closest?.('[data-game-ui]');
-  // Under a mouse, a link or a row toggle does what it shows; only a waiting agent or the boss wins over it.
+  // Under a mouse, a link or row toggle does what it shows; only a waiting agent or the boss beats it.
   const onPage = (e: Event) => !!(e.target as Element | null)?.closest?.('a[href],button,summary,[role=button]');
-  // Cleared on every primary press, so a swallow left by a press that sent no click never eats a HUD click.
+  // Cleared on every primary press, so a swallow from a press with no click never eats a HUD click.
   const onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
     g.swallowClick = false;
@@ -427,12 +425,11 @@ export function bindInput(g: Game): () => void {
   };
   // the click, if any, is dispatched before this timeout runs, so the swallow cannot outlive it
   const onMouseUp = () => { pointerUp(g); setTimeout(() => { g.swallowClick = false; }, 0); };
-  // A touch on the robot, the trend or an agent waits: a lift is a tap, a finger kept still 220ms grabs, any other move scrolls the page.
+  // A touch on the robot, trend or an agent waits: a lift taps, 220ms still grabs, a move scrolls.
   let pend: { sx: number, sy: number } | null = null;
   let pendTO: ReturnType<typeof setTimeout> | undefined;
   const dropPend = () => { clearTimeout(pendTO); pend = null; };
-  // A finger kept on the robot past the platform's long press would start a text selection or callout, and Android then
-  // cancels the touch, dropping the robot; the class turns selection off while a finger holds something.
+  // No text selection while a finger holds something: a long-press callout makes Android drop the touch.
   const holdCls = (on: boolean) => { document.documentElement.classList.toggle('robot-hold', on); };
   const onMenu = (e: Event) => { if (pend || g.press || g.carry) e.preventDefault(); };
   // losing focus mid-press is not a tap, so a trend still in place is let go rather than destroyed
@@ -444,9 +441,9 @@ export function bindInput(g: Game): () => void {
     const tch = e.touches[0];
     if (!tch || e.touches.length > 1 || onUi(e)) return;
     const p = { sx: tch.clientX, sy: tch.clientY };
-    // a waiting agent or the boss takes the touch at once; a cancelled touchstart sends no click, so a pending swallow would eat the next tap
+    // an agent or the boss takes the touch now; no click follows, so a stale swallow would eat the next tap
     if (pointerDown(g, p.sx, p.sy, false)) { e.preventDefault(); g.swallowClick = false; return; }
-    // no onPage guard: on a phone the CV rows span the screen, so the robot sits over one; hitR alone decides
+    // no onPage guard: on a phone the CV rows span the screen, so the robot is over one; hitR decides
     pend = p;
     pendTO = setTimeout(() => { pend = null; if (pointerDown(g, p.sx, p.sy, true, true)) holdCls(true); g.swallowClick = false; }, 220);
   };
@@ -458,7 +455,7 @@ export function bindInput(g: Game): () => void {
     e.preventDefault(); pointerMove(g, tch.clientX, tch.clientY);
   };
   const onTouchEnd = (e: TouchEvent) => {
-    // a lift before the hold hits the robot, destroys the trend or drops an agent, as a quick press and release would
+    // a lift before the hold is a quick click: hits the robot, destroys the trend or drops an agent
     if (pend) { const p = pend; dropPend(); if (pointerDown(g, p.sx, p.sy)) { pointerUp(g); e.preventDefault(); g.swallowClick = false; } return; }
     // whatever the finger held is let go without a click on the page under it
     if (g.press || g.carry) e.preventDefault();

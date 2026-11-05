@@ -19,12 +19,12 @@ import CvCertifications from '~/components/cv/CvCertifications.vue'
 import CvSkills from '~/components/cv/CvSkills.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
 
-// A path import skips the .client wrapper, so ClientOnly plus a lazy chunk keep the game off the server.
+// A path import skips .client, so ClientOnly plus a lazy chunk keep the game off the server.
 const AmbientGame = defineAsyncComponent(() => import('~/components/game/AmbientGame.client.vue'))
 
 useCvSeo()
 
-// As on the old page: sections start hidden only once script runs, so a page without JS still shows them.
+// Sections start hidden only once script runs, so a page without JS still shows them.
 useHead({ script: [{ key: 'cv-js', innerHTML: 'document.documentElement.classList.add(\'js\')' }] })
 
 const { loadGoogleAnalytics } = useGoogleAnalytics()
@@ -177,7 +177,7 @@ onUnmounted(() => {
   max-width: var(--pn-container-prose);
 }
 
-/* The last section's rows already end on a rule, so the footer drops its own and keeps clear space below it. */
+/* The last section's rows end on a rule, so the footer drops its own and keeps space below it. */
 .content > .foot {
   margin-top: 56px;
   padding-top: 0;

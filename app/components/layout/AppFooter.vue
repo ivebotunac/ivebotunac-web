@@ -15,7 +15,7 @@ const backToTop = () => {
 </script>
 
 <template>
-  <!-- On the CV it sits inside the content column, as on the old page; other pages wrap it in a container. -->
+  <!-- On the CV it sits inside the content column; other pages wrap it in a container. -->
   <footer class="foot">
     <p class="foot__line">
       &copy; {{ year }} Ive Botunac · <NuxtLink to="/privacy-policy">privacy policy</NuxtLink> · <a href="#top" @click.exact.prevent="backToTop">back to top ↑</a>
@@ -32,7 +32,7 @@ const backToTop = () => {
   color: var(--pn-text-faint);
 }
 
-/* The browser's paragraph margin, which the old page kept here and the kit reset removes. */
+/* Restores the browser's paragraph margin, which the base.css reset removes. */
 .foot__line { margin: 1em 0; }
 
 .foot a { color: var(--pn-text-muted); }

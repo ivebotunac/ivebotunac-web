@@ -70,7 +70,7 @@ export function renderSparks(g: Game): void {
   ctx.globalAlpha = 1;
 }
 
-// Screen-space layer: lasers, bursts, bullets, balls, debris, rings, popups. The quest, the team and the boss draw on top after it.
+// Screen-space layer: lasers, bursts, bullets, balls, debris, rings, popups; quest, team, boss draw after.
 export function renderFx(g: Game, recent: boolean): void {
   const fxc = g.fxc; if (!fxc) return;
   const W = g.W, H = g.H;

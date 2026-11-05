@@ -37,13 +37,13 @@
 }
 .pn-btn:active:not(:disabled) { transform: scale(0.985); }
 
-/* No near-black button: the accent-gradient pill is the one primary treatment. */
+/* No near-black button: the accent gradient is the one primary treatment. */
 
-/* Prose, global on purpose: ContentRenderer output is unreachable from a scoped rule. */
+/* Prose: long-form text, the privacy policy article. */
 .pn-prose {
   max-width: 65ch;                     /* about 75 characters per line */
-  font-size: var(--pn-size-prose);     /* 17 -> 19 */
-  line-height: var(--pn-lh-prose);     /* 1.7 */
+  font-size: var(--pn-size-prose);
+  line-height: var(--pn-lh-prose);
   color: var(--pn-text-secondary);
   overflow-wrap: anywhere;             /* long URLs must not scroll the page */
 }
@@ -72,17 +72,15 @@
 .pn-prose :target { background-color: var(--pn-primary-50); border-radius: var(--pn-radius-sm); }
 
 
-/* One focus ring, whole site; tabindex="-1" is skipped so a script-focused container gets none. */
+/* Default focus ring; tabindex="-1" is skipped so a script-focused container gets none. */
 :where(a, button, input, select, textarea, summary,
        [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: var(--pn-focus-width) solid var(--pn-focus-ring);
   outline-offset: var(--pn-focus-offset);
   border-radius: var(--pn-radius-sm);
 }
-/* Never remove the ring. outline:none must not appear in any component. */
 
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {

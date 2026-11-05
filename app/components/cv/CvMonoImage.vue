@@ -36,7 +36,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Line height stays inherited, as on the old page's monogram tiles. */
 .mono-img--fallback {
   display: grid;
   place-items: center;

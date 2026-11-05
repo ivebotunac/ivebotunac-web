@@ -1,6 +1,6 @@
-/* The site's own global rules, on tokens. The look is the pre-Nuxt static CV's, value for value. */
+/* The site's own global rules, on tokens. The look is fixed by design, value for value. */
 
-/* The game's fixed layers fly off-screen; clip, not hidden, so no scroll container traps the sticky rail. */
+/* Game layers fly off-screen; clip, not hidden, so no scroll container traps the sticky rail. */
 html, body { overflow-x: clip; max-width: 100%; }
 html { scroll-padding-top: var(--pn-header-offset); }
 
@@ -20,12 +20,12 @@ body::before {
 
 ::selection { background-color: var(--pn-accent-ui); color: var(--pn-text-on-ink); }
 
-/* Kit rules the old page never had: balanced and pretty wrapping, capped images, no faux italic. */
+/* The CV opts out of base.css: balanced and pretty wrapping, capped images, no faux italic. */
 .cv :is(h1, h2, h3, h4, p) { text-wrap: wrap; }
 .cv img { max-width: none; }
 .cv { font-synthesis-style: auto; }
 
-/* Links: plain by default, as on the old page; zero specificity so every component rule wins. */
+/* Links: plain by default; zero specificity so every component rule wins. */
 :where(.cv, .masthead, .foot) a {
   color: inherit;
   text-decoration: none;
@@ -33,10 +33,10 @@ body::before {
   text-underline-offset: auto;
 }
 :where(.cv, .masthead, .foot) a:hover { color: inherit; }
-/* Plain links in the content column are blue; the old selector skipped .ext and every BEM-named link. */
+/* Plain links in the content column are blue; .cv-ext and BEM-named links style themselves. */
 .cv .content a:not(.cv-ext):not([class*="__"]) { color: var(--pn-link); }
 
-/* The browser's own focus ring, not the kit's, as on the old page; script-focused containers get none. */
+/* The browser's own focus ring, not the components.css one; script-focused containers get none. */
 :where(.cv, .masthead, .foot) :where(a, button, [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: revert;
   outline-offset: revert;
@@ -66,7 +66,7 @@ body::before {
 }
 .cv-ext:hover::after { color: var(--pn-link); }
 
-/* Disclosure rows: a summary line that opens its details, marked by a small +/− box on the right. */
+/* Disclosure rows: a summary line opens its details, marked by a small +/− box on the right. */
 .cv summary { list-style: none; cursor: pointer; }
 .cv summary::-webkit-details-marker { display: none; }
 .cv-tog {
@@ -88,7 +88,7 @@ details[open] > summary .cv-tog { border-color: var(--pn-link); }
 details[open] > summary .cv-tog::before { content: "\2212"; }
 .cv summary:hover .cv-tog { border-color: var(--pn-link); }
 
-/* First visit only (useRowHint): the first Experience toggle pulses under a label until any row is opened. */
+/* First visit (useRowHint): the first Experience toggle pulses with a label until a row opens. */
 .cv-tog--hint {
   position: relative;
   border-color: var(--pn-accent-display);
@@ -142,7 +142,7 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
   white-space: nowrap;
 }
 
-/* The kit's reduced-motion block zeroes every transition; the old page kept these and its smooth scroll. */
+/* components.css zeroes transitions under reduced motion; these and smooth scroll stay on purpose. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: smooth !important; }
   .cv-ext { transition-duration: .15s !important; }
@@ -150,7 +150,7 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
   .railnav { transition-duration: .3s, 0s !important; }
 }
 
-/* Small phones: the old page's tighter body type; .pn-layout repeats the body's size, so both. */
+/* Small phones: tighter body type; .pn-layout repeats the body's size, so both. */
 @media (max-width: 540px) {
   body, .pn-layout { font-size: 14.5px; }
 }

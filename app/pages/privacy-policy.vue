@@ -165,7 +165,6 @@ useSchemaOrg([
 </template>
 
 <style scoped>
-/* As wide as the Primo app policies. */
 .privacy__doc { max-width: 860px; }
 .privacy .pn-prose { max-width: none; }
 .privacy__head { margin-bottom: var(--pn-space-48); }

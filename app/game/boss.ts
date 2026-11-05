@@ -1,4 +1,4 @@
-// The AGI boss: a glitchy floating core that enters from the top, takes clicks, taps and team fire, and fires slow dodgeable orbs.
+// The AGI boss: a glitchy core that drops in, takes clicks, taps and team fire, and fires slow orbs.
 import { bossBurnLines, bossHalfLines, bossLeaveLines, bossStartLines, bossWinLines, pick, rand } from './config'
 import { explode, feedback, fireBeam, fxBurst } from './effects'
 import { clearTrend } from './actions'
@@ -12,7 +12,7 @@ import type { Memory } from './guide'
 import type { Game } from './core'
 import type { Boss, BossMove, BossOrb } from './types'
 
-// Tuned so taps plus team fire win in about 30 to 60 s; the team and robot alone do about 2 hp a second.
+// Tuned so taps plus team fire win in 30 to 60 s; the team and robot alone do about 2 hp a second.
 const HP = 300
 const TAP = 2
 const CRIT = 6
@@ -87,7 +87,7 @@ export function bindBoss(g: Game): () => void {
   return () => { window.removeEventListener('game:fight-agi', onFight); window.removeEventListener('game:end-fight', onEnd); };
 }
 
-// The dying core still takes presses, so fast taps on its death throes never fall through to a link underneath.
+// The dying core still takes presses, so taps on its death throes never fall through to a link.
 export function bossAt(g: Game, x: number, y: number): boolean {
   const b = g.boss;
   return !!b && b.phase !== 'leave' && !vanished(b) && Math.hypot(x - b.x, y - b.y) < bossR(g);
@@ -143,7 +143,7 @@ export function bossRobotTarget(g: Game): number {
   return 0.045;
 }
 
-// A spot is under the pointer when it moved or tapped there just now; touch has no hover, so the window is shorter.
+// Under the pointer: it moved or tapped there just now; touch has no hover, so its window is shorter.
 function cursorNear(g: Game, x: number, y: number, r: number): boolean {
   return g.t - g.lastMove < (g.coarse ? 40 : 90) && Math.hypot(g.mouseX - x, g.mouseY - y) < r;
 }
@@ -159,7 +159,7 @@ function spot(g: Game): { x: number, y: number } {
   return { x: rand(m, Math.max(m, g.W - m)), y: rand(Math.max(110, m + 40), Math.max(m + 60, g.H * 0.62)) };
 }
 
-// Now and then it dashes or teleports, more often once it is below half; a teleport gets likelier as it weakens.
+// It dashes or teleports now and then, more often below half; teleports grow likelier as it weakens.
 function move(g: Game, b: Boss, baseX: number, baseY: number): void {
   const low = b.hp < b.max / 2;
   if (!b.mv) {
@@ -187,7 +187,7 @@ function move(g: Game, b: Boss, baseX: number, baseY: number): void {
   }
 }
 
-// A barrage: five to eight locked bombs at once, on the page's text and around the cursor, landing at different moments.
+// A barrage: 5 to 8 locked bombs on the text and around the cursor, each landing at its own moment.
 function barrage(g: Game, b: Boss): void {
   if (--b.burstCD > 0 || b.tele || b.mv || b.t < 240) return;
   const low = b.hp < b.max / 2, n = (low ? 6 : 5) + ((Math.random() * 3) | 0);
@@ -203,7 +203,7 @@ function barrage(g: Game, b: Boss): void {
   b.burstCD = low ? cool(300, 180) : cool(480, 240);
 }
 
-// Telegraph first, fire after: a reticle that a slow orb lands on, or (with a mouse) a slow three-orb spread.
+// Telegraph first, fire after: a reticle a slow orb lands on, or (with a mouse) a slow three-orb spread.
 function attack(g: Game, b: Boss): void {
   const tl = b.tele;
   if (tl) {
@@ -219,11 +219,11 @@ function attack(g: Game, b: Boss): void {
     return;
   }
   if (--b.atkCD > 0 || b.t < 90) return;
-  // a spread at a cursor resting on the boss would land before it could move, so that case gets the reticle
+  // a spread at a cursor resting on the boss would land before it could move, so that gets the reticle
   const far = Math.hypot(g.mouseX - b.x, g.mouseY - b.y) > bossR(g) + 90;
   if (!g.coarse && far && g.t - g.lastMove < 90 && Math.random() < 0.45) { b.tele = { kind: 'spread', x: b.x, y: b.y, life: 0, max: 40 }; return; }
   const aim = g.mouseX > -900 && g.t - g.lastMove < 600;
-  // three shots in five, and every shot with no cursor to chase, go for the CV's text, so the fight leaves marks
+  // three shots in five, and all with no cursor to chase, aim at the CV text so the fight leaves marks
   const page = !aim || Math.random() < 0.6 ? textTarget(g) : null;
   const x = page ? page.x : aim ? g.mouseX : rand(g.W * 0.2, g.W * 0.8), y = page ? page.y : aim ? g.mouseY : rand(g.H * 0.45, g.H * 0.8);
   b.tele = { kind: 'lock', x: clamp(x, 20, g.W - 20), y: clamp(y, 20, g.H - 20), life: 0, max: 56 };
@@ -287,7 +287,7 @@ function leave(g: Game, b: Boss): void {
   syncQuest(g);
 }
 
-// Runs from tickQuest, so it keeps going while the robot is popped; it only counts time while the fight is on.
+// Runs from tickQuest, so it runs while the robot is popped; it only counts time during the fight.
 export function tickBoss(g: Game): void {
   const b = g.boss;
   if (!b) return;
@@ -332,7 +332,7 @@ export function tickBoss(g: Game): void {
   tickOrbs(g, b);
 }
 
-// ---- drawing ----
+// Drawing
 type Cell = { x: number, y: number, k: 'edge' | 'shell' | 'lit' | 'ring' | 'core' | 'text' | 'tip' }
 
 // 3x5 letters for the forehead.
@@ -363,7 +363,7 @@ function cells(): Cell[] {
   return out;
 }
 
-// A stable pseudo-random value per integer, so glitch bands hold for a few ticks instead of flickering every frame.
+// A stable pseudo-random value per integer, so glitch bands hold a few ticks instead of flickering.
 const hash = (n: number) => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
 
 function cellColour(b: Boss, cl: Cell, warn: boolean): string {

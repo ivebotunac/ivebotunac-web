@@ -1,4 +1,4 @@
-// The orchestrator: one Game owns all state and element refs; frame() steps it at a fixed 60 ticks a second.
+// The orchestrator: one Game owns all state and element refs; frame() steps it at 60 ticks a second.
 import { CX, CY, HALF, MAX_SIZE, MORPH, ROBOT_LINES, SECTION_LINES, U, col, dispScale, pick, quips, rand, recoverLines, respawnLines, scrollLines, sleepLines, wakeLines } from './config'
 import type { FormName, Mood } from './config'
 import { draw } from './forms'
@@ -152,7 +152,7 @@ export class Game {
   curForm: FormName = 'robot'
   morphFlash = 0
   formCD = 300 + (rand(0, 240) | 0)
-  // the critter's quirk under way, the ticks to the next one and to its next particle, and how long a shy one keeps hiding
+  // critter quirk: the one under way, ticks to the next quirk and particle, how long a shy one hides
   act: Act | null = null
   actCD = 300
   partCD = 0
@@ -163,7 +163,7 @@ export class Game {
   lean = 0
   moving = false
   closed = false
-  // the team quest (quest.ts): recruited agents in formation order, agents waiting in opened rows, the fly-by
+  // team quest (quest.ts): recruited agents in formation order, agents waiting in opened rows, the fly-by
   bridge: QuestBridge | null
   team: TeamMember[] = []
   // per-tick behaviours for recruited agents; see TeamBehaviour
@@ -196,8 +196,8 @@ export class Game {
     this.sizeFx()
   }
 
-  // The CSS size is set with the bitmap, so drawing stays 1:1 with clientX/clientY under a dynamic toolbar; the bitmap is at
-  // devicePixelRatio, capped lower on phones, so text and lasers stay sharp.
+  // The CSS size is set with the bitmap, so drawing stays 1:1 with clientX/Y under a dynamic toolbar.
+  // The bitmap is at devicePixelRatio, capped lower on phones, so text and lasers stay sharp.
   sizeFx(): void {
     const r = Math.min(this.coarse ? 1.5 : 2, devicePixelRatio || 1)
     this.fx.width = Math.round(this.W * r); this.fx.height = Math.round(this.H * r)
@@ -251,7 +251,7 @@ export class Game {
     if (this.asleep) { this.asleep = false; this.say(pick(wakeLines), 180) }
   }
 
-  // Peak-anger screen flash: orange tint and faint blur over the whole viewport; `brand` mixes in the cyan and blue.
+  // Peak-anger flash: an orange tint and faint blur over the viewport; `brand` mixes in cyan and blue.
   rage(brand = false): void {
     const el = this.rageEl;
     el.classList.remove('rage--on');
@@ -278,8 +278,7 @@ export class Game {
 }
 
 // Runs as many 60Hz ticks as real time allows (at most 3), then reschedules until destroy() cancels it.
-// A dozing frame from the timer runs one tick, so the nap plays slowed down instead of redrawing six times. A hidden tab
-// never dozes: the timer would keep ticking there, while rAF pauses.
+// A doze frame (timer, never in a hidden tab, where rAF pauses) runs one tick, so the nap plays slowed.
 function frame(g: Game, now: number): void {
   const max = g.idleTO === undefined ? 3 : 1;
   g.idleTO = undefined;
@@ -438,7 +437,7 @@ function tick(g: Game): void {
   g.bubble.style.bottom = (132 + 24 * g.size() * g.DS) + 'px';
   // Near the right edge the bubble shifts to stay on screen.
   if (!g.bubble.hidden) { const hw = g.bubble.offsetWidth / 2; g.bubble.style.marginLeft = (Math.max(8 + hw, Math.min(g.W - 8 - hw, g.pos.x)) - g.pos.x) + 'px'; }
-  // The cursor turns into a hand over the robot or a teammate and a fist while holding one; a link or row toggle under them keeps its own.
+  // Hand cursor over the robot or a teammate, fist while holding; a link or toggle under it keeps its own.
   if (!g.coarse) {
     const live = g.t - g.lastMove < 600;
     const over = live && !g.overPage && ((Math.hypot(g.mouseX - g.pos.x, g.mouseY - g.pos.y) < g.hitR() && actAlpha(g) >= 0.3) || !!agentAt(g, g.mouseX, g.mouseY));
@@ -455,8 +454,8 @@ function tick(g: Game): void {
   g.lean = mode === 'knock' ? 0 : (mode === 'held' ? Math.max(-0.5, Math.min(0.5, dx * 0.04)) : Math.max(-0.18, Math.min(0.18, dx * 0.02)));
   const gt = mode !== 'knock' && mode !== 'held' && !g.asleep ? gait(g, spd) : null;
   if (gt) { g.bob = gt.bob; g.lean += gt.lean; }
-  // Morph cycle is robot to critter and back; the only critter to critter step is an evolution. A robot never turns into a
-  // critter during the fly-by, a waiting agent or a trend chase, and the boss always fights the robot.
+  // Morphs go robot to critter and back; the only critter-to-critter step is an evolution.
+  // No robot-to-critter step during a fly-by, a waiting agent or a trend chase; the boss fights the robot.
   g.formCD--;
   if (g.boss && g.curForm !== 'robot') { g.morphTo('robot'); g.formCD = 540 + (rand(0, 600) | 0); }
   else if (g.formCD <= 0 && g.knockT <= 0 && !g.held && !g.asleep) {
@@ -504,7 +503,7 @@ function tick(g: Game): void {
 
 let game: Game | null = null
 
-// Builds nothing under reduced motion or without a 2D context; `bridge` carries quest state out to the HUD.
+// Builds nothing under reduced motion or without a 2D context; `bridge` carries quest state to the HUD.
 export function start(refs: GameRefs, getSection: () => string, bridge: QuestBridge | null = null): void {
   destroy()
   if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return

@@ -61,7 +61,7 @@ const shown = computed(() => !!reveal?.seen.has(props.id))
   background-color: var(--pn-border);
 }
 
-/* Hidden from first paint once script runs, then faded in when scrolled to, as on the old page. */
+/* Hidden from first paint once script runs, then faded in when scrolled to. */
 @media (prefers-reduced-motion: no-preference) {
   :global(.js) .cv-section {
     opacity: 0;

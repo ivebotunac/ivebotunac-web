@@ -1,4 +1,4 @@
-// Prints the built /cv-print page to public/ive-botunac-cv.pdf with headless Chromium. Run after `npm run build`.
+// Prints built /cv-print to public/ive-botunac-cv.pdf in headless Chromium; run after `npm run build`.
 import { spawn } from 'node:child_process'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { createServer } from 'node:net'
@@ -11,7 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const serverEntry = path.join(root, '.output/server/index.mjs')
 const out = path.join(root, 'public/ive-botunac-cv.pdf')
 
-// PLAYWRIGHT_CHROMIUM_PATH wins; otherwise the newest Chromium in the Playwright cache, so any playwright-core version works.
+// PLAYWRIGHT_CHROMIUM_PATH wins, else the newest cached Chromium, so any playwright-core version works.
 function findChromium() {
   const own = process.env.PLAYWRIGHT_CHROMIUM_PATH
   if (own) return own

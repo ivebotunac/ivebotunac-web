@@ -1,6 +1,6 @@
 // Renders critter JSON sprites to PNG with no dependencies.
-// node scripts/critter-sheet.mjs <sprite.json> <out.png>          one sprite: idle, blink, happy, attack, mad, knock, walk
-// S=12 node scripts/critter-sheet.mjs --sheet <dir> <out.png>   every *.json in dir, idle pose, 6 per row; S sets px per cell
+// node scripts/critter-sheet.mjs <sprite.json> <out.png>: idle, blink, happy, attack, mad, knock, walk
+// S=12 node scripts/critter-sheet.mjs --sheet <dir> <out.png>: each *.json idle, 6 a row; S = px/cell
 // Exits 1 and prints every problem when a sprite breaks the format.
 import { deflateSync } from 'node:zlib'
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -40,7 +40,7 @@ function validate(s) {
   return err
 }
 
-// One 24x24 grid of colours (null = transparent): the frame, its auto outline, then the eyes for a mood.
+// One 24x24 colour grid (null = transparent): the frame, its auto outline, then the mood's eyes.
 function cells(s, mood) {
   const map = s.frames[mood === 'walk' ? 'walk' : 'idle']
   const g = Array.from({ length: N }, (_, y) => Array.from({ length: N }, (_, x) => {
@@ -86,7 +86,7 @@ function png(w, h, rgb) {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))])
 }
 
-// Tiles of S px per cell with a 1-cell gap; a faint checker marks the 24x24 frame.
+// Tiles of S px per cell with a 2-cell gap; a faint checker marks the 24x24 frame.
 function sheet(grids, cols, S) {
   const pad = S * 2, tile = N * S
   const rows = Math.ceil(grids.length / cols)

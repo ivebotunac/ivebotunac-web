@@ -5,7 +5,7 @@ declare global {
   }
 }
 
-// The one site-specific line; everything below is the same on every site.
+// GA4 measurement ID; public by design, it ships in the gtag script URL and config call.
 const GA_ID = 'G-SVD3MBDG0R'
 
 let googleAnalyticsLoaded = false

@@ -12,7 +12,7 @@ export interface MyRun {
   // the fight's own time, and the time its initials hold on the board once signed
   ms: number
   best: number | null
-  // 1 + the board entries strictly faster than what this run would show, so it reads as "#n" before signing too
+  // 1 + board entries strictly faster than this run would show, so it reads as "#n" before signing too
   place: number
   initials: string | null
 }
@@ -35,13 +35,13 @@ export type GameEvent =
   | { kind: 'boss', run: string }
   | { kind: 'name', run: string, initials: string }
 export type GameEventKind = GameEvent['kind']
-// A board read is limited like an event, on a limiter of its own so reads never use up the write budget.
+// Board reads are limited like events, on their own limiter so they never use up the write budget.
 export type LimitKind = GameEventKind | 'read'
 
 const GAME_STATS_DOC = 'ivebotunac/stats'
 // One doc per boss fight, from its entry; the id is the visitor's claim on the time.
 const RUNS = 'ivebotunac/stats/bossRuns'
-// One doc per initials holding their best time, so the top ten is one ordered query and a name appears once.
+// One doc per initials at their best time: the top ten is one ordered query and a name appears once.
 const BOARD = 'ivebotunac/stats/bossBoard'
 const BOARD_SIZE = 10
 // Entry, at least 300 hp at the fastest tap rate, then the death throes: no real fight is shorter.
@@ -129,7 +129,7 @@ function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestM
   return Math.max(0, Math.min(100, Math.round((100 * (slower + same / 2)) / total)))
 }
 
-// App Hosting sets x-fah-client-ip after its own proxies; its last entry is the one a client cannot have written.
+// App Hosting sets x-fah-client-ip behind its proxies; the last entry is the one a client cannot forge.
 export function clientKey(event: Parameters<typeof getRequestIP>[0]): string {
   const fah = process.env.K_SERVICE ? getRequestHeader(event, 'x-fah-client-ip')?.split(',').pop()?.trim() : undefined
   return fah || getRequestIP(event) || 'unknown'
@@ -143,8 +143,8 @@ export async function readEventBody(event: Parameters<typeof getRequestIP>[0]): 
   if (Number(getRequestHeader(event, 'content-length')) > MAX_BODY_BYTES) throw tooLarge()
   const chunks: Buffer[] = []
   let size = 0
-  // a chunked body has no content-length, so the cap holds while reading too; the rest is drained, not kept,
-  // since breaking out of the stream destroys the socket under the response
+  // a chunked body has no content-length, so the cap also holds while reading
+  // past the cap the rest is drained, not kept: breaking out of the stream destroys the socket
   for await (const chunk of event.node.req) {
     size += (chunk as Buffer).length
     if (size <= MAX_BODY_BYTES) chunks.push(chunk as Buffer)
@@ -168,7 +168,7 @@ export function createGameLimiter(globalPerMin = GLOBAL_LIMIT_PER_MIN) {
     lastSweep = now
     for (const [key, entry] of hits) if (now - entry.start >= LIMIT_WINDOW_MS) hits.delete(key)
   }
-  // The privacy policy promises the IP leaves memory with its window, even on an instance that gets no more requests.
+  // The privacy policy promises the IP leaves memory with its window, even on an idle instance.
   setInterval(() => sweep(Date.now()), 60_000).unref?.()
 
   return {
@@ -211,7 +211,7 @@ type Data = Record<string, unknown> | undefined
 const runMs = (data: Data): number | null => (typeof data?.ms === 'number' ? data.ms : null)
 const runInitials = (data: Data): string | null => (typeof data?.initials === 'string' ? data.initials : null)
 
-// The top ten, and what the visitor's fight shows: its own time, or once signed the best its initials hold, with its place.
+// The top ten, and the visitor's fight: its time, or once signed its initials' best, with its place.
 async function withBoard(stats: GameStatsResponse, run: Data): Promise<GameStatsResponse> {
   const db = getGameDb(), initials = runInitials(run), ms = runMs(run)
   const [top, held] = await Promise.all([
@@ -281,7 +281,7 @@ export async function recordBoss(run: string): Promise<GameStatsResponse | null>
   return withBoard(toStats((await db.doc(GAME_STATS_DOC).get()).data()), data)
 }
 
-// Once per fight. The board keeps one row per initials with their best time, so a slower signature leaves it as it is.
+// Once per fight. One row per initials at their best, so a slower signature leaves the board as is.
 // Null means the fight is unknown, unfinished or already signed.
 export async function nameRun(run: string, initials: string): Promise<GameStatsResponse | null> {
   const db = getGameDb()

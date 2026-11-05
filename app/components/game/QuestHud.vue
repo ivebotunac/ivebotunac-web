@@ -19,7 +19,7 @@ const panelId = useId()
 const has = (r: Role) => props.team.includes(r)
 const count = computed(() => props.team.length)
 
-// First visit only: after a few seconds a tip says what the chip is; gone for good once closed or used.
+// First visit only: after a few seconds a tip says what the chip is; gone once closed or used.
 const TIP_KEY = 'ib-hint-team'
 const tip = ref(false)
 let tipTimer: ReturnType<typeof setTimeout> | undefined
@@ -45,7 +45,7 @@ const onChip = () => {
   open.value = !open.value
 }
 
-// The game listens on window, the same event the team card sends; during a fight the same button ends it.
+// The game listens on window for the event the team card sends; during a fight this button ends it.
 const fight = () => {
   open.value = false
   window.dispatchEvent(new CustomEvent(props.boss ? 'game:end-fight' : 'game:fight-agi'))
@@ -126,7 +126,7 @@ const goTo = (id: string) => {
     <!-- Stays mounted through the fight, so keyboard focus is not dropped when it changes role. -->
     <button v-if="done" type="button" class="qhud__fight" @click="fight">{{ boss ? 'End fight' : 'Fight AGI' }}</button>
 
-    <!-- After the chip, so Tab from the expanded chip goes straight into the links; CSS keeps it above. -->
+    <!-- After the chip so Tab goes from the open chip into the links; CSS keeps it above. -->
     <div v-show="open && !done" :id="panelId" class="qhud__panel">
       <p class="qhud__title">Find the six sub-agents</p>
       <ul class="qhud__list">

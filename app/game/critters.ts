@@ -1,4 +1,4 @@
-// The critter forms: JSON sprites from ./critters baked per mood, plus each one's gait, particles, quirk and lines.
+// Critter forms: sprites from ./critters baked per mood, plus each one's gait, particles, quirk and lines.
 // A critter's key and file name are its own name; the page shows its label and lines.
 import { pick, rand } from './config'
 import type { Mood, Palette } from './config'
@@ -53,7 +53,7 @@ const PARTICLES: Record<Exclude<Particle, 'none'>, { t: string[], c: string }> =
 // Ticks each quirk lasts once it starts.
 const ACT_T: Partial<Record<Quirk, number>> = { nap: 240, daze: 120, proud: 90, vanish: 56, copy: 150 }
 
-// The same cells scripts/critter-sheet.mjs renders: frame, a 4-neighbour outline, then the eyes for the mood.
+// The same cells scripts/critter-sheet.mjs renders: frame, 4-neighbour outline, then the mood's eyes.
 function bake(s: Sprite, frame: 'idle' | 'walk', eyes: Eyes): HTMLCanvasElement {
   const cv = document.createElement('canvas')
   cv.width = N; cv.height = N
@@ -105,13 +105,13 @@ export function drawCritter(c: CanvasRenderingContext2D, form: string, st: Mood,
   return true
 }
 
-// The form's own ammunition for a cursor attack: its particle glyphs and colour; null for the robot and particle-less forms.
+// A form's cursor-attack ammo: particle glyphs and colour; null for the robot and particle-less forms.
 export function attackStyle(g: Game): { t: string[], c: string } | null {
   const p = SPRITES[g.curForm]?.trait.particle
   return p && p !== 'none' ? PARTICLES[p] : null
 }
 
-// Knock physics per tick and the share of a fling it takes: heavy ones drop and barely travel, light ones drift.
+// Knock physics per tick and the share of a fling it takes: heavy forms drop, light ones drift.
 export function heft(g: Game): { grav: number, drag: number, fling: number, kind: Weight | 'normal' } {
   const t = SPRITES[g.curForm]?.trait
   const w = t?.weight ?? (t?.move === 'float' ? 'light' : undefined)
@@ -172,7 +172,7 @@ export function gait(g: Game, spd: number): { bob: number, lean: number } | null
   return null
 }
 
-// A quirk may hold the target itself: napping, dazed and posing critters stand still, a shy one backs away from a fast cursor.
+// A quirk may own the target: nappers, dazed and posing critters stay put; a shy one flees a fast cursor.
 export function actTarget(g: Game): number | null {
   const s = SPRITES[g.curForm]
   if (!s) return null

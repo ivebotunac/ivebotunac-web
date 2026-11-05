@@ -1,6 +1,6 @@
 import type { Cv } from '~/types/cv'
 
-// Non-breaking spaces (U+00A0) keep the pairs the old markup bound with &nbsp; on one line.
+// Non-breaking spaces (U+00A0) are deliberate: they keep word pairs on one line.
 export const cv: Cv = {
   name: 'Ive Botunac',
   credential: 'PhD',
@@ -23,7 +23,7 @@ export const cv: Cv = {
     { label: 'GitHub', href: 'https://github.com/ivebotunac', external: true },
     { label: 'X', href: 'https://x.com/ivebotunac', external: true }
   ],
-  // 40 counts each course certificate once: the GCP data engineer certificate shares five courses with its specialization.
+  // 40 counts each course once: the GCP data engineer cert shares five with its specialization.
   stats: [
     { value: '18+', label: 'years in software development' },
     { value: '10+', label: 'years in AI' },

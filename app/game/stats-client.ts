@@ -1,5 +1,5 @@
-// Global counters and the leaderboard from /api/game; every failure resolves null so the game never waits on them,
-// except postName, which answers the HTTP status so the board can say what went wrong.
+// Counters and the board from /api/game; failures and the 4 s timeout resolve null so the game never hangs.
+// postName alone returns the failed HTTP status instead.
 export interface BoardEntry {
   initials: string
   ms: number

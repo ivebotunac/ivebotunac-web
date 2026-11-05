@@ -3,7 +3,7 @@ import { cv } from '~/data/cv'
 import type { YearMonth } from '~/types/cv'
 import { formatDuration, formatRange, orgSpan } from '~/utils/cv-dates'
 
-// The A4 layout that scripts/cv-pdf.mjs prints to public/ive-botunac-cv.pdf; same data as the page, never indexed.
+// The A4 layout scripts/cv-pdf.mjs prints to public/ive-botunac-cv.pdf; same data, never indexed.
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Ive Botunac, CV', robots: 'noindex, nofollow' })
 useHead({ bodyAttrs: { style: 'background:#fff' } })

@@ -3,7 +3,7 @@ import type { Mood, Palette } from './config'
 
 export type Pxl = (x: number, y: number, w: number, h: number, c: string) => void
 
-// Set per call by draw(), so every recipe below stays verbatim.
+// Set per call by draw(), so the recipe below reads them without passing parameters.
 let pxl: Pxl
 let col: Palette
 let t: number

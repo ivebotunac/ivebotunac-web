@@ -5,8 +5,8 @@ import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
 import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 
-// The AGI top ten on the team card, five a page, with the three-letter signature for the visitor's fight. run: the fight to sign.
-// loading: the board has not answered yet, so a full page of grey rows and the pager hold their place.
+// The AGI top ten, five a page, with a three-letter signature for the visitor's fight (run).
+// loading: until the board answers, a full page of grey rows and the pager hold their place.
 const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string | null, loading?: boolean }>()
 const emit = defineEmits<{ (e: 'stats', s: GameStats): void }>()
 
@@ -40,7 +40,7 @@ const saving = ref(false)
 const error = ref('')
 const onInput = (e: Event) => { initials.value = (e.target as HTMLInputElement).value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3) }
 
-// postName answers the HTTP status when it fails, 0 when nothing answered; only a 400 is the letters' fault.
+// postName returns the failed status, or 0 if nothing answered; only a 400 is the letters' fault.
 const NAME_ERRORS: Record<number, string> = {
   400: 'Those letters cannot be used. Try others.',
   409: 'This fight cannot be signed any more.',
@@ -143,7 +143,7 @@ async function save() {
   color: var(--pn-text-muted);
 }
 
-/* One set of columns for every row, so a place like #12345 widens the first one and the initials stay in line. */
+/* Shared columns: a place like #12345 widens the first in every row, so initials stay in line. */
 .lboard__rows {
   display: grid;
   grid-template-columns: minmax(2.2em, max-content) 1fr auto;

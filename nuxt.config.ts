@@ -1,6 +1,4 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
-// The CDN keeps prerendered pages an hour and serves stale while refetching; browsers always revalidate.
+// The CDN keeps prerendered pages an hour, stale while refetching; browsers always revalidate.
 const htmlCache = { 'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400' }
 
 export default defineNuxtConfig({
@@ -29,9 +27,9 @@ export default defineNuxtConfig({
     { path: '~/components', extensions: ['.vue'] },
   ],
 
-  // Self-hosted; the families are named here because the CSS only names them inside the font tokens.
-  // One entry per family, so weights and styles cross: Plex Mono also declares italic 500 and 600, never fetched unless used.
-  // No metric fallbacks: the old page fell back to the stacks in its font tokens, unchanged.
+  // Self-hosted and named here, since the CSS names these families only inside the font tokens.
+  // One entry per family so weights and styles cross; a face no page uses is never fetched.
+  // No metric fallbacks: the font tokens carry their own fallback stacks.
   fonts: {
     processCSSVariables: true,
     families: [
@@ -40,7 +38,6 @@ export default defineNuxtConfig({
     ],
   },
 
-  // Site configuration for SEO and sitemap
   site: {
     url: 'https://ivebotunac.com',
     name: 'Ive Botunac',
@@ -91,10 +88,9 @@ export default defineNuxtConfig({
     '/robots.txt': { headers: { 'cache-control': 'public, max-age=86400' } },
     '/sitemap.xml': { headers: { 'cache-control': 'public, max-age=3600' } },
 
-    // The old static site was served as /index.html.
+    // Old links to /index.html keep working.
     '/index.html': { redirect: { to: '/', statusCode: 301 }, prerender: false },
 
-    // Enable prerendering for public pages (SEO)
     '/': { prerender: true, headers: htmlCache },
     '/privacy-policy': { prerender: true, headers: htmlCache },
     // The PDF has no head, so the header carries its noindex.

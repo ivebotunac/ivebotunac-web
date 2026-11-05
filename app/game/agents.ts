@@ -1,11 +1,11 @@
-// The six sub-agents: who they are, where they hide, and their 16x16 sprites drawn straight onto the fx canvas.
+// The six sub-agents: who they are, where they hide, and their 16x16 sprites drawn onto the fx canvas.
 import type { Role } from './types'
 
 export interface RoleInfo { label: string, section: string | null, where: string, c: string }
 
 export const ROLES: readonly Role[] = ['planner', 'researcher', 'analyst', 'reviewer', 'coder', 'deployer']
 
-// `section` is the CV section id the agent hides in; the Deployer is earned by popping the robot instead.
+// `section` is the CV section id the agent hides in; the Deployer is earned by popping the robot.
 export const ROLE_INFO: Record<Role, RoleInfo> = {
   planner: { label: 'Planner', section: 'experience', where: 'Experience', c: '#36c6e0' },
   researcher: { label: 'Researcher', section: 'publications', where: 'Publications', c: '#0b6bcb' },

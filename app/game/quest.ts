@@ -1,4 +1,4 @@
-// "Assemble the team": six sub-agents hide in CV rows, the visitor recruits them, and they trail the robot.
+// "Assemble the team": six sub-agents hide in CV rows; once recruited, they trail the robot.
 import { CONFETTI, formAllLine, formSeenLines, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines } from './config'
 import { CRITTERS } from './critters'
 import { ROLES, ROLE_INFO, drawAgent } from './agents'
@@ -11,7 +11,7 @@ import { drawScorch, healNow, tickScorch } from './scorch'
 import type { Game } from './core'
 import type { Peek, Role } from './types'
 
-// Ticks: the pop-out, the wait for a click (a minute at most, or until its row closes), the duck back in, and the completion fly-by.
+// Ticks: pop-out, the wait for a click (a minute at most, or until its row closes), duck-in, fly-by.
 const OUT = 24
 const WAIT = 3600
 const IN = 18
@@ -21,7 +21,7 @@ const MAX_CONFETTI = 180
 const PEEK_P = 3
 const TEAM_P = 2
 
-// True until a pointer press: keyboard and screen-reader visitors open rows without one, so they recruit on the toggle.
+// True until a pointer press: keyboard and screen-reader visitors recruit on the row toggle instead.
 let kbd = true;
 // performance.now() of the last tick, for the team clock
 let lastNow = 0;
@@ -41,7 +41,7 @@ export function syncQuest(g: Game): void {
   g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: bossFighting(g), seen: [...m.seen] });
 }
 
-// A form met for the first time joins the collection; returns the line for a milestone, every sixth and the last.
+// A first-met form joins the collection; returns a milestone line, every sixth and the last.
 export function noteForm(g: Game, form: string): string {
   const m = g.mem;
   if (!CRITTERS.includes(form) || m.seen.includes(form)) return '';
@@ -53,8 +53,7 @@ export function noteForm(g: Game, form: string): string {
   return n % 6 === 0 ? pick(formSeenLines).replace('{n}', String(n)).replace('{m}', String(all)) : '';
 }
 
-// One random row per section, picked once a page view, among the rows on show: the CvMore "show all" wrapper and the
-// rows folded inside it never hide an agent.
+// One random row per section, picked once a page view among rows on show, never inside CvMore's fold.
 function pickHides(g: Game): void {
   for (const r of ROLES) {
     const id = ROLE_INFO[r].section;
@@ -145,8 +144,7 @@ export function questPop(g: Game, x: number, y: number): void {
   deployRocket(g, bossFighting(g));
 }
 
-// Opening the hiding row from the keyboard recruits at once; nobody can pop the robot without a pointer, so the last
-// row also brings the Deployer, and one announcement covers both.
+// A keyboard open recruits at once; no pointer can pop the robot, so the last row brings the Deployer.
 function recruitByKey(g: Game, role: Role, row: HTMLDetailsElement): void {
   const { x, y } = rowPoint(g, row, 0.7);
   let text = recruit(g, role, x, y, row);
@@ -166,7 +164,7 @@ function recruit(g: Game, role: Role, x: number, y: number, row: HTMLDetailsElem
   g.buzz(25);
   const n = m.team.length;
   track('agent_found', { role, section: info.section ?? (kbd ? 'keyboard' : 'pop'), count: n });
-  // the screen-reader line takes more of the title than the speech bubble, which keeps its line near 42 characters
+  // the screen-reader line takes more of the title than the bubble, which stays near 42 characters
   const title = row ? rowTitle(row, 40) : '';
   let text = info.label + ' recruited' + (title ? ' in "' + title + '"' : '') + '. Team ' + n + ' of ' + ROLES.length + '.';
   const line = recruitLine(g, role, row ? rowTitle(row, 18) : '');
@@ -198,7 +196,7 @@ export function flybyTarget(g: Game): number {
   return 0.07;
 }
 
-// The per-tick hook for the whole quest: peeks, formation, behaviours, fly-by, confetti, the boss and the team's effects.
+// Per-tick hook for the quest: peeks, formation, behaviours, fly-by, confetti, boss and team effects.
 export function tickQuest(g: Game): void {
   for (let i = g.peeks.length - 1; i >= 0; i--) {
     const pk = g.peeks[i]!;
@@ -210,7 +208,7 @@ export function tickQuest(g: Game): void {
     if (pk.phase === 'wait' && pk.life % 50 === 1) g.rings.push({ x: pk.x, y: pk.y, life: 0, max: 30, c: ROLE_INFO[pk.role].c });
   }
 
-  // capped like the boss clock, so a hidden tab does not count; only an incomplete team's time is the team's time
+  // capped like the boss clock so a hidden tab does not count; only an incomplete team's time counts
   const now = performance.now(), n = g.mem.team.length;
   if (n > 0 && n < ROLES.length) g.mem.teamActiveMs += Math.min(100, now - lastNow);
   lastNow = now;
@@ -269,8 +267,7 @@ export function drawQuest(g: Game): void {
   drawBossOver(g);
 }
 
-// Starts this visitor's game over: team, times and records go; tricks already learned stay, so nothing is taught twice,
-// and the fastest finished boss fight stays, so a record not yet signed can still be.
+// Restart: team, times, records, forms seen and the team hint go; the fastest boss fight stays to be signed.
 function restartGame(g: Game): void {
   const m = g.mem;
   m.team = []; m.teamActiveMs = 0; m.teamMs = null; m.best = 0; m.pops = 0; m.bossMs = null; m.seen = [];

@@ -2,7 +2,7 @@
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { CRITTERS, critter, drawFormIcon } from '~/game/critters'
 
-// The collection of critter forms: each one in colour once the visitor has met it, a silhouette until then.
+// The critter forms: each in colour once the visitor has met it, a silhouette until then.
 // Only the invented labels reach the page; the keys stay in code.
 const props = defineProps<{ seen: string[] }>()
 

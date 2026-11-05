@@ -11,7 +11,7 @@ import TeamCard from './TeamCard.vue'
 // The game says a line when a CV section first comes into view.
 const activeSection = useActiveSection()
 
-// Renders only after mount, so a direct path import, which skips the .client wrapper, cannot SSR the teleport.
+// Renders after mount, so a path import skipping the .client wrapper still cannot SSR the teleport.
 const mounted = ref(false)
 
 const rageEl = ref<HTMLElement | null>(null)
@@ -34,7 +34,7 @@ const stats = ref<GameStats | null>(null)
 const statsOff = ref(false)
 const gotStats = (s: GameStats | null) => { if (s) { stats.value = s; statsOff.value = false } else if (!stats.value) statsOff.value = true }
 
-// The board for the fight the card shows; a win posts its own fight, which can be slower than the one kept.
+// The board for the card's fight; a win posts its own fight, which can be slower than the one kept.
 const refresh = () => getGameStats(quest.bossRun).then(gotStats)
 
 const openCard = () => {
@@ -50,7 +50,7 @@ const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
   // A fresh finish posts its time, and the answer carries this visitor's rank.
-  // A time the server refuses, such as one under its floor, still shows the board rather than calling it offline.
+  // A refused time, such as one under the server's floor, still shows the board, not "offline".
   finished: (ms) => { postTeam(ms, quest.bossRun).then(s => (s ? gotStats(s) : refresh())) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) { cardMode.value = 'team'; cardOpen.value = true } },
@@ -106,7 +106,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 </template>
 
 <style scoped>
-/* The old page's stack: rage, fx, trend, then the robot on top. */
+/* Stack order: rage, fx, trend, then the robot on top. */
 .rage,
 .fx,
 .trend,
@@ -309,7 +309,7 @@ html.robot-grabbing * {
   cursor: grabbing !important;
 }
 
-/* A letter the AGI burnt out (scorch.ts): it flares in stepped orange, then a soot mark keeps its width; the flame is canvas. */
+/* A letter the AGI burnt (scorch.ts): orange flare, soot keeps its width; the flame is canvas. */
 .ib-burnt {
   color: transparent;
   text-shadow: none;
@@ -330,7 +330,7 @@ html.robot-point * {
   cursor: pointer !important;
 }
 
-/* While a finger holds the robot or a teammate, so a long press starts no text selection or callout (actions.ts). */
+/* A finger holding the robot or a teammate starts no text selection or callout (actions.ts). */
 html.robot-hold,
 html.robot-hold * {
   -webkit-user-select: none;

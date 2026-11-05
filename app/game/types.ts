@@ -28,18 +28,17 @@ export interface Popup { x: number, y: number, text: string, life: number, max: 
 export interface Trend { x: number, baseY: number, y: number, vx: number, tt: number, label: string, hits: number, held: boolean, fvx: number, fvy: number }
 // A press that landed on the robot: becomes a grab once it moves, a throw when released.
 export interface Press { sx: number, sy: number, x: number, y: number, ox: number, oy: number, t0: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
-// An agent or the trend tag in the visitor's hand: `ox`/`oy` keep the grab point, `hist` gives the throw, `moved` turns a trend press from a tap into a drag.
+// An agent or trend tag in hand: `ox`/`oy` keep the grab point, `hist` gives the throw, `moved` a drag.
 export interface Carry { kind: 'agent' | 'trend', m: TeamMember | null, sx: number, sy: number, ox: number, oy: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
 
-// ---- the "Assemble the team" quest ----
+// The "Assemble the team" quest
 export type Role = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' | 'deployer'
-// A recruited sub-agent trailing the robot; `tx`/`ty` is its formation spot, set before the behaviours run.
-// `cd` is the behaviour cooldown in ticks; `note`/`noteT` is a tiny speech popup above the member.
-// `held` while the visitor carries it, `air` the ticks left of a throw at `vx`/`vy`, `rot` its spin.
+// A recruited sub-agent trailing the robot; `tx`/`ty`: its formation spot, `cd`: behaviour cooldown.
+// `note`/`noteT`: a speech popup; `held` while carried; `air`: throw ticks left at `vx`/`vy`; `rot`: spin.
 export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number, struck: boolean }
 // Runs once per tick per member, before formation; returning true means it moved the member itself.
 export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
-// An agent that popped out of an opened CV row and waits to be clicked; it follows the row as the page scrolls.
+// An agent popped out of an opened CV row, waiting for a click; it follows the row as the page scrolls.
 export interface Peek { role: Role, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
 export interface Confetti { x: number, y: number, vx: number, vy: number, rot: number, vr: number, c: string, life: number, max: number }
 // What the HUD shows; the component holds it reactively.
@@ -54,11 +53,11 @@ export interface QuestBridge {
   finished(ms: number): void
   // the end of the fly-by: opens the team card
   complete(): void
-  // a won boss fight, its run and its time by the game's clock: posts it, then opens the card on the boss board
+  // a won boss fight, its run and game-clock time: posts it, then opens the card on the boss board
   bossDone(run: string | null, ms: number): void
 }
 
-// ---- team behaviours (team.ts) ----
+// Team behaviours (team.ts)
 // A team projectile: `boss` shots fly at the boss and damage it, the rest at the cursor.
 export interface Shot { x: number, y: number, vx: number, vy: number, life: number, max: number, c: string, dmg: number, boss: boolean }
 // A small glyph tied to a member: the Analyst's rising chart or the Researcher's reading sparkle.
@@ -66,7 +65,7 @@ export interface Glyph { kind: 'chart' | 'sparkle', role: Role, x: number, y: nu
 export interface Rocket { x: number, y: number, vx: number, vy: number, life: number, max: number, boss: boolean }
 export interface Crew { shots: Shot[], glyphs: Glyph[], rockets: Rocket[], lx: number, ly: number, vx: number, vy: number, plan: number }
 
-// ---- the AGI boss (boss.ts) ----
+// The AGI boss (boss.ts)
 // A slow orb: `lock` glides to a telegraphed spot and bursts there, `spread` flies straight on.
 export interface BossOrb { kind: 'lock' | 'spread', x: number, y: number, sx: number, sy: number, tx: number, ty: number, vx: number, vy: number, life: number, max: number }
 export interface Boss {
@@ -77,8 +76,7 @@ export interface Boss {
   orbs: BossOrb[], ms: number, last: number, fireCD: number
   // the server's id for this fight, which times it for the boss board
   run: string | null
-  // where it is pushed off its sweep (dashes and teleports set it, then it drifts back), the move under way,
-  // and the ticks until the next move and the next barrage
+  // offX/offY: dash/teleport push off its sweep, drifting back; mv: move under way; mvCD/burstCD: cooldowns
   offX: number, offY: number, mv: BossMove | null, mvCD: number, burstCD: number
 }
 // A dash glides fast to a new spot; a teleport flickers, vanishes, and lands somewhere else.

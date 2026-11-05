@@ -2,8 +2,7 @@
 import type { NuxtError } from '#app'
 import GlobalStyles from '~/components/layout/GlobalStyles.vue'
 
-// Async on purpose: what error.vue imports lands in the entry chunk, whose stylesheet vitalizer
-// strips, so its styles would be lost on every client navigation.
+// Async on purpose: a sync import lands in the entry chunk, whose stylesheet vitalizer strips.
 const ErrorContent = defineAsyncComponent(() => import('~/components/layout/ErrorContent.vue'))
 
 defineProps<{ error: NuxtError }>()
