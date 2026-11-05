@@ -1,5 +1,5 @@
 // Particle factories plus the per-frame sparkle and fx-layer render passes.
-import { CX, CY, col, hitLines, pick } from './config'
+import { BRAND, CX, CY, MONO, col, hitLines, pick } from './config'
 import { scorchBusy } from './scorch'
 import type { Game } from './core'
 
@@ -39,10 +39,9 @@ export function cursorHit(g: Game, x: number, y: number, text?: string): void {
 
 export function explode(g: Game, x: number, y: number): void {
   if (!g.fxc) return;
-  const cs = ['#0c2236', '#36c6e0', '#ff5a1f', '#f5f9fd', '#3b7cc0'];
   for (let i = 0; i < 40; i++) {
     const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 7;
-    g.debris.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, sz: 2 + (Math.random() * 5 | 0), c: cs[(Math.random() * cs.length) | 0] as string, life: 0, max: 240 + (Math.random() * 160 | 0), landed: false });
+    g.debris.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, sz: 2 + (Math.random() * 5 | 0), c: BRAND[(Math.random() * BRAND.length) | 0] as string, life: 0, max: 240 + (Math.random() * 160 | 0), landed: false });
   }
 }
 
@@ -91,7 +90,7 @@ export function renderFx(g: Game, recent: boolean): void {
   for (let m = 0; m < g.bullets.length; m++) {
     const bb = g.bullets[m]!;
     if (bb.glyph) {
-      fxc.font = '700 14px ui-monospace, SFMono-Regular, Menlo, monospace'; fxc.textAlign = 'center'; fxc.textBaseline = 'middle';
+      fxc.font = '700 14px ' + MONO; fxc.textAlign = 'center'; fxc.textBaseline = 'middle';
       fxc.fillStyle = bb.c ?? '#ff5a1f'; fxc.fillText(bb.glyph, Math.round(bb.x), Math.round(bb.y));
       fxc.textBaseline = 'alphabetic';
       continue;
@@ -147,7 +146,7 @@ export function renderFx(g: Game, recent: boolean): void {
     const pu = g.popups[u]!;
     pu.life++; pu.y -= 0.8;
     if (pu.life >= pu.max) { g.popups.splice(u, 1); continue; }
-    fxc.font = '700 ' + (pu.size || 15) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
+    fxc.font = '700 ' + (pu.size || 15) + 'px ' + MONO;
     fxc.globalAlpha = pu.life > pu.max - 26 ? (pu.max - pu.life) / 26 : 1;
     fxc.fillStyle = pu.c || '#0b6bcb'; fxc.fillText(pu.text, pu.x, pu.y);
   }

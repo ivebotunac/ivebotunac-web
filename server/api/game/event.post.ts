@@ -1,4 +1,5 @@
-import { clientKey, createGameLimiter, nameRun, parseGameEvent, readEventBody, recordBoss, recordTeam, startRun } from '../../utils/game-stats'
+import { clientKey, createGameLimiter, parseGameEvent, readEventBody } from '../../utils/game-guard'
+import { nameRun, recordBoss, recordTeam, startRun } from '../../utils/game-stats'
 
 const limiter = createGameLimiter()
 

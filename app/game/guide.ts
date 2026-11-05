@@ -3,15 +3,16 @@ import { LINK_LINES, TUT_LINES, deployerLines, lastAgentLine, lastDeployerLine, 
 import { ROLES, ROLE_INFO } from './agents'
 import { CRITTERS } from './critters'
 import type { Game } from './core'
-import type { Role } from './types'
+import type { AgentRole } from './types'
 
 export type Skill = keyof typeof TUT_LINES
 
 // team: roles recruited; teamActiveMs: page time while the team was incomplete, summed over visits.
 // teamMs: the finished time; bossRun/bossRunMs: the fastest fight's server id and time; seen: forms met.
+// bossMs: the best boss fight time on this device; a restart clears it.
 export interface Memory {
-  learned: Skill[], best: number, pops: number, visits: number, team: Role[], teamActiveMs: number, teamMs: number | null,
-  bossRun: string | null, bossRunMs: number | null, seen: string[]
+  learned: Skill[], best: number, pops: number, visits: number, team: AgentRole[], teamActiveMs: number, teamMs: number | null,
+  bossRun: string | null, bossRunMs: number | null, seen: string[], bossMs: number | null
 }
 
 const KEY = 'ib-robot-v1'
@@ -20,7 +21,7 @@ const REPEAT = 2700
 const MAX_SAID = 3
 
 export function loadMemory(): Memory {
-  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamActiveMs: 0, teamMs: null, bossRun: null, bossRunMs: null, seen: [] }
+  const m: Memory = { learned: [], best: 0, pops: 0, visits: 0, team: [], teamActiveMs: 0, teamMs: null, bossRun: null, bossRunMs: null, seen: [], bossMs: null }
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
     if (Array.isArray(raw.learned)) m.learned = raw.learned
@@ -32,6 +33,7 @@ export function loadMemory(): Memory {
     if (typeof raw.teamMs === 'number') m.teamMs = raw.teamMs
     if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
     if (typeof raw.bossRunMs === 'number') m.bossRunMs = raw.bossRunMs
+    if (typeof raw.bossMs === 'number') m.bossMs = raw.bossMs
     if (Array.isArray(raw.seen)) m.seen = CRITTERS.filter(k => raw.seen.includes(k))
   } catch { /* storage blocked or corrupt: start fresh */ }
   m.visits++
@@ -120,7 +122,7 @@ export function linkLine(g: Game, href: string): void {
 }
 
 // Progress line after a recruit, naming its CV row if any; the sixth recruit gets the completion line.
-export function recruitLine(g: Game, role: Role, row = ''): string {
+export function recruitLine(g: Game, role: AgentRole, row = ''): string {
   learn(g, 'team')
   const left = ROLES.filter(r => !g.mem.team.includes(r))
   if (!left.length) return ''

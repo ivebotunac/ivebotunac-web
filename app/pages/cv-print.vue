@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { cv } from '~/data/cv'
 import type { YearMonth } from '~/types/cv'
-import { formatDuration, formatRange, orgSpan } from '~/utils/cv-dates'
+import { formatDuration, formatRange, orgSpan, toYearMonth } from '~/utils/cv-dates'
 
 // The A4 layout scripts/cv-pdf.mjs prints to public/ive-botunac-cv.pdf; same data, never indexed.
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Ive Botunac, CV', robots: 'noindex, nofollow' })
 useHead({ bodyAttrs: { style: 'background:#fff' } })
 
-const now = useState<YearMonth>('cv-print-now', () => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` as YearMonth
-})
+const now = useState<YearMonth>('cv-print-now', () => toYearMonth(new Date()))
 
 const SITE = 'ivebotunac.com'
 const EMAIL = 'info@techprimo.ai'

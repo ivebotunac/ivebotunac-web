@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
 import { getGameStats, postBoss, postTeam } from '~/game/stats-client'
 import type { GameStats } from '~/game/stats-client'
@@ -10,9 +10,6 @@ import TeamCard from './TeamCard.vue'
 
 // The game says a line when a CV section first comes into view.
 const activeSection = useActiveSection()
-
-// Renders after mount, so a path import skipping the .client wrapper still cannot SSR the teleport.
-const mounted = ref(false)
 
 const rageEl = ref<HTMLElement | null>(null)
 const fxEl = ref<HTMLCanvasElement | null>(null)
@@ -63,9 +60,7 @@ const bridge: QuestBridge = {
   }
 }
 
-onMounted(async () => {
-  mounted.value = true
-  await nextTick()
+onMounted(() => {
   const [rage, fx, trend, pet, bubble, canvas] = [rageEl.value, fxEl.value, trendEl.value, petEl.value, bubbleEl.value, canvasEl.value]
   if (!rage || !fx || !trend || !pet || !bubble || !canvas) return
   start({ pet, canvas, bubble, trend, fx, rage }, () => activeSection.value, bridge)
@@ -76,7 +71,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 
 <template>
   <!-- On body, so no transformed or stacking ancestor can capture the fixed layers. -->
-  <Teleport v-if="mounted" to="body">
+  <Teleport to="body">
     <div class="ambient" aria-hidden="true">
       <div ref="rageEl" class="rage" />
       <canvas ref="fxEl" class="fx" />

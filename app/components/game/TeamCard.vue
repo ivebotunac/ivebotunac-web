@@ -3,8 +3,10 @@ import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { mdiClose, mdiLinkedin } from '@mdi/js'
 import { ROLES, drawAgent } from '~/game/agents'
 import type { GameStats } from '~/game/stats-client'
+import { GAME_EVENTS } from '~/game/types'
 import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
+import { cv } from '~/data/cv'
 import PnIcon from '~/components/ui/PnIcon.vue'
 import LeaderBoard from './LeaderBoard.vue'
 import FormsGrid from './FormsGrid.vue'
@@ -16,8 +18,8 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'stats', s: GameStats): void }>()
 
-const LINKEDIN = 'https://www.linkedin.com/in/ivebotunac'
-const X = 'https://x.com/ivebotunac'
+const LINKEDIN = cv.contacts.find(c => c.label === 'LinkedIn')?.href
+const X = cv.contacts.find(c => c.label === 'X')?.href
 // The X logo; @mdi/js only has the old Twitter bird.
 const X_LOGO = 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'
 const PDF = '/ive-botunac-cv.pdf'
@@ -80,7 +82,7 @@ function dismiss() {
 function fight() {
   cta('fight_agi')
   emit('close')
-  nextTick(() => window.dispatchEvent(new CustomEvent('game:fight-agi')))
+  nextTick(() => window.dispatchEvent(new CustomEvent(GAME_EVENTS.fight)))
 }
 
 // Restart asks once more, then clears this device's game and closes the card.
@@ -88,7 +90,7 @@ const confirming = ref(false)
 function restart() {
   confirming.value = false
   emit('close')
-  nextTick(() => window.dispatchEvent(new CustomEvent('game:restart')))
+  nextTick(() => window.dispatchEvent(new CustomEvent(GAME_EVENTS.restart)))
 }
 
 // Esc: cancelled so the parent's state stays the one source of truth.
@@ -116,8 +118,6 @@ function onKeydown(e: KeyboardEvent) {
   <dialog
     ref="dialogEl"
     class="tcard"
-    role="dialog"
-    aria-modal="true"
     :aria-labelledby="titleId"
     data-game-ui
     @cancel="onCancel"
@@ -292,7 +292,8 @@ function onKeydown(e: KeyboardEvent) {
   box-shadow: 3px 3px 0 0 var(--pn-shadow-offset-hover);
 }
 
-.tcard__btn:focus-visible {
+.tcard__btn:focus-visible,
+.tcard__close:focus-visible {
   outline: var(--pn-focus-width) solid var(--pn-focus-ring);
   outline-offset: var(--pn-focus-offset);
 }
@@ -361,11 +362,6 @@ function onKeydown(e: KeyboardEvent) {
 .tcard__close:hover {
   border-color: var(--pn-error);
   background-color: rgba(224, 72, 63, 0.08);
-}
-
-.tcard__close:focus-visible {
-  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
-  outline-offset: var(--pn-focus-offset);
 }
 
 .tcard__reset {

@@ -1,5 +1,3 @@
-import type { Game } from './core'
-
 // The elements the component renders and hands to start().
 export interface GameRefs {
   pet: HTMLElement
@@ -15,6 +13,8 @@ export type AttackKind = 'bullets' | 'beam' | 'melee' | 'ball'
 export type AttackPhase = 'approach' | 'return'
 
 export interface Point { x: number, y: number }
+// Fills one sprite cell rectangle: the robot's and the agents' pixel art draw through it.
+export type Pxl = (x: number, y: number, w: number, h: number, c: string) => void
 
 export interface Spark { x: number, y: number, vx: number, vy: number, life: number, max: number, c: string }
 export interface Beam { x1: number, y1: number, x2: number, y2: number, life: number, max: number, c: string }
@@ -32,19 +32,20 @@ export interface Press { sx: number, sy: number, x: number, y: number, ox: numbe
 export interface Carry { kind: 'agent' | 'trend', m: TeamMember | null, sx: number, sy: number, ox: number, oy: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
 
 // The "Assemble the team" quest
-export type Role = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' | 'deployer'
+// Window events between the Vue UI and the game loop.
+export const GAME_EVENTS = { fight: 'game:fight-agi', endFight: 'game:end-fight', restart: 'game:restart' } as const
+
+export type AgentRole = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' | 'deployer'
 // A recruited sub-agent trailing the robot; `tx`/`ty`: its formation spot, `cd`: behaviour cooldown.
 // `note`/`noteT`: a speech popup; `held` while carried; `air`: throw ticks left at `vx`/`vy`; `rot`: spin.
-export interface TeamMember { role: Role, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number, struck: boolean }
-// Runs once per tick per member, before formation; returning true means it moved the member itself.
-export type TeamBehaviour = (g: Game, m: TeamMember) => boolean
+export interface TeamMember { role: AgentRole, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number, struck: boolean }
 // An agent popped out of an opened CV row, waiting for a click; it follows the row as the page scrolls.
-export interface Peek { role: Role, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
+export interface Peek { role: AgentRole, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
 export interface Confetti { x: number, y: number, vx: number, vy: number, rot: number, vr: number, c: string, life: number, max: number }
 // What the HUD shows; the component holds it reactively.
 // bossRun: the fastest finished boss fight the card shows and offers to sign; bossMs: its time.
 // seen: the critter forms this visitor has met, for the collection grid.
-export interface QuestView { team: Role[], done: boolean, ms: number | null, bossRun: string | null, bossMs: number | null, boss: boolean, seen: string[] }
+export interface QuestView { team: AgentRole[], done: boolean, ms: number | null, bossRun: string | null, bossMs: number | null, boss: boolean, seen: string[] }
 // The game's way out to the Vue layer: HUD state, screen-reader lines, and the finished team.
 export interface QuestBridge {
   view(v: QuestView): void
@@ -61,7 +62,7 @@ export interface QuestBridge {
 // A team projectile: `boss` shots fly at the boss and damage it, the rest at the cursor.
 export interface Shot { x: number, y: number, vx: number, vy: number, life: number, max: number, c: string, dmg: number, boss: boolean }
 // A small glyph tied to a member: the Analyst's rising chart or the Researcher's reading sparkle.
-export interface Glyph { kind: 'chart' | 'sparkle', role: Role, x: number, y: number, life: number, max: number }
+export interface Glyph { kind: 'chart' | 'sparkle', role: AgentRole, x: number, y: number, life: number, max: number }
 export interface Rocket { x: number, y: number, vx: number, vy: number, life: number, max: number, boss: boolean }
 export interface Crew { shots: Shot[], glyphs: Glyph[], rockets: Rocket[], lx: number, ly: number, vx: number, vy: number, plan: number }
 

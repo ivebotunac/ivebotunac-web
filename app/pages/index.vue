@@ -19,8 +19,8 @@ import CvCertifications from '~/components/cv/CvCertifications.vue'
 import CvSkills from '~/components/cv/CvSkills.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
 
-// A path import skips .client, so ClientOnly plus a lazy chunk keep the game off the server.
-const AmbientGame = defineAsyncComponent(() => import('~/components/game/AmbientGame.client.vue'))
+// ClientOnly plus a lazy chunk keep the game off the server.
+const AmbientGame = defineAsyncComponent(() => import('~/components/game/AmbientGame.vue'))
 
 useCvSeo()
 

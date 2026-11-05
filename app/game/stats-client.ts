@@ -1,28 +1,8 @@
 // Counters and the board from /api/game; failures and the 4 s timeout resolve null so the game never hangs.
 // postName alone returns the failed HTTP status instead.
-export interface BoardEntry {
-  initials: string
-  ms: number
-  mine: boolean
-}
+import type { GameStats } from '~~/shared/types/game-stats'
 
-export interface MyRun {
-  ms: number
-  // the time these initials hold on the board, which can be an earlier, faster run
-  best: number | null
-  place: number
-  initials: string | null
-}
-
-export interface GameStats {
-  teams: number
-  bestMs: number | null
-  fasterThanPct: number | null
-  rank: number | null
-  // the AGI board, and the visitor's fight on it
-  board: BoardEntry[]
-  mine: MyRun | null
-}
+export type { BoardEntry, GameStats, MyRun } from '~~/shared/types/game-stats'
 
 const TIMEOUT_MS = 4000
 

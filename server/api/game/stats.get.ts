@@ -1,4 +1,5 @@
-import { GLOBAL_READS_PER_MIN, clientKey, createGameLimiter, parseRun, readGameStats } from '../../utils/game-stats'
+import { GLOBAL_READS_PER_MIN, clientKey, createGameLimiter, parseRun } from '../../utils/game-guard'
+import { readGameStats } from '../../utils/game-stats'
 
 const limiter = createGameLimiter(GLOBAL_READS_PER_MIN)
 

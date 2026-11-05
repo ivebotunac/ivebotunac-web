@@ -35,6 +35,15 @@ export const col: Palette = {
   spark: ['#ff5a1f', '#36c6e0', '#ffffff']
 }
 
+export const INK = '#0c2236'
+export const PAPER = '#f5f9fd'
+export const CYAN = '#36c6e0'
+export const ORANGE = '#ff5a1f'
+export const YELLOW = '#ffd23b'
+// Debris and burst colours: the brand palette plus the robot's body blue.
+export const BRAND: string[] = [INK, CYAN, ORANGE, PAPER, '#3b7cc0']
+export const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace'
+
 // Responsive floor 0.9 keeps it clearly visible on phones.
 export function dispScale(W: number): number {
   return BASE * Math.max(0.9, Math.min(1, W / 720))
@@ -156,4 +165,13 @@ export function rand(a: number, b: number): number {
 
 export function pick<T>(a: readonly T[]): T {
   return a[(Math.random() * a.length) | 0] as T
+}
+
+export function clamp(v: number, a: number, b: number): number {
+  return Math.max(a, Math.min(b, v))
+}
+
+// `base` plus a random whole number below `spread`: the jitter on every cooldown and timer.
+export function vary(base: number, spread: number): number {
+  return base + (rand(0, spread) | 0)
 }

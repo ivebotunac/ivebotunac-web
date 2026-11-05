@@ -1,12 +1,13 @@
 // The six sub-agents: who they are, where they hide, and their 16x16 sprites drawn onto the fx canvas.
-import type { Role } from './types'
+import { CYAN, INK, ORANGE, PAPER, YELLOW } from './config'
+import type { Pxl, AgentRole } from './types'
 
 export interface RoleInfo { label: string, section: string | null, where: string, c: string }
 
-export const ROLES: readonly Role[] = ['planner', 'researcher', 'analyst', 'reviewer', 'coder', 'deployer']
+export const ROLES: readonly AgentRole[] = ['planner', 'researcher', 'analyst', 'reviewer', 'coder', 'deployer']
 
 // `section` is the CV section id the agent hides in; the Deployer is earned by popping the robot.
-export const ROLE_INFO: Record<Role, RoleInfo> = {
+export const ROLE_INFO: Record<AgentRole, RoleInfo> = {
   planner: { label: 'Planner', section: 'experience', where: 'Experience', c: '#36c6e0' },
   researcher: { label: 'Researcher', section: 'publications', where: 'Publications', c: '#0b6bcb' },
   analyst: { label: 'Analyst', section: 'education', where: 'Education', c: '#9b6bff' },
@@ -15,17 +16,9 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
   deployer: { label: 'Deployer', section: null, where: 'a popped robot', c: '#ffd23b' }
 }
 
-const INK = '#0c2236'
-const PAPER = '#f5f9fd'
-const CYAN = '#36c6e0'
-const ORANGE = '#ff5a1f'
-const YELLOW = '#ffd23b'
-
-type P = (x: number, y: number, w: number, h: number, c: string) => void
-
 interface Look { body: string, dark: string, eye: string }
 
-const LOOK: Record<Role, Look> = {
+const LOOK: Record<AgentRole, Look> = {
   planner: { body: CYAN, dark: '#1fa9c2', eye: PAPER },
   researcher: { body: '#0b6bcb', dark: '#0a559e', eye: CYAN },
   analyst: { body: '#9b6bff', dark: '#6f45d9', eye: PAPER },
@@ -35,7 +28,7 @@ const LOOK: Record<Role, Look> = {
 }
 
 // The shared chassis: a screen-faced head, a small torso and two hover jets.
-function chassis(P: P, k: Look, blink: boolean, jets: boolean, flick: boolean): void {
+function chassis(P: Pxl, k: Look, blink: boolean, jets: boolean, flick: boolean): void {
   P(4, 3, 8, 6, k.body); P(4, 8, 8, 1, k.dark);
   P(5, 4, 6, 3, INK);
   if (blink) { P(6, 6, 1, 1, k.eye); P(9, 6, 1, 1, k.eye); } else { P(6, 5, 1, 1, k.eye); P(9, 5, 1, 1, k.eye); }
@@ -45,14 +38,14 @@ function chassis(P: P, k: Look, blink: boolean, jets: boolean, flick: boolean): 
 }
 
 // Planner: a flag antenna and a clipboard.
-function planner(P: P, k: Look, blink: boolean, t: number): void {
+function planner(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4);
   P(7, 0, 1, 3, k.dark); P(8, 0, 2, 1, ORANGE); P(8, 1, 1, 1, ORANGE);
   P(12, 8, 3, 4, '#ffffff'); P(13, 8, 1, 1, INK); P(12, 9, 2, 1, '#93a8bc'); P(12, 10, 3, 1, '#93a8bc');
 }
 
 // Researcher: a bulb antenna and a magnifying glass.
-function researcher(P: P, k: Look, blink: boolean, t: number): void {
+function researcher(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4);
   P(8, 1, 1, 2, k.dark); P(8, 0, 1, 1, t % 50 < 30 ? CYAN : PAPER);
   P(13, 6, 2, 1, INK); P(12, 7, 1, 2, INK); P(15, 7, 1, 2, INK); P(13, 9, 2, 1, INK);
@@ -60,7 +53,7 @@ function researcher(P: P, k: Look, blink: boolean, t: number): void {
 }
 
 // Analyst: round goggles and a bar chart on the chest.
-function analyst(P: P, k: Look, blink: boolean, t: number): void {
+function analyst(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4);
   P(3, 4, 1, 3, k.dark); P(12, 4, 1, 3, k.dark);
   if (blink) { P(5, 5, 2, 1, PAPER); P(9, 5, 2, 1, PAPER); }
@@ -69,7 +62,7 @@ function analyst(P: P, k: Look, blink: boolean, t: number): void {
 }
 
 // Reviewer: a check mark on the chest and a pen in hand.
-function reviewer(P: P, k: Look, blink: boolean, t: number): void {
+function reviewer(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4);
   P(8, 1, 1, 2, k.dark); P(8, 0, 1, 1, '#ffffff');
   P(6, 10, 1, 1, '#ffffff'); P(7, 11, 1, 1, '#ffffff'); P(8, 10, 1, 1, '#ffffff'); P(9, 9, 1, 1, '#ffffff');
@@ -77,7 +70,7 @@ function reviewer(P: P, k: Look, blink: boolean, t: number): void {
 }
 
 // Coder: headphones and a blinking prompt on the chest.
-function coder(P: P, k: Look, blink: boolean, t: number): void {
+function coder(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4);
   P(4, 2, 8, 1, ORANGE); P(3, 3, 1, 1, ORANGE); P(12, 3, 1, 1, ORANGE); P(3, 4, 1, 3, ORANGE); P(12, 4, 1, 3, ORANGE);
   P(6, 9, 1, 1, CYAN); P(7, 10, 1, 1, CYAN); P(6, 11, 1, 1, CYAN);
@@ -85,7 +78,7 @@ function coder(P: P, k: Look, blink: boolean, t: number): void {
 }
 
 // Deployer: a striped helmet, side fins and a rocket flame instead of jets.
-function deployer(P: P, k: Look, blink: boolean, t: number): void {
+function deployer(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, false, false);
   P(4, 3, 8, 1, ORANGE); P(8, 1, 1, 2, k.dark); P(7, 0, 3, 1, ORANGE);
   P(3, 9, 1, 3, ORANGE); P(12, 9, 1, 3, ORANGE);
@@ -93,12 +86,12 @@ function deployer(P: P, k: Look, blink: boolean, t: number): void {
   if (t % 6 < 3) P(7, 15, 2, 1, ORANGE);
 }
 
-const RECIPE: Record<Role, (P: P, k: Look, blink: boolean, t: number) => void> = { planner, researcher, analyst, reviewer, coder, deployer }
+const RECIPE: Record<AgentRole, (P: Pxl, k: Look, blink: boolean, t: number) => void> = { planner, researcher, analyst, reviewer, coder, deployer }
 
 // Centred on (cx, cy) at `p` screen pixels per grid cell; dir -1 mirrors it. `seed` staggers blinks.
-export function drawAgent(c: CanvasRenderingContext2D, role: Role, cx: number, cy: number, p: number, dir: number, t: number, seed: number): void {
+export function drawAgent(c: CanvasRenderingContext2D, role: AgentRole, cx: number, cy: number, p: number, dir: number, t: number, seed: number): void {
   const x0 = Math.round(cx - 8 * p), y0 = Math.round(cy - 8 * p);
-  const P: P = dir < 0
+  const P: Pxl = dir < 0
     ? (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x0 + Math.round((16 - x - w) * p), y0 + Math.round(y * p), Math.ceil(w * p), Math.ceil(h * p)); }
     : (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x0 + Math.round(x * p), y0 + Math.round(y * p), Math.ceil(w * p), Math.ceil(h * p)); };
   const blink = (t + seed * 53) % 190 < 7;

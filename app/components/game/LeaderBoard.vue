@@ -4,6 +4,7 @@ import { postName } from '~/game/stats-client'
 import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
 import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
+import { BOARD_SIZE } from '~~/shared/utils/game-stats'
 
 // The AGI top ten, five a page, with a three-letter signature for the visitor's fight (run).
 // loading: until the board answers, a full page of grey rows and the pager hold their place.
@@ -11,8 +12,7 @@ const props = defineProps<{ board: BoardEntry[], mine: MyRun | null, run: string
 const emit = defineEmits<{ (e: 'stats', s: GameStats): void }>()
 
 const PAGE_SIZE = 5
-// BOARD_SIZE on the server, so a full board has these pages
-const SKELETON_PAGES = 2
+const SKELETON_PAGES = Math.ceil(BOARD_SIZE / PAGE_SIZE)
 
 const page = ref(0)
 const pages = computed(() => Math.ceil(props.board.length / PAGE_SIZE))

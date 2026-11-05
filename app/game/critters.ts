@@ -1,6 +1,6 @@
 // Critter forms: sprites from ./critters baked per mood, plus each one's gait, particles, quirk and lines.
 // A critter's key and file name are its own name; the page shows its label and lines.
-import { pick, rand } from './config'
+import { col, pick, rand, vary } from './config'
 import type { Mood, Palette } from './config'
 import { fxBurst } from './effects'
 import type { Game } from './core'
@@ -36,7 +36,6 @@ export const critter = (form: string): Sprite | undefined => SPRITES[form]
 const EVOLVES: Record<string, string> = { neurlet: 'deepnet' }
 
 const N = 24
-const DIZZY = '#9fb3c6'
 type Eyes = Mood | 'blink'
 
 const PARTICLES: Record<Exclude<Particle, 'none'>, { t: string[], c: string }> = {
@@ -81,7 +80,7 @@ function bake(s: Sprite, frame: 'idle' | 'walk', eyes: Eyes): HTMLCanvasElement 
     else if (eyes === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
     else {
       const o = x - 1
-      put(o, y - 1, DIZZY); put(o + 2, y - 1, DIZZY); put(o + 1, y, DIZZY); put(o, y + 1, DIZZY); put(o + 2, y + 1, DIZZY)
+      put(o, y - 1, col.dizzy); put(o + 2, y - 1, col.dizzy); put(o + 1, y, col.dizzy); put(o, y + 1, col.dizzy); put(o + 2, y + 1, col.dizzy)
     }
   }
   return cv
@@ -207,7 +206,7 @@ export function tickCritter(g: Game, calm: boolean): void {
   const top = g.pos.y - 22 * g.size() * g.DS
   if (s.trait.particle !== 'none' && --g.partCD <= 0) {
     const p = PARTICLES[s.trait.particle]
-    g.partCD = 36 + (rand(0, 40) | 0)
+    g.partCD = vary(36, 40)
     g.popups.push({ x: g.pos.x + rand(-18, 18) * g.size(), y: top + rand(0, 20), text: pick(p.t), life: 0, max: 46, c: p.c, size: 12 })
   }
   const a = g.act
@@ -227,7 +226,7 @@ export function tickCritter(g: Game, calm: boolean): void {
     return
   }
   if (!calm || --g.actCD > 0) return
-  g.actCD = 360 + (rand(0, 480) | 0)
+  g.actCD = vary(360, 480)
   const q = s.trait.quirk, t = ACT_T[q]
   if (!t) return
   g.act = { kind: q, t }

@@ -19,13 +19,7 @@ useSchemaOrg([
       addressLocality: 'Zadar',
       addressCountry: 'HR'
     },
-    sameAs: [
-      'https://www.linkedin.com/in/ivebotunac',
-      'https://scholar.google.com/citations?user=Yr-Z7D0AAAAJ',
-      'https://orcid.org/0000-0003-3561-7089',
-      'https://github.com/ivebotunac',
-      'https://x.com/ivebotunac'
-    ],
+    sameAs: cv.contacts.map(c => c.href),
     worksFor: [
       { '@type': 'Organization' as const, name: 'Primo Technology Ltd.', url: 'https://techprimo.ai' },
       { '@type': 'Organization' as const, name: 'ALFATEC Group', url: 'https://alfatec.ai' },

@@ -1,15 +1,17 @@
 // "Assemble the team": six sub-agents hide in CV rows; once recruited, they trail the robot.
-import { CONFETTI, formAllLine, formSeenLines, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines } from './config'
+import { CONFETTI, clamp, formAllLine, formSeenLines, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines, vary } from './config'
 import { CRITTERS } from './critters'
 import { ROLES, ROLE_INFO, drawAgent } from './agents'
 import { fxBurst } from './effects'
 import { recruitLine, saveMemory } from './guide'
-import { bossFighting, drawBoss, drawBossOver, tickBoss } from './boss'
+import { bossFighting, tickBoss } from './boss'
+import { drawBoss, drawBossOver } from './boss-draw'
 import { deployRocket, drawCrew, drawPlanPath, flyAgent, teamBehaviour, tickCrew } from './team'
 import { track } from '~/utils/track'
 import { drawScorch, healNow, tickScorch } from './scorch'
 import type { Game } from './core'
-import type { Peek, Role } from './types'
+import { GAME_EVENTS } from './types'
+import type { AgentRole, Peek } from './types'
 
 // Ticks: pop-out, the wait for a click (a minute at most, or until its row closes), duck-in, fly-by.
 const OUT = 24
@@ -28,8 +30,7 @@ let lastNow = 0;
 // the formation's bob, which holds still while the robot sleeps
 let drift = 0;
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const roleFor = (section: string): Role | undefined => ROLES.find(r => ROLE_INFO[r].section === section);
+const roleFor = (section: string): AgentRole | undefined => ROLES.find(r => ROLE_INFO[r].section === section);
 // Popped robots cannot talk; their line waits for the respawn.
 export function speak(g: Game, line: string): void {
   if (!line) return;
@@ -63,12 +64,11 @@ function pickHides(g: Game): void {
   }
 }
 
-function addMember(g: Game, role: Role, x: number, y: number): void {
-  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: 300 + (rand(0, 600) | 0), note: '', noteT: 0, held: false, air: 0, vx: 0, vy: 0, rot: 0, struck: false });
+function addMember(g: Game, role: AgentRole, x: number, y: number): void {
+  g.team.push({ role, x, y, tx: x, ty: y, dir: 1, slot: g.team.length, cd: vary(300, 600), note: '', noteT: 0, held: false, air: 0, vx: 0, vy: 0, rot: 0, struck: false });
 }
 
 export function initQuest(g: Game): void {
-  g.teamBehaviours.push(teamBehaviour);
   for (const r of g.mem.team) addMember(g, r, g.pos.x + rand(-40, 40), g.pos.y + rand(-30, 30));
   pickHides(g);
   syncQuest(g);
@@ -100,7 +100,7 @@ function placePeek(g: Game, pk: Peek): void {
   pk.y = a.y - 26 * peekScale(pk) + (wait ? Math.sin(pk.life * 0.09) * 4 : 0);
 }
 
-function spawnPeek(g: Game, role: Role, row: HTMLDetailsElement): void {
+function spawnPeek(g: Game, role: AgentRole, row: HTMLDetailsElement): void {
   if (g.peeks.some(p => p.role === role)) return;
   const pk: Peek = { role, row, x: 0, y: 0, ox: rand(0.55, 0.8), life: 0, phase: 'out' };
   placePeek(g, pk);
@@ -145,7 +145,7 @@ export function questPop(g: Game, x: number, y: number): void {
 }
 
 // A keyboard open recruits at once; no pointer can pop the robot, so the last row brings the Deployer.
-function recruitByKey(g: Game, role: Role, row: HTMLDetailsElement): void {
+function recruitByKey(g: Game, role: AgentRole, row: HTMLDetailsElement): void {
   const { x, y } = rowPoint(g, row, 0.7);
   let text = recruit(g, role, x, y, row);
   if (ROLES.every(r => r === 'deployer' || g.mem.team.includes(r)) && !g.mem.team.includes('deployer')) text += ' ' + recruit(g, 'deployer', x, y + 30);
@@ -153,7 +153,7 @@ function recruitByKey(g: Game, role: Role, row: HTMLDetailsElement): void {
 }
 
 // Returns the screen-reader line for the caller to announce.
-function recruit(g: Game, role: Role, x: number, y: number, row: HTMLDetailsElement | null = null): string {
+function recruit(g: Game, role: AgentRole, x: number, y: number, row: HTMLDetailsElement | null = null): string {
   const m = g.mem, info = ROLE_INFO[role];
   if (m.team.includes(role)) return '';
   m.team.push(role);
@@ -183,7 +183,7 @@ function recruit(g: Game, role: Role, x: number, y: number, row: HTMLDetailsElem
 export function confetti(g: Game, n: number, x: number | null, y: number): void {
   for (let i = 0; i < n && g.confetti.length < MAX_CONFETTI; i++) {
     const a = rand(-Math.PI, 0), sp = x === null ? rand(0.5, 2) : rand(2, 5);
-    g.confetti.push({ x: x ?? rand(0, g.W), y, vx: Math.cos(a) * sp, vy: x === null ? rand(0, 1.5) : Math.sin(a) * sp, rot: rand(0, 6), vr: rand(-0.3, 0.3), c: pick(CONFETTI), life: 0, max: 150 + (rand(0, 90) | 0) });
+    g.confetti.push({ x: x ?? rand(0, g.W), y, vx: Math.cos(a) * sp, vy: x === null ? rand(0, 1.5) : Math.sin(a) * sp, rot: rand(0, 6), vr: rand(-0.3, 0.3), c: pick(CONFETTI), life: 0, max: vary(150, 90) });
   }
 }
 
@@ -220,7 +220,7 @@ export function tickQuest(g: Game): void {
     const m = g.team[i]!, row = (i >> 1) + 1, side = i % 2 ? 1 : -1;
     m.tx = clamp(g.pos.x - g.dir * (reach + row * 28 * g.DS), 20, g.W - 20);
     m.ty = clamp(g.pos.y + side * (8 + row * 7) * g.DS - 4 * g.DS + Math.sin(drift * 0.06 + i * 1.3) * 4, 20, g.H - 20);
-    if (flyAgent(g, m) || g.teamBehaviours.some(b => b(g, m))) continue;
+    if (flyAgent(g, m) || teamBehaviour(g, m)) continue;
     const px = m.x, k = 0.085 - i * 0.008;
     m.x += (m.tx - m.x) * k; m.y += (m.ty - m.y) * k;
     const dx = m.x - px;
@@ -294,7 +294,7 @@ export function bindQuest(g: Game): () => void {
   window.addEventListener('keydown', onKey, true);
   window.addEventListener('pointerdown', onPointer, true);
   document.addEventListener('visibilitychange', onVisible);
-  window.addEventListener('game:restart', onRestart);
+  window.addEventListener(GAME_EVENTS.restart, onRestart);
   window.addEventListener('beforeprint', onBefore);
   window.addEventListener('afterprint', onAfter);
   return () => {
@@ -304,7 +304,7 @@ export function bindQuest(g: Game): () => void {
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('pointerdown', onPointer, true);
     document.removeEventListener('visibilitychange', onVisible);
-    window.removeEventListener('game:restart', onRestart);
+    window.removeEventListener(GAME_EVENTS.restart, onRestart);
     window.removeEventListener('beforeprint', onBefore);
     window.removeEventListener('afterprint', onAfter);
   };

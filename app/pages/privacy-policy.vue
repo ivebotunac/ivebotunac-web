@@ -6,7 +6,7 @@ const siteUrl = site.url
 const pageUrl = `${siteUrl}/privacy-policy`
 const pageTitle = 'Privacy Policy | Ive Botunac'
 const pageDescription = 'How Primo Technology Ltd. handles personal data on ivebotunac.com: hosting logs, Google Analytics, email you send, how long it is kept and your rights.'
-const image = CV_SHARE_IMAGE ? `${siteUrl}${CV_SHARE_IMAGE}` : undefined
+const image = `${siteUrl}${CV_SHARE_IMAGE}`
 
 const { loadGoogleAnalytics } = useGoogleAnalytics()
 
@@ -25,10 +25,10 @@ useSeoMeta({
   ogUrl: pageUrl,
   ogSiteName: site.name,
   ogImage: image,
-  ogImageWidth: image ? 1200 : undefined,
-  ogImageHeight: image ? 630 : undefined,
-  ogImageType: image ? 'image/jpeg' : undefined,
-  ogImageAlt: image ? CV_TITLE : undefined,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageType: 'image/jpeg',
+  ogImageAlt: CV_TITLE,
   twitterCard: 'summary_large_image',
   twitterTitle: pageTitle,
   twitterDescription: pageDescription,

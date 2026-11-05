@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { ROLES, ROLE_INFO } from '~/game/agents'
-import type { Role } from '~/game/types'
+import { GAME_EVENTS } from '~/game/types'
+import type { AgentRole } from '~/game/types'
 import { mdiClose } from '@mdi/js'
-import { useActiveSection } from '~/composables/useActiveSection'
+import { useScrollToSection } from '~/composables/useActiveSection'
 import PnIcon from '~/components/ui/PnIcon.vue'
 import FormsGrid from './FormsGrid.vue'
 
-const props = defineProps<{ team: Role[], done: boolean, boss?: boolean, seen: string[], announce: string }>()
+const props = defineProps<{ team: AgentRole[], done: boolean, boss?: boolean, seen: string[], announce: string }>()
 const emit = defineEmits<{ (e: 'card'): void }>()
 
-const active = useActiveSection()
+const scrollToSection = useScrollToSection()
 const open = ref(false)
 const rootEl = ref<HTMLElement | null>(null)
 const chipEl = ref<HTMLButtonElement | null>(null)
 const panelId = useId()
 
-const has = (r: Role) => props.team.includes(r)
+const has = (r: AgentRole) => props.team.includes(r)
 const count = computed(() => props.team.length)
 
 // First visit only: after a few seconds a tip says what the chip is; gone once closed or used.
@@ -48,7 +49,7 @@ const onChip = () => {
 // The game listens on window for the event the team card sends; during a fight this button ends it.
 const fight = () => {
   open.value = false
-  window.dispatchEvent(new CustomEvent(props.boss ? 'game:end-fight' : 'game:fight-agi'))
+  window.dispatchEvent(new CustomEvent(props.boss ? GAME_EVENTS.endFight : GAME_EVENTS.fight))
 }
 
 // Restart asks once more inside the panel, so a stray tap cannot wipe the progress.
@@ -56,7 +57,7 @@ const confirming = ref(false)
 const restart = () => {
   confirming.value = false
   close(true)
-  window.dispatchEvent(new CustomEvent('game:restart'))
+  window.dispatchEvent(new CustomEvent(GAME_EVENTS.restart))
 }
 
 const close = (refocus: boolean) => {
@@ -83,22 +84,15 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onOutside, true)
 })
 
-// Same as the rail index: scroll without the router, keep the hash, hand focus to the section.
 const goTo = (id: string) => {
   close(false)
-  const el = document.getElementById(id)
-  if (!el) return
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  history.replaceState(history.state, '', `#${id}`)
-  el.focus({ preventScroll: true })
-  active.value = id
+  scrollToSection(id)
 }
 </script>
 
 <template>
   <div ref="rootEl" class="qhud" data-game-ui @keydown="onKey">
-    <p class="qhud__live" role="status">{{ announce }}</p>
+    <p class="cv-sr-only" role="status">{{ announce }}</p>
 
     <div v-if="tip && !open" class="qhud__tip">
       <p class="qhud__tip-text">Six of my AI sub-agents are hiding in this CV. Open its rows to find them.</p>
@@ -121,7 +115,7 @@ const goTo = (id: string) => {
       <span class="qhud__slots" aria-hidden="true">
         <span v-for="r in ROLES" :key="r" class="qhud__slot qhud__slot--sm" :class="{ 'is-on': has(r) }" :style="{ '--slot': ROLE_INFO[r].c }" />
       </span>
-      <span class="qhud__vh">{{ done ? ', team assembled. Open the team card' : ', show where the sub-agents hide' }}</span>
+      <span class="cv-sr-only">{{ done ? ', team assembled. Open the team card' : ', show where the sub-agents hide' }}</span>
     </button>
     <!-- Stays mounted through the fight, so keyboard focus is not dropped when it changes role. -->
     <button v-if="done" type="button" class="qhud__fight" @click="fight">{{ boss ? 'End fight' : 'Fight AGI' }}</button>
@@ -166,42 +160,34 @@ const goTo = (id: string) => {
   color: var(--pn-text);
 }
 
-.qhud__live,
-.qhud__vh {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 /* 36px tall to look like a chip; the ::before pad makes the touch target 44px. */
-.qhud__chip {
+.qhud__chip,
+.qhud__fight {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   min-height: 36px;
   padding: 0 10px;
   background-color: var(--pn-surface);
   color: var(--pn-text);
-  border: 1px solid var(--pn-border-brand);
   border-radius: 0;
   box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
-  font: 500 .68rem/1 var(--pn-font);
   letter-spacing: .08em;
   cursor: pointer;
-  transition: box-shadow var(--pn-motion-fast) var(--pn-ease-out), border-color var(--pn-motion-fast) var(--pn-ease-out);
 }
 
-.qhud__chip::before {
+.qhud__chip::before,
+.qhud__fight::before {
   content: "";
   position: absolute;
   inset: -4px;
+}
+
+.qhud__chip {
+  gap: 8px;
+  border: 1px solid var(--pn-border-brand);
+  font: 500 .68rem/1 var(--pn-font);
+  transition: box-shadow var(--pn-motion-fast) var(--pn-ease-out), border-color var(--pn-motion-fast) var(--pn-ease-out);
 }
 
 .qhud__chip:hover {
@@ -218,30 +204,13 @@ const goTo = (id: string) => {
 
 .qhud__chip[aria-expanded="true"] { border-color: var(--pn-text); }
 
-/* Same chip shape in the accent; the ::before pad makes the touch target 44px. */
+/* Same chip shape in the accent. */
 .qhud__fight {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
   margin-left: 8px;
-  padding: 0 10px;
-  background-color: var(--pn-surface);
-  color: var(--pn-text);
   border: 1px solid var(--pn-accent-display);
-  border-radius: 0;
-  box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
   font: 600 .68rem/1 var(--pn-font);
-  letter-spacing: .08em;
   text-transform: uppercase;
-  cursor: pointer;
   transition: box-shadow var(--pn-motion-fast) var(--pn-ease-out);
-}
-
-.qhud__fight::before {
-  content: "";
-  position: absolute;
-  inset: -4px;
 }
 
 .qhud__fight:hover { box-shadow: 5px 5px 0 0 var(--pn-shadow-offset-hover); }
@@ -400,11 +369,11 @@ const goTo = (id: string) => {
 
 .qhud__where:hover { color: var(--pn-link-hover); text-decoration-color: currentColor; }
 
-/* Restart sits under the list, quiet until asked to confirm. */
 .qhud__forms {
   margin-top: 10px;
 }
 
+/* Restart sits under the list, quiet until asked to confirm. */
 .qhud__reset {
   display: flex;
   flex-wrap: wrap;

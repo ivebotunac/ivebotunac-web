@@ -1,11 +1,11 @@
 // What a recruited team does besides following the robot, on the fx canvas, rate-limited and capped.
-import { agentBossHitLines, agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, pick, rand, reviewLines } from './config'
+import { MONO, agentBossHitLines, agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, clamp, pick, rand, reviewLines, vary } from './config'
 import { ROLE_INFO } from './agents'
 import { feedback, fireBeam, fxBurst } from './effects'
 import { knockTrend } from './actions'
 import { bossFighting, bossR, hurtBoss } from './boss'
 import type { Game } from './core'
-import type { Glyph, Role, TeamBehaviour, TeamMember } from './types'
+import type { Glyph, AgentRole, TeamMember } from './types'
 
 const MAX_SHOTS = 24
 const MAX_GLYPHS = 6
@@ -13,11 +13,9 @@ const MAX_ROCKETS = 3
 // fxp is shared with every burst, so rocket trails stop feeding it past this
 const MAX_TRAIL = 260
 const NOTE = 150
-const FONT = '700 10px ui-monospace, SFMono-Regular, Menlo, monospace'
+const FONT = '700 10px ' + MONO
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const cool = (a: number, b: number) => (a + rand(0, b)) | 0;
-const member = (g: Game, role: Role) => g.team.find(m => m.role === role);
+const member = (g: Game, role: AgentRole) => g.team.find(m => m.role === role);
 
 function note(m: TeamMember, text: string): void {
   m.note = text; m.noteT = NOTE;
@@ -46,7 +44,7 @@ function research(g: Game, m: TeamMember): boolean {
   m.dir = cx < m.x ? -1 : 1;
   if (m.cd <= 0 && tr.x > 70 && tr.x < g.W - 70 && Math.hypot(cx - m.x, cy - m.y) < 220) {
     fireBeam(g, m.x, m.y, cx, cy, ROLE_INFO.researcher.c); fxBurst(g, cx, cy, 4, '#ffffff');
-    tr.hits++; m.cd = cool(50, 30);
+    tr.hits++; m.cd = vary(50, 30);
   }
   return true;
 }
@@ -56,7 +54,7 @@ function code(g: Game, m: TeamMember): void {
   if (m.cd > 0 || g.coarse || g.t - g.lastMove > 12 || g.attackT > 0 || g.trend || g.t < 600) return;
   if (Math.hypot(g.mouseX - m.x, g.mouseY - m.y) > 380) return;
   shoot(g, m, g.mouseX, g.mouseY, 3, 4.2, 0, false);
-  m.cd = cool(1000, 800);
+  m.cd = vary(1000, 800);
 }
 
 // During the fight the team fans out in an arc under the boss and fires at it.
@@ -77,12 +75,12 @@ function bossDuty(g: Game, m: TeamMember): boolean {
     shoot(g, m, b.x, b.y, 1, 5, 0.5, true);
     if (m.role === 'reviewer' && m.noteT <= 0 && Math.random() < 0.25) note(m, pick(bossReviewLines));
   }
-  m.cd = cool(90, 50);
+  m.cd = vary(90, 50);
   return true;
 }
 
-// The one behaviour registered on g.teamBehaviours; true only when it moved the member itself.
-export const teamBehaviour: TeamBehaviour = (g, m) => {
+// Per tick per member, before formation; true only when it moved the member itself.
+export function teamBehaviour(g: Game, m: TeamMember): boolean {
   if (m.noteT > 0) m.noteT--;
   if (g.held || g.asleep) return false;
   if (m.cd > 0) m.cd--;
@@ -90,10 +88,10 @@ export const teamBehaviour: TeamBehaviour = (g, m) => {
   if (g.gone > 0 || g.flyby > 0) return false;
   if (m.role === 'researcher') return research(g, m);
   if (m.role === 'coder') code(g, m);
-  else if (m.role === 'reviewer' && m.cd <= 0 && g.t > 600) { note(m, pick(reviewLines)); m.cd = cool(1500, 1200); }
-  else if (m.role === 'analyst' && m.cd <= 0 && g.t > 600) { glyph(g, 'chart', m, 90); m.cd = cool(1300, 1100); }
+  else if (m.role === 'reviewer' && m.cd <= 0 && g.t > 600) { note(m, pick(reviewLines)); m.cd = vary(1500, 1200); }
+  else if (m.role === 'analyst' && m.cd <= 0 && g.t > 600) { glyph(g, 'chart', m, 90); m.cd = vary(1300, 1100); }
   return false;
-};
+}
 
 // Called by shootAndCatch just before the caught trend is cleared.
 export function onTrendCaught(g: Game): void {

@@ -2,27 +2,21 @@
 import { ref, computed } from 'vue'
 import type { Cv } from '~/types/cv'
 import { CV_SECTIONS } from '~/components/layout/nav'
-import { useActiveSection } from '~/composables/useActiveSection'
+import { useActiveSection, useScrollToSection } from '~/composables/useActiveSection'
 import CvMonoImage from './CvMonoImage.vue'
 
 const props = defineProps<{ cv: Cv }>()
 
 const active = useActiveSection()
+const scrollToSection = useScrollToSection()
 const navOpen = ref(false)
 
 const displayName = computed(() => props.cv.name.toLowerCase().replace(/ /g, '_'))
 const fullName = computed(() => [props.cv.name, props.cv.credential].filter(Boolean).join(', '))
 
-// Scrolls without the router, keeps the hash in the address bar, and hands focus to the section.
 const goTo = (id: string) => {
   navOpen.value = false
-  const el = document.getElementById(id)
-  if (!el) return
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  history.replaceState(history.state, '', `#${id}`)
-  el.focus({ preventScroll: true })
-  active.value = id
+  scrollToSection(id)
 }
 </script>
 
