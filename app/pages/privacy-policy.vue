@@ -41,18 +41,18 @@ useSchemaOrg([
   {
     '@type': 'WebPage' as const,
     '@id': `${pageUrl}/#webpage`,
-    url: pageUrl,
-    name: 'Privacy Policy',
-    description: pageDescription,
-    isPartOf: { '@id': `${siteUrl}/#website` },
-    inLanguage: 'en-US'
+    'url': pageUrl,
+    'name': 'Privacy Policy',
+    'description': pageDescription,
+    'isPartOf': { '@id': `${siteUrl}/#website` },
+    'inLanguage': 'en-US'
   },
   {
     '@type': 'BreadcrumbList' as const,
     '@id': `${pageUrl}/#breadcrumb`,
-    itemListElement: [
-      { '@type': 'ListItem' as const, position: 1, name: 'Home', item: siteUrl },
-      { '@type': 'ListItem' as const, position: 2, name: 'Privacy Policy', item: pageUrl }
+    'itemListElement': [
+      { '@type': 'ListItem' as const, 'position': 1, 'name': 'Home', 'item': siteUrl },
+      { '@type': 'ListItem' as const, 'position': 2, 'name': 'Privacy Policy', 'item': pageUrl }
     ]
   }
 ] as const)
@@ -63,7 +63,7 @@ useSchemaOrg([
     <div class="container privacy__doc">
       <header class="privacy__head">
         <h1 class="privacy__title">Privacy Policy</h1>
-        <p class="privacy__updated">Last updated: October 27, 2026</p>
+        <p class="privacy__updated">Last updated: November 5, 2026</p>
       </header>
 
       <article class="pn-prose">
@@ -71,7 +71,7 @@ useSchemaOrg([
         <p>
           ivebotunac.com is the personal website of Ive Botunac, run by his company, Primo Technology Ltd. (“we”, “us”),
           which is the controller of the personal data described here. You can reach us at the address under
-          <a href="#contact">Contact</a>. The site has no account and no form, and we do not sell your data or use it
+          <a href="#contact">Contact</a>. The site has no account and no contact form, and we do not sell your data or use it
           for advertising.
         </p>
 
@@ -93,9 +93,11 @@ useSchemaOrg([
             <strong>The robot game:</strong> the little robot remembers, in your browser’s local storage, which tricks
             you have tried, your best combo, how many times you have popped it, how often you have visited, which
             sub-agents you found, how long you have spent on the page while finding them and how long the whole team took,
-            which of its forms you have seen, and your best boss time, plus whether you have already seen the two first-visit tips. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
+            which of its forms you have seen, and your best boss time, plus whether you have already seen the two first-visit
+            tips. Clearing the site’s data deletes it. The finished team time is also sent to our server for the
             site-wide totals described next, and game events (hits, pops, agents found, the team time, boss fights and
-            their times, new forms seen, and clicks on the team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
+            their times, new forms seen, restarts, the leaderboard place you sign (not your letters) and clicks on the
+            team card) go to Google Analytics as described under <a href="#analytics">Analytics</a>.
           </li>
           <li>
             <strong>Game counters:</strong> the game sends anonymous events (a finished team with its time, a boss fight and its time)
