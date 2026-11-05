@@ -3,7 +3,7 @@ import { defineAsyncComponent, onMounted, onUnmounted, provide, reactive } from 
 import type { YearMonth } from '~/types/cv'
 import { cv } from '~/data/cv'
 import { CV_SECTIONS, type CvSectionId } from '~/components/layout/nav'
-import { useActiveSection } from '~/composables/useActiveSection'
+import { spyHeld, useActiveSection } from '~/composables/useActiveSection'
 import { useCvSeo } from '~/composables/useCvSeo'
 import { useRowHint } from '~/composables/useRowHint'
 import { toYearMonth } from '~/utils/cv-dates'
@@ -63,6 +63,7 @@ const closeAfterPrint = () => {
 // The page ends before the last section can reach the spy band, so the bottom of the page marks it.
 const lastId = CV_SECTIONS[CV_SECTIONS.length - 1]!.id
 const markLastAtBottom = () => {
+  if (spyHeld()) return
   if (window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) active.value = lastId
 }
 
@@ -91,6 +92,7 @@ onMounted(() => {
 
   // A band just above the middle of the viewport decides which section is current.
   spyObserver = new IntersectionObserver((entries) => {
+    if (spyHeld()) return
     for (const entry of entries) {
       if (entry.isIntersecting) active.value = entry.target.id
     }
