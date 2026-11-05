@@ -78,7 +78,6 @@ body::before {
   border: 1px solid var(--pn-border-brand);
   background-color: var(--pn-surface);
   color: var(--pn-link);
-  font-family: var(--pn-font);
   font-size: .8rem;
   line-height: 1;
   transition: border-color .15s ease;
@@ -102,16 +101,15 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
   padding: 5px 8px;
   background-color: var(--pn-text);
   color: var(--pn-text-on-ink);
-  font-family: var(--pn-font);
-  font-size: .68rem;
+  font-size: var(--pn-size-micro);
   line-height: 1;
   white-space: nowrap;
   box-shadow: 3px 3px 0 0 var(--pn-shadow-offset-hover);
   pointer-events: none;
 }
 @keyframes togPulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 90, 31, .55); }
-  70%, 100% { box-shadow: 0 0 0 8px rgba(255, 90, 31, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(var(--pn-primary-rgb), .55); }
+  70%, 100% { box-shadow: 0 0 0 8px rgba(var(--pn-primary-rgb), 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cv-tog--hint { animation: none; }
@@ -132,6 +130,12 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
   .cv-skel { animation: none; }
 }
 
+/* The load-in rise of the lead and the rail. */
+@keyframes cvRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
 /* Visually hidden, still read aloud. */
 .cv-sr-only {
   position: absolute;
@@ -142,9 +146,8 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
   white-space: nowrap;
 }
 
-/* components.css zeroes transitions under reduced motion; these and smooth scroll stay on purpose. */
+/* components.css zeroes transitions under reduced motion; these stay on purpose, as does smooth scroll. */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: smooth !important; }
   .cv-ext { transition-duration: .15s !important; }
   .rail__toggle span { transition-duration: .2s !important; }
   .railnav { transition-duration: .3s, 0s !important; }
@@ -157,7 +160,7 @@ details[open] > summary .cv-tog::before { content: "\2212"; }
 
 @media print {
   body, .pn-layout { font-size: 10.5pt; }
-  body::before { display: none !important; }
+  body::before { display: none; }
   a { text-decoration: none !important; color: var(--pn-text) !important; }
   .cv-ext::after { content: ""; }
   .cv-tog { display: none; }

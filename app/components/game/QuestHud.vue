@@ -153,10 +153,9 @@ const goTo = (id: string) => {
 <style scoped>
 .qhud {
   position: fixed;
-  z-index: 61;
+  z-index: var(--pn-z-hud);
   left: max(16px, env(safe-area-inset-left, 0px));
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  font-family: var(--pn-font);
   color: var(--pn-text);
 }
 
@@ -186,7 +185,7 @@ const goTo = (id: string) => {
 .qhud__chip {
   gap: 8px;
   border: 1px solid var(--pn-border-brand);
-  font: 500 .68rem/1 var(--pn-font);
+  font: 500 var(--pn-size-micro)/1 var(--pn-font);
   transition: box-shadow var(--pn-motion-fast) var(--pn-ease-out), border-color var(--pn-motion-fast) var(--pn-ease-out);
 }
 
@@ -195,20 +194,13 @@ const goTo = (id: string) => {
   box-shadow: 5px 5px 0 0 var(--pn-shadow-offset-hover);
 }
 
-.qhud__fight:focus-visible,
-.qhud__chip:focus-visible,
-.qhud__where:focus-visible {
-  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
-  outline-offset: var(--pn-focus-offset);
-}
-
 .qhud__chip[aria-expanded="true"] { border-color: var(--pn-text); }
 
 /* Same chip shape in the accent. */
 .qhud__fight {
   margin-left: 8px;
   border: 1px solid var(--pn-accent-display);
-  font: 600 .68rem/1 var(--pn-font);
+  font: 600 var(--pn-size-micro)/1 var(--pn-font);
   text-transform: uppercase;
   transition: box-shadow var(--pn-motion-fast) var(--pn-ease-out);
 }
@@ -286,7 +278,6 @@ const goTo = (id: string) => {
 
 .qhud__tip-go {
   min-height: 32px;
-  padding: 0;
   border: 0;
   background: none;
   font: 600 .74rem/1 var(--pn-font);
@@ -304,7 +295,6 @@ const goTo = (id: string) => {
   place-items: center;
   width: 32px;
   height: 32px;
-  padding: 0;
   border: 0;
   background: none;
   color: var(--pn-text-on-ink);
@@ -314,12 +304,6 @@ const goTo = (id: string) => {
 
 .qhud__tip-x:hover { opacity: 1; }
 
-.qhud__tip-go:focus-visible,
-.qhud__tip-x:focus-visible {
-  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
-  outline-offset: 2px;
-}
-
 @keyframes tipIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
@@ -327,7 +311,7 @@ const goTo = (id: string) => {
 
 .qhud__title {
   margin: 0 0 8px;
-  font-size: .68rem;
+  font-size: var(--pn-size-micro);
   text-transform: uppercase;
   letter-spacing: .12em;
   color: var(--pn-text-muted);
@@ -335,8 +319,6 @@ const goTo = (id: string) => {
 
 .qhud__list {
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .qhud__row {
@@ -386,19 +368,17 @@ const goTo = (id: string) => {
 
 .qhud__reset-q {
   flex-basis: 100%;
-  margin: 0;
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   line-height: 1.4;
   color: var(--pn-text-secondary);
 }
 
 .qhud__reset-btn {
   min-height: 32px;
-  padding: 0;
   border: 0;
   background: none;
   font: inherit;
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   color: var(--pn-text-muted);
   text-decoration: underline;
   text-underline-offset: 3px;

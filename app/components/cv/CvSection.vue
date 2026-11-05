@@ -33,12 +33,11 @@ const shown = computed(() => !!reveal?.seen.has(props.id))
   align-items: center;
   gap: 14px;
   margin: 0 0 28px;
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   font-weight: 500;
   line-height: inherit;
   text-transform: uppercase;
-  letter-spacing: .16em;
+  letter-spacing: var(--pn-ls-caps);
   color: var(--pn-text-muted);
 }
 

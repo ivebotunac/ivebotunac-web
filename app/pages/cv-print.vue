@@ -123,19 +123,18 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
 @page { size: A4; margin: 12mm 13mm 13mm; }
 
 .sheet {
-  --ink: #0c2236;
-  --ink-2: #213b54;
-  --muted: #506a83;
+  --ink: var(--pn-neutral-900);
+  --ink-2: var(--pn-neutral-700);
+  --muted: var(--pn-neutral-600);
   --faint: #6f879e;
-  --rule: #dde8f3;
+  --rule: var(--pn-neutral-200);
   --accent: #e8460d;
-  --link: #0b6bcb;
+  --link: var(--pn-link);
   max-width: 184mm;
   margin: 0 auto;
   padding: 10mm 0;
   color: var(--ink);
-  background: #fff;
-  font-family: var(--pn-font);
+  background: var(--pn-print-paper);
   font-size: 8pt;
   line-height: 1.4;
 }
@@ -185,8 +184,8 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
   width: 28mm;
   height: 28mm;
   object-fit: cover;
-  border: 1px solid #c6d7e7;
-  box-shadow: 1.2mm 1.2mm 0 0 #d3deee;
+  border: 1px solid var(--pn-border-brand);
+  box-shadow: 1.2mm 1.2mm 0 0 var(--pn-shadow-offset-rest);
   flex: none;
 }
 
@@ -203,10 +202,9 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
 .stats {
   list-style: none;
   margin: 0 0 1mm;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: 1px solid #c6d7e7;
+  border: 1px solid var(--pn-border-brand);
 }
 
 .stats li { padding: 2mm 3mm; border-left: 1px solid var(--rule); }
@@ -228,7 +226,6 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
   align-items: center;
   gap: 2.4mm;
   margin: 0 0 2.2mm;
-  font-family: var(--pn-font);
   font-size: 7.2pt;
   font-weight: 500;
   letter-spacing: .18em;
@@ -254,7 +251,7 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
   margin-bottom: 1.4mm;
 }
 
-.org__logo { width: 8mm; height: 8mm; object-fit: cover; border: 1px solid #c6d7e7; border-radius: 1.2mm; }
+.org__logo { width: 8mm; height: 8mm; object-fit: cover; border: 1px solid var(--pn-border-brand); border-radius: 1.2mm; }
 .org__name { font-weight: 700; font-size: 9pt; line-height: 1.25; }
 .org__name .meta, .org__years .meta { display: block; font-weight: 400; }
 .org__years { text-align: right; font-size: 7.6pt; color: var(--ink-2); white-space: nowrap; }
@@ -263,7 +260,7 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
   position: relative;
   margin-left: 10.6mm;
   padding-left: 3.4mm;
-  border-left: 1px solid #c6d7e7;
+  border-left: 1px solid var(--pn-border-brand);
 }
 
 .role + .role { padding-top: 1.4mm; }
@@ -277,7 +274,7 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
   height: 1.5mm;
   border: 1px solid var(--accent);
   border-radius: 50%;
-  background: #fff;
+  background: var(--pn-print-paper);
 }
 
 .role + .role::before { top: 2.7mm; }

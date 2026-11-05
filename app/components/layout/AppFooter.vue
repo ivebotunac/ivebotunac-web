@@ -28,7 +28,7 @@ const backToTop = () => {
   margin: 64px 0 80px;
   padding: 22px 0 0;
   border-top: 1px solid var(--pn-border);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   color: var(--pn-text-faint);
 }
 
@@ -43,6 +43,6 @@ const backToTop = () => {
 }
 
 @media print {
-  .foot a { display: none !important; }
+  .foot a { display: none; }
 }
 </style>

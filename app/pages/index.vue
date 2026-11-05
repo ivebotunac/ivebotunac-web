@@ -161,7 +161,7 @@ onUnmounted(() => {
 <style scoped>
 .page {
   position: relative;
-  z-index: 1;
+  z-index: var(--pn-z-page);
   max-width: var(--pn-container);
   margin: 0 auto;
   padding: 0 var(--pn-gutter);
@@ -185,9 +185,8 @@ onUnmounted(() => {
 }
 
 .prose {
-  margin: 0;
-  font-size: .98rem;
-  line-height: 1.68;
+  font-size: var(--pn-size-prose);
+  line-height: var(--pn-lh-prose);
   color: var(--pn-text-secondary);
 }
 

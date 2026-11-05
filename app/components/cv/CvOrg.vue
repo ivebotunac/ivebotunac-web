@@ -65,7 +65,7 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
   width: 48px;
   height: 48px;
   border: 1px solid var(--pn-border-brand);
-  border-radius: 8px;
+  border-radius: var(--pn-radius);
   background-color: var(--pn-surface);
   display: grid;
   place-items: center;
@@ -86,7 +86,7 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 
 .org__title {
   margin: 0 0 2px;
-  font-size: 1rem;
+  font-size: var(--pn-size-body);
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.005em;
@@ -96,7 +96,6 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 
 .org__line {
   display: block;
-  font-family: var(--pn-font);
   font-size: .8rem;
   font-weight: 500;
   line-height: 1.3;
@@ -104,7 +103,6 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 }
 
 .org__years {
-  font-family: var(--pn-font);
   font-size: .74rem;
   color: var(--pn-text-muted);
   white-space: nowrap;
@@ -117,7 +115,6 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 
 .org__meta {
   margin: 0 0 14px;
-  font-family: var(--pn-font);
   font-size: .76rem;
   color: var(--pn-text-muted);
 }
@@ -125,7 +122,6 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 /* Role timeline: a hairline spine with an orange ring per role. */
 .roles {
   list-style: none;
-  margin: 0;
   padding: 0 0 0 22px;
   position: relative;
 }
@@ -168,14 +164,12 @@ const when = (start: YearMonth, end: YearMonth | 'present') =>
 
 .role__when {
   margin: 0 0 6px;
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   color: var(--pn-text-faint);
 }
 
 .role__desc {
-  margin: 0;
-  font-size: .9rem;
+  font-size: var(--pn-size-body-sm);
   line-height: 1.55;
   color: var(--pn-text-secondary);
 }

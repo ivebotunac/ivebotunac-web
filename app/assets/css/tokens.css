@@ -1,6 +1,6 @@
 /* Design tokens, the site's single :root: blueprint paper, navy ink, one vivid orange, blue links. */
 /* Values are fixed by design; a low contrast note is deliberate, not a fix to make. */
-/* Breakpoints (queries cannot read tokens): 1024 narrow rail, 860 one column, 700 game, 540 type. */
+/* Breakpoints (queries cannot read tokens): 1024 rail, 861/860 column, 700 game, 540 type, 479.98 button */
 :root {
   /* 1. Colour */
 
@@ -65,8 +65,8 @@
   /* Semantic state */
   --pn-error:   #E0483F;  --pn-error-text:   #B3261E;
   /* Accent, separate from primary, with its own gradient. */
-  --pn-accent:          #BF3F0B;   /* button ground: white on it 5.34:1 */
-  --pn-accent-gradient: linear-gradient(150deg, #BF3F0B, #A63609);
+  --pn-accent:          var(--pn-primary-600);   /* button ground: white on it 5.34:1 */
+  --pn-accent-gradient: linear-gradient(150deg, var(--pn-primary-600), #A63609);
 
   /* Blue accent, the link family. Consume the roles. */
   --pn-cool-deep:     #0B6BCB;   /* feeds --pn-accent2-text. 4.99:1 paper; white on it 5.28 */
@@ -150,9 +150,17 @@
   --pn-focus-offset: 2px;
 
 
-  /* 7. Z-index: base and raised; the masthead and game layers set their own */
+  /* 7. Z-index, low to high. The skip link's 100 counts only inside the masthead's stacking context. */
   --pn-z-base: 0;
+  --pn-z-page: 1;
+  --pn-z-masthead: 2;
   --pn-z-raised: 10;
+  --pn-z-rage: 57;
+  --pn-z-fx: 58;
+  --pn-z-trend: 59;
+  --pn-z-robot: 60;
+  --pn-z-hud: 61;
+  --pn-z-skip: 100;
 
   /* Anchor clearance: breathing room above a jumped-to section; the masthead is static. */
   --pn-header-offset: 60px;
@@ -172,11 +180,8 @@
   --pn-size-caption: 0.82rem;   /* rail index, org line, publication meta, card copy */
   --pn-size-body-sm: 0.9rem;    /* role and entry copy, publication titles */
   --pn-size-body:    1rem;      /* about, entry and role titles, skills */
-  --pn-size-name:    1.34rem;   /* the rail name */
-  --pn-ls-label:     0.01em;
   --pn-ls-caps:      0.16em;    /* uppercase mono labels */
   --pn-ls-caps-wide: 0.22em;    /* the masthead */
-  --pn-ls-tight:     -0.01em;   /* bold titles */
   --pn-ls-name:      -0.04em;   /* the rail name */
 }
 

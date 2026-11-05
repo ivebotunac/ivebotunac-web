@@ -25,7 +25,7 @@ const skipToContent = (event: MouseEvent) => {
 <style scoped>
 .masthead {
   position: relative;
-  z-index: 2;
+  z-index: var(--pn-z-masthead);
   border-bottom: 1px solid var(--pn-border);
   background-color: var(--pn-canvas);
 }
@@ -37,9 +37,8 @@ const skipToContent = (event: MouseEvent) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--pn-font);
-  font-size: .68rem;
-  letter-spacing: .22em;
+  font-size: var(--pn-size-micro);
+  letter-spacing: var(--pn-ls-caps-wide);
   color: var(--pn-text-muted);
   text-transform: uppercase;
 }
@@ -53,8 +52,7 @@ const skipToContent = (event: MouseEvent) => {
   background-color: var(--pn-text);
   color: var(--pn-text-on-ink);
   padding: 10px 16px;
-  z-index: 100;
-  font-family: var(--pn-font);
+  z-index: var(--pn-z-skip);
   font-size: .8rem;
 }
 
@@ -78,6 +76,6 @@ const skipToContent = (event: MouseEvent) => {
 }
 
 @media print {
-  .masthead { display: none !important; }
+  .masthead { display: none; }
 }
 </style>

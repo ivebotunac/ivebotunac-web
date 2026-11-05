@@ -18,10 +18,10 @@ defineProps<{ lead: Inline[] }>()
   margin: 0 0 44px;
   font-family: var(--pn-font-display);
   font-size: var(--pn-size-lg);
-  line-height: 1.5;
+  line-height: var(--pn-lh-lg);
   font-weight: 400;
   color: var(--pn-text-secondary);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--pn-ls-lg);
 }
 
 .lead em {
@@ -30,12 +30,7 @@ defineProps<{ lead: Inline[] }>()
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .lead { animation: rise .7s cubic-bezier(.2, .7, .3, 1) .05s both; }
-}
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
+  .lead { animation: cvRise .7s var(--pn-ease-rise) .05s both; }
 }
 
 @media (max-width: 860px) {

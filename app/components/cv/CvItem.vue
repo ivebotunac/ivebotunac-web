@@ -48,8 +48,7 @@ defineProps<{
 }
 
 .item__when {
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   color: var(--pn-accent-text);
   padding-top: .3em;
   white-space: nowrap;
@@ -67,7 +66,7 @@ defineProps<{
 .item__sub {
   display: block;
   margin-top: 2px;
-  font-size: .82rem;
+  font-size: var(--pn-size-caption);
   color: var(--pn-text-muted);
 }
 
@@ -87,7 +86,6 @@ summary.item__line:hover .item__title { color: var(--pn-link); }
 }
 
 .item__det :deep(dt) {
-  font-family: var(--pn-font);
   font-size: .66rem;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -96,7 +94,6 @@ summary.item__line:hover .item__title { color: var(--pn-link); }
 }
 
 .item__det :deep(dd) {
-  margin: 0;
   color: var(--pn-text-secondary);
 }
 

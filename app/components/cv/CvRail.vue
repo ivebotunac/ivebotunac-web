@@ -102,13 +102,12 @@ const goTo = (id: string) => {
   object-fit: cover;
   display: block;
   border: 1px solid var(--pn-border-brand);
-  border-radius: 2px;
+  border-radius: var(--pn-radius-sm);
   box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
 }
 
 .id__img.mono-img--fallback {
   display: grid;
-  place-items: center;
   font-family: var(--pn-font);
   font-weight: 400;
   font-size: 2rem;
@@ -121,7 +120,7 @@ const goTo = (id: string) => {
   font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--pn-ls-name);
 }
 
 .cursor {
@@ -134,16 +133,13 @@ const goTo = (id: string) => {
 
 .id__role {
   margin: 0 0 6px;
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   line-height: 1.55;
   color: var(--pn-text-muted);
 }
 
 .id__loc {
-  margin: 0;
-  font-family: var(--pn-font);
-  font-size: .68rem;
+  font-size: var(--pn-size-micro);
   color: var(--pn-text-faint);
   letter-spacing: .02em;
 }
@@ -154,7 +150,6 @@ const goTo = (id: string) => {
   padding: 16px 0;
   border-top: 1px solid var(--pn-border);
   border-bottom: 1px solid var(--pn-border);
-  font-family: var(--pn-font);
   font-size: .74rem;
 }
 
@@ -169,8 +164,7 @@ const goTo = (id: string) => {
 .railnav {
   display: flex;
   flex-direction: column;
-  font-family: var(--pn-font);
-  font-size: .82rem;
+  font-size: var(--pn-size-caption);
 }
 
 .railnav a {
@@ -185,7 +179,7 @@ const goTo = (id: string) => {
 .railnav__num {
   font-style: normal;
   color: var(--pn-text-faint);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   min-width: 18px;
 }
 
@@ -217,12 +211,7 @@ const goTo = (id: string) => {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .rail__sticky { animation: rise .7s cubic-bezier(.2, .7, .3, 1) both; }
-}
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
+  .rail__sticky { animation: cvRise .7s var(--pn-ease-rise) both; }
 }
 
 /* One column: the rail becomes a header block and the index folds behind a toggle. */
@@ -299,6 +288,6 @@ const goTo = (id: string) => {
 
 @media print {
   .rail__sticky { position: static; padding: 0 0 16px; }
-  .rail__toggle { display: none !important; }
+  .rail__toggle { display: none; }
 }
 </style>

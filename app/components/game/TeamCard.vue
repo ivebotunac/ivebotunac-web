@@ -186,13 +186,11 @@ function onKeydown(e: KeyboardEvent) {
   max-width: none;
   max-height: calc(100dvh - 32px);
   margin: auto;
-  padding: 0;
   border: 1px solid var(--pn-border-brand);
   border-radius: 0;
   background-color: var(--pn-surface);
   color: var(--pn-text);
   box-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
-  font-family: var(--pn-font);
   overflow: auto;
 }
 
@@ -216,7 +214,7 @@ function onKeydown(e: KeyboardEvent) {
 
 .tcard__kicker {
   margin: 0 0 6px;
-  font-size: .68rem;
+  font-size: var(--pn-size-micro);
   text-transform: uppercase;
   letter-spacing: .14em;
   /* the deeper orange: --pn-accent-text is about 3.1:1 on white at this size */
@@ -227,7 +225,6 @@ function onKeydown(e: KeyboardEvent) {
 .tcard__title:focus { outline: none; }
 
 .tcard__title {
-  margin: 0;
   font-family: var(--pn-font-display);
   font-size: 1.3rem;
   font-weight: 700;
@@ -253,7 +250,7 @@ function onKeydown(e: KeyboardEvent) {
 
 .tcard__body {
   margin: 10px 0 0;
-  font-size: .82rem;
+  font-size: var(--pn-size-caption);
   line-height: 1.5;
   color: var(--pn-text-muted);
 }
@@ -290,12 +287,6 @@ function onKeydown(e: KeyboardEvent) {
 .tcard__btn:hover {
   border-color: var(--pn-link);
   box-shadow: 3px 3px 0 0 var(--pn-shadow-offset-hover);
-}
-
-.tcard__btn:focus-visible,
-.tcard__close:focus-visible {
-  outline: var(--pn-focus-width) solid var(--pn-focus-ring);
-  outline-offset: var(--pn-focus-offset);
 }
 
 /* Side by side, the network name under a small "Follow me on". */
@@ -351,7 +342,6 @@ function onKeydown(e: KeyboardEvent) {
   place-items: center;
   width: 36px;
   height: 36px;
-  padding: 0;
   border: 1px solid transparent;
   border-radius: 0;
   background: none;
@@ -368,7 +358,7 @@ function onKeydown(e: KeyboardEvent) {
   margin: 14px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--pn-border);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   line-height: 1.5;
   color: var(--pn-text-secondary);
 }
@@ -376,7 +366,6 @@ function onKeydown(e: KeyboardEvent) {
 .tcard__reset-btn {
   min-height: 32px;
   margin-right: 10px;
-  padding: 0;
   border: 0;
   background: none;
   font: inherit;
@@ -390,6 +379,6 @@ function onKeydown(e: KeyboardEvent) {
 .tcard__reset-btn--go { margin-left: 8px; color: var(--pn-primary-600); font-weight: 600; }
 
 @media print {
-  .tcard { display: none !important; }
+  .tcard { display: none; }
 }
 </style>

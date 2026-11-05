@@ -14,7 +14,6 @@ defineProps<{ label: string }>()
 .more__btn {
   display: inline-block;
   padding: 12px 0;
-  font-family: var(--pn-font);
   font-size: .8rem;
   color: var(--pn-link);
 }

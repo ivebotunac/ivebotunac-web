@@ -41,7 +41,6 @@
 
 /* Prose: long-form text, the privacy policy article. */
 .pn-prose {
-  max-width: 65ch;                     /* about 75 characters per line */
   font-size: var(--pn-size-prose);
   line-height: var(--pn-lh-prose);
   color: var(--pn-text-secondary);
@@ -82,11 +81,9 @@
 
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

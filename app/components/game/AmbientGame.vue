@@ -110,12 +110,12 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
   pointer-events: none;
 }
 
-.rage { z-index: 57; }
-.fx { z-index: 58; }
-.trend { z-index: 59; }
+.rage { z-index: var(--pn-z-rage); }
+.fx { z-index: var(--pn-z-fx); }
+.trend { z-index: var(--pn-z-trend); }
 
 .pet {
-  z-index: 60;
+  z-index: var(--pn-z-robot);
   top: 0;
   left: 0;
   will-change: transform;
@@ -229,7 +229,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 .rage {
   inset: 0;
   opacity: 0;
-  background: radial-gradient(125% 125% at 50% 45%, rgba(255, 90, 31, 0.20) 0%, rgba(255, 90, 31, 0.40) 58%, rgba(232, 70, 13, 0.62) 100%);
+  background: radial-gradient(125% 125% at 50% 45%, rgba(var(--pn-primary-rgb), 0.20) 0%, rgba(var(--pn-primary-rgb), 0.40) 58%, rgba(232, 70, 13, 0.62) 100%);
 }
 
 .rage--on {
@@ -240,7 +240,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 
 /* The boss defeat: the same flash in the brand cyan, blue and orange. */
 .rage--brand {
-  background: radial-gradient(125% 125% at 50% 40%, rgba(54, 198, 224, 0.22) 0%, rgba(11, 107, 203, 0.30) 55%, rgba(255, 90, 31, 0.50) 100%);
+  background: radial-gradient(125% 125% at 50% 40%, rgba(54, 198, 224, 0.22) 0%, rgba(11, 107, 203, 0.30) 55%, rgba(var(--pn-primary-rgb), 0.50) 100%);
 }
 
 @keyframes rageFlash {
@@ -253,7 +253,7 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
 /* The robot's size shrinks in-canvas through dispScale; this only trims the DOM layers. */
 @media (max-width: 700px) {
   .trend {
-    font-size: .68rem;
+    font-size: var(--pn-size-micro);
     padding: 4px 8px;
     box-shadow: 2px 2px 0 0 var(--pn-shadow-offset-hover);
   }
@@ -277,17 +277,10 @@ onUnmounted(() => { clearTimeout(bossTimer); destroy() })
   }
 }
 
-@media print {
+@media print, (prefers-reduced-motion: reduce) {
   .ambient,
   .quest {
-    display: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ambient,
-  .quest {
-    display: none !important;
+    display: none;
   }
 }
 </style>
@@ -314,8 +307,8 @@ html.robot-grabbing * {
 
 @keyframes ibIgnite {
   0% { color: #fff6c2; background-color: rgba(255, 210, 59, .55); }
-  35% { color: #ffd23b; background-color: rgba(255, 90, 31, .45); }
-  70% { color: #ff5a1f; background-color: rgba(215, 56, 27, .25); }
+  35% { color: #ffd23b; background-color: rgba(var(--pn-primary-rgb), .45); }
+  70% { color: var(--pn-primary-500); background-color: rgba(215, 56, 27, .25); }
   100% { color: transparent; background-color: transparent; }
 }
 

@@ -28,8 +28,6 @@ defineProps<{ skills: Skill[] }>()
 <style scoped>
 .skills {
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .skill { border-bottom: 1px solid var(--pn-border); }
@@ -43,7 +41,6 @@ defineProps<{ skills: Skill[] }>()
 }
 
 .skill__label {
-  font-family: var(--pn-font);
   font-size: .74rem;
   line-height: 1.4;
   color: var(--pn-accent-text);
@@ -70,8 +67,7 @@ defineProps<{ skills: Skill[] }>()
 
 /* Tool chips: the daily ones in ink on white, the rest quieter. */
 .chip {
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   line-height: 1.4;
   padding: 2px 8px;
   border: 1px solid var(--pn-border);
@@ -98,7 +94,6 @@ defineProps<{ skills: Skill[] }>()
 .skill__where {
   display: block;
   margin-bottom: 4px;
-  font-family: var(--pn-font);
   font-size: .66rem;
   text-transform: uppercase;
   letter-spacing: .08em;

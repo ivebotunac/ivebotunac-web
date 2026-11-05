@@ -17,7 +17,6 @@ defineProps<{ stats: Stat[] }>()
 .stats {
   list-style: none;
   margin: -12px 0 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
@@ -43,8 +42,7 @@ defineProps<{ stats: Stat[] }>()
 .stat__label {
   display: block;
   margin-top: 4px;
-  font-family: var(--pn-font);
-  font-size: .72rem;
+  font-size: var(--pn-size-label);
   line-height: 1.35;
   color: var(--pn-text-muted);
 }

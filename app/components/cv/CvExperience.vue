@@ -14,7 +14,5 @@ defineProps<{ orgs: Org[], now: YearMonth }>()
 <style scoped>
 .orgs {
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 </style>

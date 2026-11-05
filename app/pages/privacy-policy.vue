@@ -166,7 +166,6 @@ useSchemaOrg([
 
 <style scoped>
 .privacy__doc { max-width: 860px; }
-.privacy .pn-prose { max-width: none; }
 .privacy__head { margin-bottom: var(--pn-space-48); }
 .privacy__title {
   margin: 0 0 var(--pn-space-8);
@@ -174,7 +173,6 @@ useSchemaOrg([
   color: var(--pn-text);
 }
 .privacy__updated {
-  margin: 0;
   color: var(--pn-text-muted);
   font-size: var(--pn-size-sm);
 }
