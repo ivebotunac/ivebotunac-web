@@ -5,7 +5,7 @@ const limiter = createGameLimiter(GLOBAL_READS_PER_MIN)
 
 export default defineEventHandler(async (event) => {
   const run = parseRun(getQuery(event).run)
-  // Held only as a limiter key for the window; never logged or stored.
+  // The client IP is held only as a limiter key for the window; it is never logged or stored.
   if (!limiter.allow(clientKey(event), 'read')) throw createError({ statusCode: 429, statusMessage: 'Too many board reads' })
   try {
     const stats = await readGameStats(run)

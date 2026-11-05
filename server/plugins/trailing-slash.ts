@@ -1,4 +1,4 @@
-// One URL per page; a plugin, since the static handler answers before any route.
+// 301s /path/ to /path so each page has one URL; a plugin, because static files answer before any route.
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('request', (event) => {
     const [path, query] = event.path.split('?') as [string, string?]

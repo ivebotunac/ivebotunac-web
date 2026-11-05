@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const parsed = parseGameEvent(await readEventBody(event))
   if (!parsed) throw createError({ statusCode: 400, statusMessage: 'Invalid game event' })
 
-  // Held only as a limiter key for the window; never logged or stored.
+  // The client IP is held only as a limiter key for the window; it is never logged or stored.
   if (!limiter.allow(clientKey(event), parsed.kind)) throw createError({ statusCode: 429, statusMessage: 'Too many game events' })
 
   setResponseHeader(event, 'cache-control', 'no-store')
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     console.error('[game] event write failed:', err instanceof Error ? err.message : err)
     throw createError({ statusCode: 503, statusMessage: 'Game stats unavailable' })
   }
-  // a fight unknown or impossibly fast, or one already signed or unfinished
+  // null: the fight is unknown or impossibly fast, or for a name, already signed or not finished yet
   if (!result) throw createError({ statusCode: 409, statusMessage: parsed.kind === 'name' ? 'Run cannot be named' : 'Time not accepted' })
   return result
 })

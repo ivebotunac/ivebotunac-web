@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { mdiClose, mdiLinkedin } from '@mdi/js'
 import { ROLES, drawAgent } from '~/game/agents'
-import type { GameStats } from '~/game/stats-client'
+import type { GameStats } from '~~/shared/types/game-stats'
 import { GAME_EVENTS } from '~/game/types'
 import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'

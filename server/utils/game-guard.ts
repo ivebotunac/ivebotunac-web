@@ -1,13 +1,13 @@
 import type { H3Event } from 'h3'
 
-// The leaderboard is the AGI fight's alone; a finished team only adds to the totals.
+// Only the AGI fight has a leaderboard; a finished team only adds to the shared totals.
+// A team event may carry the visitor's boss run id, so its answer also shows that fight's board place.
 export type GameEvent
   = | { kind: 'run' }
-  // run: the visitor's boss fight, so the answer carries its place on the board
     | { kind: 'team', ms: number, run: string | null }
     | { kind: 'boss', run: string }
     | { kind: 'name', run: string, initials: string }
-export type GameEventKind = GameEvent['kind']
+type GameEventKind = GameEvent['kind']
 // Board reads are limited like events, on their own limiter so they never use up the write budget.
 export type LimitKind = GameEventKind | 'read'
 
@@ -17,10 +17,10 @@ const TEAM_MAX_MS = 86_400_000
 
 // Arcade initials can still spell things; these never reach the board.
 const BLOCKED = new Set([
-  'ASS', 'CUM', 'DIC', 'DIK', 'DIX', 'FAG', 'FCK', 'FUC', 'FUK', 'FUQ', 'JIZ', 'KKK', 'KYS', 'NAZ', 'NGR', 'NIG',
-  'PIS', 'SEX', 'SHT', 'SUX', 'TIT', 'VAG', 'WTF', 'XXX', 'JEB', 'KUR', 'PIZ', 'PUS', 'SRA', 'HIV', 'GAS', 'SSS',
-  'FGT', 'FGS', 'FAP', 'CNT', 'KNT', 'NGA', 'NGG', 'NGS', 'GAY', 'HOE', 'JAP', 'SPK', 'WOP', 'CHK', 'COK', 'COC',
-  'KOK', 'RAP', 'RPE', 'PNS', 'SLT', 'WHR', 'HOR', 'BCH', 'TWT', 'DCK', 'KMS', 'KIL', 'HHH', 'NDH', 'PDR', 'GOV'
+  'ASS', 'BCH', 'CHK', 'CNT', 'COC', 'COK', 'CUM', 'DCK', 'DIC', 'DIK', 'DIX', 'FAG', 'FAP', 'FCK', 'FGS', 'FGT',
+  'FUC', 'FUK', 'FUQ', 'GAS', 'HHH', 'HIV', 'HOE', 'HOR', 'JAP', 'JEB', 'JIZ', 'KIL', 'KKK', 'KMS', 'KNT', 'KOK',
+  'KUR', 'KYS', 'NAZ', 'NDH', 'NGA', 'NGG', 'NGR', 'NGS', 'NIG', 'PDR', 'PIS', 'PIZ', 'PNS', 'PUS', 'RAP', 'RPE',
+  'SEX', 'SHT', 'SLT', 'SPK', 'SRA', 'SSS', 'SUX', 'TIT', 'TWT', 'VAG', 'WHR', 'WOP', 'WTF', 'XXX'
 ])
 
 const LIMIT_WINDOW_MS = 10 * 60_000
@@ -45,17 +45,25 @@ function parseInitials(v: unknown): string | null {
 export function parseGameEvent(body: unknown): GameEvent | null {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return null
   const { kind, ms, run: r, initials } = body as { kind?: unknown, ms?: unknown, run?: unknown, initials?: unknown }
+  // a present ms must be an integer whatever the kind, so a malformed body is a 400 everywhere
   if (ms !== undefined && !Number.isInteger(ms)) return null
   const run = parseRun(r)
-  if (kind === 'run') return { kind }
-  if (kind === 'boss') return run ? { kind, run } : null
-  if (kind === 'name') {
-    const i = parseInitials(initials)
-    return run && i ? { kind, run, initials: i } : null
+  switch (kind) {
+    case 'run':
+      return { kind }
+    case 'boss':
+      return run ? { kind, run } : null
+    case 'name': {
+      const i = parseInitials(initials)
+      return run && i ? { kind, run, initials: i } : null
+    }
+    case 'team':
+      if (typeof ms !== 'number' || !Number.isInteger(ms) || ms < TEAM_MIN_MS) return null
+      // a team kept across visits can take days; anything over an hour lands in the same bucket anyway
+      return { kind, ms: Math.min(ms, TEAM_MAX_MS), run }
+    default:
+      return null
   }
-  if (kind !== 'team' || typeof ms !== 'number' || ms < TEAM_MIN_MS) return null
-  // a team kept across visits can take days; anything over an hour lands in the same bucket anyway
-  return { kind, ms: Math.min(ms, TEAM_MAX_MS), run }
 }
 
 // App Hosting sets x-fah-client-ip behind its proxies; the last entry is the one a client cannot forge.

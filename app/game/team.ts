@@ -1,5 +1,5 @@
 // What a recruited team does besides following the robot, on the fx canvas, rate-limited and capped.
-import { MONO, agentBossHitLines, agentGrabLines, agentLandLines, agentTossLines, agentTossRobotLines, bossReviewLines, clamp, pick, rand, reviewLines, vary } from './config'
+import { AGENT_BOSS_HIT_LINES, AGENT_GRAB_LINES, AGENT_LAND_LINES, AGENT_TOSS_LINES, AGENT_TOSS_ROBOT_LINES, BOSS_REVIEW_LINES, CYAN, DEEP_BLUE, INK, MONO, ORANGE, PAPER, REVIEW_LINES, WHITE, YELLOW, clamp, pick, rand, vary } from './config'
 import { ROLE_INFO } from './agents'
 import { feedback, fireBeam, fxBurst } from './effects'
 import { knockTrend } from './actions'
@@ -10,7 +10,7 @@ import type { Glyph, AgentRole, TeamMember } from './types'
 const MAX_SHOTS = 24
 const MAX_GLYPHS = 6
 const MAX_ROCKETS = 3
-// fxp is shared with every burst, so rocket trails stop feeding it past this
+// Rocket trails stop adding to fxp past this size, since every burst shares that particle list.
 const MAX_TRAIL = 260
 const NOTE = 150
 const FONT = '700 10px ' + MONO
@@ -43,7 +43,7 @@ function research(g: Game, m: TeamMember): boolean {
   m.x += (tx - m.x) * 0.06; m.y += (ty - m.y) * 0.06
   m.dir = cx < m.x ? -1 : 1
   if (m.cd <= 0 && tr.x > 70 && tr.x < g.W - 70 && Math.hypot(cx - m.x, cy - m.y) < 220) {
-    fireBeam(g, m.x, m.y, cx, cy, ROLE_INFO.researcher.c); fxBurst(g, cx, cy, 4, '#ffffff')
+    fireBeam(g, m.x, m.y, cx, cy, ROLE_INFO.researcher.c); fxBurst(g, cx, cy, 4, WHITE)
     tr.hits++; m.cd = vary(50, 30)
   }
   return true
@@ -69,11 +69,11 @@ function bossDuty(g: Game, m: TeamMember): boolean {
   if (m.cd > 0 || b.phase !== 'fight') return true
   if (m.role === 'coder') shoot(g, m, b.x, b.y, 3, 5, 0.3, true)
   else if (m.role === 'researcher') {
-    fireBeam(g, m.x, m.y, b.x, b.y, ROLE_INFO.researcher.c); fxBurst(g, b.x + rand(-12, 12), b.y + rand(-12, 12), 5, '#36c6e0')
+    fireBeam(g, m.x, m.y, b.x, b.y, ROLE_INFO.researcher.c); fxBurst(g, b.x + rand(-12, 12), b.y + rand(-12, 12), 5, CYAN)
     hurtBoss(g, 0.6, false)
   } else {
     shoot(g, m, b.x, b.y, 1, 5, 0.5, true)
-    if (m.role === 'reviewer' && m.noteT <= 0 && Math.random() < 0.25) note(m, pick(bossReviewLines))
+    if (m.role === 'reviewer' && m.noteT <= 0 && Math.random() < 0.25) note(m, pick(BOSS_REVIEW_LINES))
   }
   m.cd = vary(90, 50)
   return true
@@ -88,7 +88,7 @@ export function teamBehaviour(g: Game, m: TeamMember): boolean {
   if (g.gone > 0 || g.flyby > 0) return false
   if (m.role === 'researcher') return research(g, m)
   if (m.role === 'coder') code(g, m)
-  else if (m.role === 'reviewer' && m.cd <= 0 && g.t > 600) { note(m, pick(reviewLines)); m.cd = vary(1500, 1200) } else if (m.role === 'analyst' && m.cd <= 0 && g.t > 600) { glyph(g, 'chart', m, 90); m.cd = vary(1300, 1100) }
+  else if (m.role === 'reviewer' && m.cd <= 0 && g.t > 600) { note(m, pick(REVIEW_LINES)); m.cd = vary(1500, 1200) } else if (m.role === 'analyst' && m.cd <= 0 && g.t > 600) { glyph(g, 'chart', m, 90); m.cd = vary(1300, 1100) }
   return false
 }
 
@@ -98,7 +98,7 @@ export function onTrendCaught(g: Game): void {
   if (!m || g.held || g.asleep || bossFighting(g)) return
   glyph(g, 'sparkle', m, 70)
   note(m, 'reading…')
-  fxBurst(g, m.x, m.y, 6, '#36c6e0')
+  fxBurst(g, m.x, m.y, 6, CYAN)
 }
 
 // The Deployer's rocket: up and away after a pop, or homing on the boss after a big hit.
@@ -106,7 +106,7 @@ export function deployRocket(g: Game, boss: boolean): void {
   const m = member(g, 'deployer')
   if (!m || g.held || g.asleep || g.crew.rockets.length >= MAX_ROCKETS) return
   g.crew.rockets.push({ x: m.x, y: m.y - 8, vx: rand(-1.2, 1.2), vy: -3.2, life: 0, max: boss ? 120 : 70, boss })
-  fxBurst(g, m.x, m.y + 10, 8, '#ffd23b')
+  fxBurst(g, m.x, m.y + 10, 8, YELLOW)
 }
 
 // Moves the team's shots, rockets and glyphs, and tracks the robot's heading for the Planner's path.
@@ -148,12 +148,12 @@ export function tickCrew(g: Game): void {
       r.vx += (Math.cos(a) * 6 - r.vx) * 0.08; r.vy += (Math.sin(a) * 6 - r.vy) * 0.08
     } else { r.vy -= 0.12; r.vx += Math.sin(r.life * 0.3) * 0.15 }
     r.x += r.vx; r.y += r.vy
-    if (g.fxp.length < MAX_TRAIL) g.fxp.push({ x: r.x - r.vx, y: r.y - r.vy, vx: -r.vx * 0.2 + rand(-0.4, 0.4), vy: -r.vy * 0.2 + rand(-0.4, 0.4), life: 0, max: 16 + rand(0, 10), c: pick(['#ffd23b', '#ff5a1f', '#ffffff']) })
+    if (g.fxp.length < MAX_TRAIL) g.fxp.push({ x: r.x - r.vx, y: r.y - r.vy, vx: -r.vx * 0.2 + rand(-0.4, 0.4), vy: -r.vy * 0.2 + rand(-0.4, 0.4), life: 0, max: 16 + rand(0, 10), c: pick([YELLOW, ORANGE, WHITE]) })
     const hit = r.boss && b && Math.hypot(r.x - b.x, r.y - b.y) < bossR(g) - g.tapPad
     if (hit) hurtBoss(g, 4, false)
     if (hit || r.life >= r.max || r.y < -20 || r.x < -20 || r.x > g.W + 20) {
-      fxBurst(g, r.x, r.y, 12, '#ffd23b'); fxBurst(g, r.x, r.y, 6, '#ffffff')
-      g.rings.push({ x: r.x, y: r.y, life: 0, max: 20, c: '#ff5a1f' })
+      fxBurst(g, r.x, r.y, 12, YELLOW); fxBurst(g, r.x, r.y, 6, WHITE)
+      g.rings.push({ x: r.x, y: r.y, life: 0, max: 20, c: ORANGE })
       cr.rockets.splice(i, 1)
     }
   }
@@ -173,7 +173,7 @@ function drawPlan(c: CanvasRenderingContext2D, g: Game): void {
   const cr = g.crew
   if (cr.plan <= 0.02 || g.gone > 0 || !member(g, 'planner')) return
   const sp = Math.hypot(cr.vx, cr.vy) || 1, ux = cr.vx / sp, uy = cr.vy / sp
-  const d0 = 22 * g.size() * g.DS, len = clamp(sp * 26, 50, 120), off = (g.t * 0.5) % 16
+  const d0 = 22 * g.size() * g.displayScale, len = clamp(sp * 26, 50, 120), off = (g.t * 0.5) % 16
   c.fillStyle = ROLE_INFO.planner.c
   for (let i = 0; i < 8; i++) {
     const d = d0 + off + i * 16
@@ -182,17 +182,17 @@ function drawPlan(c: CanvasRenderingContext2D, g: Game): void {
     c.fillRect(Math.round(g.pos.x + ux * d) - 2, Math.round(g.pos.y + uy * d) - 2, 4, 4)
   }
   const ex = Math.round(g.pos.x + ux * (d0 + len + 10)), ey = Math.round(g.pos.y + uy * (d0 + len + 10))
-  c.globalAlpha = cr.plan * 0.8; c.fillStyle = '#ff5a1f'
+  c.globalAlpha = cr.plan * 0.8; c.fillStyle = ORANGE
   for (let k = -3; k <= 3; k++) { c.fillRect(ex + k - 1, ey + k - 1, 2, 2); c.fillRect(ex + k - 1, ey - k - 1, 2, 2) }
   c.globalAlpha = 1
 }
 
 function drawChart(c: CanvasRenderingContext2D, q: Glyph): void {
   const k = Math.min(1, q.life / 24), x = Math.round(q.x - 9), y = Math.round(q.y - q.life * 0.4)
-  const bars: [number, string][] = [[5, '#36c6e0'], [9, '#ff5a1f'], [7, '#36c6e0'], [13, '#0b6bcb']]
+  const bars: [number, string][] = [[5, CYAN], [9, ORANGE], [7, CYAN], [13, DEEP_BLUE]]
   c.globalAlpha = fade(q.life, q.max, 25)
-  c.fillStyle = '#f5f9fd'; c.fillRect(x - 2, y - 16, 22, 19)
-  c.fillStyle = '#0c2236'; c.fillRect(x - 2, y + 2, 22, 1); c.fillRect(x - 2, y - 16, 1, 18)
+  c.fillStyle = PAPER; c.fillRect(x - 2, y - 16, 22, 19)
+  c.fillStyle = INK; c.fillRect(x - 2, y + 2, 22, 1); c.fillRect(x - 2, y - 16, 1, 18)
   bars.forEach(([h, col], i) => { c.fillStyle = col; const bh = Math.round(h * k); c.fillRect(x + i * 5, y + 1 - bh, 4, bh) })
   c.globalAlpha = 1
 }
@@ -205,7 +205,7 @@ function drawSparkle(c: CanvasRenderingContext2D, g: Game, q: Glyph): void {
     const a = q.life * 0.06 + i * Math.PI / 2, r = 16 + Math.sin(q.life * 0.2 + i) * 3
     const x = Math.round(m.x + Math.cos(a) * r), y = Math.round(m.y - 4 + Math.sin(a) * r * 0.7)
     const arm = (q.life + i * 5) % 16 < 8 ? 3 : 1
-    c.fillStyle = i % 2 ? '#ffffff' : '#36c6e0'
+    c.fillStyle = i % 2 ? WHITE : CYAN
     c.fillRect(x - arm, y, arm * 2 + 1, 1); c.fillRect(x, y - arm, 1, arm * 2 + 1)
   }
   c.globalAlpha = 1
@@ -217,20 +217,20 @@ function drawNote(c: CanvasRenderingContext2D, m: TeamMember): void {
   const w = Math.ceil(c.measureText(m.note).width) + 10, h = 15
   const x = Math.round(m.x - w / 2), y = Math.round(m.y - 24 - h - rise * 4)
   c.globalAlpha = fade(age, NOTE, 20) * rise
-  c.fillStyle = '#0c2236'; c.fillRect(x + 2, y + 2, w, h)
-  c.fillStyle = '#f5f9fd'; c.fillRect(x, y, w, h)
-  c.strokeStyle = '#0c2236'; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1)
-  c.fillStyle = '#f5f9fd'; c.fillRect(Math.round(m.x) - 2, y + h - 1, 4, 3)
-  c.fillStyle = '#0c2236'; c.fillRect(Math.round(m.x) - 3, y + h - 1, 1, 3); c.fillRect(Math.round(m.x) + 2, y + h - 1, 1, 3); c.fillRect(Math.round(m.x) - 2, y + h + 2, 4, 1)
+  c.fillStyle = INK; c.fillRect(x + 2, y + 2, w, h)
+  c.fillStyle = PAPER; c.fillRect(x, y, w, h)
+  c.strokeStyle = INK; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1)
+  c.fillStyle = PAPER; c.fillRect(Math.round(m.x) - 2, y + h - 1, 4, 3)
+  c.fillStyle = INK; c.fillRect(Math.round(m.x) - 3, y + h - 1, 1, 3); c.fillRect(Math.round(m.x) + 2, y + h - 1, 1, 3); c.fillRect(Math.round(m.x) - 2, y + h + 2, 4, 1)
   c.textAlign = 'center'; c.fillText(m.note, Math.round(m.x), y + 11)
   c.globalAlpha = 1
 }
 
 function drawRocket(c: CanvasRenderingContext2D, r: { x: number, y: number, vx: number, vy: number }): void {
   c.save(); c.translate(Math.round(r.x), Math.round(r.y)); c.rotate(Math.atan2(r.vy, r.vx) + Math.PI / 2)
-  c.fillStyle = '#ffd23b'; c.fillRect(-2, -5, 4, 8)
-  c.fillStyle = '#ff5a1f'; c.fillRect(-1, -7, 2, 2); c.fillRect(-4, 1, 2, 3); c.fillRect(2, 1, 2, 3)
-  c.fillStyle = '#0c2236'; c.fillRect(-1, -3, 2, 2)
+  c.fillStyle = YELLOW; c.fillRect(-2, -5, 4, 8)
+  c.fillStyle = ORANGE; c.fillRect(-1, -7, 2, 2); c.fillRect(-4, 1, 2, 3); c.fillRect(2, 1, 2, 3)
+  c.fillStyle = INK; c.fillRect(-1, -3, 2, 2)
   c.restore()
 }
 
@@ -267,7 +267,7 @@ export function agentAt(g: Game, x: number, y: number): TeamMember | null {
 
 export function grabAgent(g: Game, m: TeamMember): void {
   m.held = true; m.air = 0
-  note(m, pick(agentGrabLines))
+  note(m, pick(AGENT_GRAB_LINES))
   fxBurst(g, m.x, m.y, 6, ROLE_INFO[m.role].c)
   g.buzz(12)
 }
@@ -277,20 +277,20 @@ export function tossAgent(g: Game, m: TeamMember, vx: number, vy: number): void 
   const sp = Math.hypot(vx, vy)
   m.held = false; m.vx = vx; m.vy = vy; m.air = (30 + Math.min(70, sp * 4)) | 0; m.struck = false
   if (sp > 9) {
-    note(m, pick(agentTossLines))
-    if (Math.random() < 0.35 && g.gone <= 0 && !g.held) g.say(pick(agentTossRobotLines).replace('{r}', ROLE_INFO[m.role].label), 180)
+    note(m, pick(AGENT_TOSS_LINES))
+    if (Math.random() < 0.35 && g.gone <= 0 && !g.held) g.say(pick(AGENT_TOSS_ROBOT_LINES).replace('{r}', ROLE_INFO[m.role].label), 180)
   }
 }
 
-// A thrown agent hits what it meets once a throw: the boss takes damage by speed, the trend tag drops.
+// A thrown agent hits one thing per throw: the boss takes damage by speed, or the trend tag drops.
 function strike(g: Game, m: TeamMember): void {
   const b = g.boss, sp = Math.hypot(m.vx, m.vy), c = ROLE_INFO[m.role].c
   if (b && b.phase === 'fight' && Math.hypot(m.x - b.x, m.y - b.y) < bossR(g)) {
     m.struck = true
     hurtBoss(g, Math.min(12, 2 + sp * 0.5), sp > 14)
     g.freeze = 3; g.buzz(20)
-    fxBurst(g, m.x, m.y, 14, c); fxBurst(g, m.x, m.y, 8, '#ffffff')
-    feedback(g, m.x, m.y, 'THROWN!', c); note(m, pick(agentBossHitLines))
+    fxBurst(g, m.x, m.y, 14, c); fxBurst(g, m.x, m.y, 8, WHITE)
+    feedback(g, m.x, m.y, 'THROWN!', c); note(m, pick(AGENT_BOSS_HIT_LINES))
     m.vx *= -0.5; m.vy *= -0.5
     return
   }
@@ -323,6 +323,6 @@ export function flyAgent(g: Game, m: TeamMember): boolean {
   if (m.x < TEAM_HALF || m.x > g.W - TEAM_HALF) { m.x = clamp(m.x, TEAM_HALF, g.W - TEAM_HALF); m.vx *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c) }
   if (m.y < TEAM_HALF || m.y > g.H - TEAM_HALF) { m.y = clamp(m.y, TEAM_HALF, g.H - TEAM_HALF); m.vy *= -0.7; fxBurst(g, m.x, m.y, 5, ROLE_INFO[m.role].c) }
   if (Math.abs(m.vx) > 0.5) m.dir = m.vx < 0 ? -1 : 1
-  if (m.air === 0) note(m, pick(agentLandLines))
+  if (m.air === 0) note(m, pick(AGENT_LAND_LINES))
   return true
 }

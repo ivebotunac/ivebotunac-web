@@ -1,18 +1,19 @@
 // Boss shots burn CV letters for a while: each flares, burns in pixel flame, then leaves soot.
 // Only the visitor's DOM changes, never the served HTML; letters heal on a timer, a win, or before print.
+import { BODY, CYAN, INK, ORANGE, SLATE, YELLOW } from './config'
 import { fxBurst } from './effects'
 import type { Game } from './core'
 
 const CLASS = 'ib-burnt'
-// HEAL: ticks a letter stays out at 60 Hz; FLAME: the first of those it burns; MAX: the most out at once.
+// HEAL: ticks a burnt letter stays gone; FLAME: how many of those it visibly burns; MAX: most gone at once.
 const HEAL = 1500
 const FLAME = 200
 const MAX = 260
 // Text that must stay whole: links and buttons, headings that name a section, the game's own UI.
 const KEEP = 'a, button, input, label, h1, h2, script, style, [data-game-ui], .cv-tog'
-const ASH = ['#0c2236', '#213b54', '#3b7cc0', '#ff5a1f', '#ffd23b']
+const ASH = [INK, SLATE, BODY, ORANGE, YELLOW]
 // Flame pixels cool from white-hot to smoke as they rise.
-const HEAT = ['#fff6c2', '#ffd23b', '#ffa51f', '#ff5a1f', '#d7381b', '#7a2414', '#3a2a2a']
+const HEAT = ['#fff6c2', YELLOW, '#ffa51f', ORANGE, '#d7381b', '#7a2414', '#3a2a2a']
 const PX = 3
 
 interface Burn { span: HTMLSpanElement, born: number, healAt: number }
@@ -72,7 +73,7 @@ export function scorch(g: Game, x: number, y: number, r = 34, most = 22): number
   // from the end of each text node backwards, so a split never moves a letter still to burn
   hits.sort((a, b) => b.i - a.i)
   for (const h of hits) burnLetter(g, h.node, h.i)
-  if (hits.length) { fxBurst(g, x, y, 10, '#ffa51f'); fxBurst(g, x, y, 6, '#0c2236') }
+  if (hits.length) { fxBurst(g, x, y, 10, '#ffa51f'); fxBurst(g, x, y, 6, INK) }
   return hits.length
 }
 
@@ -93,7 +94,7 @@ function heal(g: Game | null, burn: Burn, sparkle: boolean): void {
   const { span } = burn
   if (sparkle && g && span.isConnected) {
     const b = span.getBoundingClientRect()
-    if (b.bottom > 0 && b.top < g.H) fxBurst(g, b.left + b.width / 2, b.top + b.height / 2, 3, '#36c6e0')
+    if (b.bottom > 0 && b.top < g.H) fxBurst(g, b.left + b.width / 2, b.top + b.height / 2, 3, CYAN)
   }
   const parent = span.parentNode
   if (!parent) return

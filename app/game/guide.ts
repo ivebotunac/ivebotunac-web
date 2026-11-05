@@ -1,5 +1,5 @@
 // Teaches the game one skill at a time and remembers the visitor, in their own browser only.
-import { LINK_LINES, TUT_LINES, deployerLines, lastAgentLine, lastDeployerLine, pick, recruitLines, rowRecruitLine, welcomeLines, welcomePopLines } from './config'
+import { LINK_LINES, TUT_LINES, DEPLOYER_LINES, LAST_AGENT_LINE, LAST_DEPLOYER_LINE, pick, RECRUIT_LINES, ROW_RECRUIT_LINE, WELCOME_LINES, WELCOME_POP_LINES } from './config'
 import { ROLES, ROLE_INFO } from './agents'
 import { CRITTERS } from './critters'
 import type { Game } from './core'
@@ -8,7 +8,7 @@ import type { AgentRole } from './types'
 export type Skill = keyof typeof TUT_LINES
 
 // team: roles recruited; teamActiveMs: page time while the team was incomplete, summed over visits.
-// teamMs: the finished time; bossRun/bossRunMs: the fastest fight's server id and time; seen: forms met.
+// teamMs: the finished time; bossRun/bossRunMs: the fastest fight's server id and time; seen: critter forms met.
 // bossMs: the best boss fight time on this device; a restart clears it.
 export interface Memory {
   learned: Skill[], best: number, pops: number, visits: number, team: AgentRole[], teamActiveMs: number, teamMs: number | null,
@@ -28,7 +28,7 @@ export function loadMemory(): Memory {
     for (const k of ['best', 'pops', 'visits'] as const) if (typeof raw[k] === 'number') m[k] = raw[k]
     if (Array.isArray(raw.team)) m.team = ROLES.filter(r => raw.team.includes(r))
     if (typeof raw.teamActiveMs === 'number') m.teamActiveMs = raw.teamActiveMs
-    // older memory kept only teamStartedAt, so a team under way gets its wall time, capped at an hour
+    // memory saved before teamActiveMs has only teamStartedAt: use the wall time since, capped at an hour
     else if (m.team.length && typeof raw.teamStartedAt === 'number') m.teamActiveMs = Math.max(0, Math.min(Date.now() - raw.teamStartedAt, 3600000))
     if (typeof raw.teamMs === 'number') m.teamMs = raw.teamMs
     if (typeof raw.bossRun === 'string') m.bossRun = raw.bossRun
@@ -56,14 +56,14 @@ function hint(g: Game, s: Skill): void {
   if (said >= MAX_SAID) return
   g.hintSaid[s] = said + 1; g.hintAt = g.t
   const l = TUT_LINES[s]
-  g.say(g.coarse ? l.touch : l.mouse, 300)
+  g.say((g.coarse && l.touch) || l.mouse, 300)
 }
 
-// Hit, throw, pet and the team quest are taught in calm moments; returns whether it spoke.
+// Hit, throw, pet, the quest, carrying agents and luring are taught in calm moments; returns if it spoke.
 export function calmHint(g: Game): boolean {
   if (!g.greeted && g.t > 240) {
     g.greeted = true
-    if (g.mem.visits > 1 && knows(g, 'hit')) { g.say(pick(g.mem.pops ? welcomePopLines : welcomeLines), 240); return true }
+    if (g.mem.visits > 1 && knows(g, 'hit')) { g.say(pick(g.mem.pops ? WELCOME_POP_LINES : WELCOME_LINES), 240); return true }
   }
   if (g.t < 360) return false
   const want: Skill[] = []
@@ -78,7 +78,7 @@ export function calmHint(g: Game): boolean {
   if (!knows(g, 'lure') && g.trend && !g.trend.held && knows(g, 'hit')) want.push('lure')
   // a hint not yet said goes before a repeat of another
   const s = want.find(k => !g.hintSaid[k]) ?? want.find(k => (g.hintSaid[k] || 0) < MAX_SAID)
-  // a first hint speaks at once; a repeat, or the quest hint queued behind another, waits REPEAT
+  // the first hint in line speaks at once; a repeat, or a hint queued behind another, waits REPEAT ticks
   if (!s || ((g.hintSaid[s] || s !== want[0]) && g.t - g.hintAt < REPEAT)) return false
   hint(g, s)
   return true
@@ -126,10 +126,10 @@ export function recruitLine(g: Game, role: AgentRole, row = ''): string {
   learn(g, 'team')
   const left = ROLES.filter(r => !g.mem.team.includes(r))
   if (!left.length) return ''
-  if (role === 'deployer' && left.length > 1) return pick(deployerLines)
+  if (role === 'deployer' && left.length > 1) return pick(DEPLOYER_LINES)
   const last = left.length === 1 ? left[0]! : null
-  if (last === 'deployer') return lastDeployerLine
-  if (last) return lastAgentLine.replace('{r}', ROLE_INFO[last].label).replace('{s}', ROLE_INFO[last].where)
-  const line = row ? rowRecruitLine.replace('{row}', () => row) : pick(recruitLines)
+  if (last === 'deployer') return LAST_DEPLOYER_LINE
+  if (last) return LAST_AGENT_LINE.replace('{r}', ROLE_INFO[last].label).replace('{s}', ROLE_INFO[last].where)
+  const line = row ? ROW_RECRUIT_LINE.replace('{row}', () => row) : pick(RECRUIT_LINES)
   return line.replace('{r}', ROLE_INFO[role].label) + ' ' + g.mem.team.length + '/' + ROLES.length + '.'
 }

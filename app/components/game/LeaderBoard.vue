@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue'
 import { postName } from '~/game/stats-client'
-import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
+import type { BoardEntry, GameStats, MyRun } from '~~/shared/types/game-stats'
 import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 import { BOARD_SIZE } from '~~/shared/utils/game-stats'
@@ -26,7 +26,7 @@ watch(() => props.board, (b) => {
 
 const inputId = useId()
 const canName = computed(() => !!props.run && !!props.mine && !props.mine.initials)
-const label = computed(() => `${(props.mine?.place ?? 0) <= 10 ? 'You made' : 'You are'} #${props.mine?.place}. Sign it with three letters:`)
+const label = computed(() => `${(props.mine?.place ?? 0) <= BOARD_SIZE ? 'You made' : 'You are'} #${props.mine?.place}. Sign it with three letters:`)
 // A signed run outside the top ten gets its own row under the list, at the time its initials hold.
 const below = computed(() => (props.mine?.initials && !props.board.some(e => e.mine) ? props.mine : null))
 // Initials that already hold a faster time keep it; this run's slower one is not shown.

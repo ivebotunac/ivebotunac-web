@@ -11,7 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const serverEntry = path.join(root, '.output/server/index.mjs')
 const out = path.join(root, 'public/ive-botunac-cv.pdf')
 
-// PLAYWRIGHT_CHROMIUM_PATH wins, else the newest cached Chromium, so any playwright-core version works.
+// PLAYWRIGHT_CHROMIUM_PATH, then the newest build in the macOS Playwright cache, else playwright-core's own.
 function findChromium() {
   const own = process.env.PLAYWRIGHT_CHROMIUM_PATH
   if (own) return own
@@ -54,8 +54,7 @@ async function waitFor(url, ms) {
 
 async function main() {
   if (!existsSync(serverEntry)) throw new Error('No .output/server/index.mjs: run npm run build first')
-  const executablePath = findChromium()
-  if (!executablePath) throw new Error('No Chromium found: set PLAYWRIGHT_CHROMIUM_PATH or run npx playwright install chromium')
+  const executablePath = findChromium() || undefined
 
   const port = await freePort(Number(process.env.CV_PDF_PORT) || 3011)
   const origin = `http://127.0.0.1:${port}`

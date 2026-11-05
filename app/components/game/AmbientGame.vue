@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { start, destroy } from '~/game/core'
 import { getGameStats, postBoss, postTeam } from '~/game/stats-client'
-import type { GameStats } from '~/game/stats-client'
+import type { GameStats } from '~~/shared/types/game-stats'
 import type { QuestBridge, QuestView } from '~/game/types'
 import { useActiveSection } from '~/composables/useActiveSection'
 import QuestHud from './QuestHud.vue'
@@ -46,14 +46,14 @@ let bossTimer: ReturnType<typeof setTimeout> | undefined
 const bridge: QuestBridge = {
   view: v => Object.assign(quest, v),
   announce: (text) => { announce.value = text },
-  // A fresh finish posts its time, and the answer carries this visitor's rank.
+  // A fresh finish posts its time; the answer carries its finishing order and the share it beat.
   // A refused time, such as one under the server's floor, still shows the board, not "offline".
-  finished: (ms) => { postTeam(ms, quest.bossRun).then(s => (s ? gotStats(s) : refresh())) },
+  finished: (ms) => { void postTeam(ms, quest.bossRun).then(s => (s ? gotStats(s) : refresh())) },
   // A fight started during the fly-by keeps the screen; the HUD chip opens the card later.
   complete: () => { if (!quest.boss) { cardMode.value = 'team'; cardOpen.value = true } },
   bossDone: (run, ms) => {
     fightMs.value = ms
-    if (run) postBoss(run).then(s => (s && run === quest.bossRun ? gotStats(s) : refresh()))
+    if (run) void postBoss(run).then(s => (s && run === quest.bossRun ? gotStats(s) : refresh()))
     else void refresh()
     clearTimeout(bossTimer)
     bossTimer = setTimeout(() => { cardMode.value = 'boss'; cardOpen.value = true }, 2400)

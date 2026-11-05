@@ -1,5 +1,5 @@
 // "Assemble the team": six sub-agents hide in CV rows; once recruited, they trail the robot.
-import { CONFETTI, clamp, formAllLine, formSeenLines, notHereLines, peekLines, pick, rand, restartLines, teamDoneLines, vary } from './config'
+import { CONFETTI, clamp, FORM_ALL_LINE, FORM_SEEN_LINES, NOT_HERE_LINES, PEEK_LINES, pick, rand, RESTART_LINES, TEAM_DONE_LINES, vary } from './config'
 import { CRITTERS } from './critters'
 import { ROLES, ROLE_INFO, drawAgent } from './agents'
 import { fxBurst } from './effects'
@@ -42,19 +42,19 @@ export function syncQuest(g: Game): void {
   g.bridge?.view({ team: [...m.team], done: m.team.length === ROLES.length, ms: m.teamMs, bossRun: m.bossRun, bossMs: m.bossRunMs, boss: bossFighting(g), seen: [...m.seen] })
 }
 
-// A first-met form joins the collection; returns a milestone line, every sixth and the last.
+// A first-met form joins the collection; returns a milestone line on every sixth form and the last, else ''.
 export function noteForm(g: Game, form: string): string {
   const m = g.mem
   if (!CRITTERS.includes(form) || m.seen.includes(form)) return ''
   m.seen.push(form); saveMemory(g); syncQuest(g)
   const n = m.seen.length, all = CRITTERS.length
-  g.popups.push({ x: g.pos.x, y: g.pos.y - 34 * g.size() * g.DS, text: 'NEW ' + n + '/' + all, life: 0, max: 70, c: '#0b6bcb', size: 14 })
+  g.popups.push({ x: g.pos.x, y: g.pos.y - 34 * g.size() * g.displayScale, text: 'NEW ' + n + '/' + all, life: 0, max: 70, c: '#0b6bcb', size: 14 })
   track('form_seen', { count: n })
-  if (n === all) return formAllLine.replace('{m}', String(all))
-  return n % 6 === 0 ? pick(formSeenLines).replace('{n}', String(n)).replace('{m}', String(all)) : ''
+  if (n === all) return FORM_ALL_LINE.replace('{m}', String(all))
+  return n % 6 === 0 ? pick(FORM_SEEN_LINES).replace('{n}', String(n)).replace('{m}', String(all)) : ''
 }
 
-// One random row per section, picked once a page view among rows on show, never inside CvMore's fold.
+// Hides each agent in one random row of its section, once per page view, never in a CvMore fold (`.more`).
 function pickHides(g: Game): void {
   for (const r of ROLES) {
     const id = ROLE_INFO[r].section
@@ -107,7 +107,7 @@ function spawnPeek(g: Game, role: AgentRole, row: HTMLDetailsElement): void {
   g.peeks.push(pk)
   fxBurst(g, pk.x, pk.y, 18, '#9b6bff'); fxBurst(g, pk.x, pk.y, 10, ROLE_INFO[role].c); fxBurst(g, pk.x, pk.y, 8, '#ffffff')
   g.rings.push({ x: pk.x, y: pk.y, life: 0, max: 28, c: '#9b6bff' })
-  if (g.gone <= 0) g.say(pick(g.coarse ? peekLines.touch : peekLines.mouse).replace('{r}', ROLE_INFO[role].label), 240)
+  if (g.gone <= 0) g.say(pick(g.coarse ? PEEK_LINES.touch : PEEK_LINES.mouse).replace('{r}', ROLE_INFO[role].label), 240)
 }
 
 function rowToggled(g: Game, d: HTMLDetailsElement): void {
@@ -119,7 +119,7 @@ function rowToggled(g: Game, d: HTMLDetailsElement): void {
   if (g.hides[role] === d) { if (kbd) recruitByKey(g, role, d); else spawnPeek(g, role, d); return }
   // only sometimes, so reading the CV never turns into a nag
   if (g.t - g.notHereAt > 600 && Math.random() < 0.45 && g.gone <= 0 && !g.held && g.knockT <= 0 && !g.peeks.length) {
-    g.notHereAt = g.t; g.say(pick(notHereLines).replace('{s}', ROLE_INFO[role].where), 220)
+    g.notHereAt = g.t; g.say(pick(NOT_HERE_LINES).replace('{s}', ROLE_INFO[role].where), 220)
   }
 }
 
@@ -144,7 +144,7 @@ export function questPop(g: Game, x: number, y: number): void {
   deployRocket(g, bossFighting(g))
 }
 
-// A keyboard open recruits at once; no pointer can pop the robot, so the last row brings the Deployer.
+// A keyboard-opened row recruits at once; with no pointer to pop the robot, the last row adds the Deployer.
 function recruitByKey(g: Game, role: AgentRole, row: HTMLDetailsElement): void {
   const { x, y } = rowPoint(g, row, 0.7)
   let text = recruit(g, role, x, y, row)
@@ -173,7 +173,7 @@ function recruit(g: Game, role: AgentRole, x: number, y: number, row: HTMLDetail
     track('team_complete', { ms: m.teamMs })
     g.bridge?.finished(m.teamMs)
     g.flyby = FLYBY; text += ' Team assembled.'
-    speak(g, pick(teamDoneLines))
+    speak(g, pick(TEAM_DONE_LINES))
   } else speak(g, line)
   saveMemory(g)
   syncQuest(g)
@@ -212,12 +212,12 @@ export function tickQuest(g: Game): void {
   lastNow = now
 
   // A loose V behind the robot, pairs further back; each member lags a little more than the one before.
-  const reach = 16 * Math.max(1, g.size()) * g.DS
+  const reach = 16 * Math.max(1, g.size()) * g.displayScale
   if (!g.asleep) drift++
   for (let i = 0; i < g.team.length; i++) {
     const m = g.team[i]!, row = (i >> 1) + 1, side = i % 2 ? 1 : -1
-    m.tx = clamp(g.pos.x - g.dir * (reach + row * 28 * g.DS), 20, g.W - 20)
-    m.ty = clamp(g.pos.y + side * (8 + row * 7) * g.DS - 4 * g.DS + Math.sin(drift * 0.06 + i * 1.3) * 4, 20, g.H - 20)
+    m.tx = clamp(g.pos.x - g.dir * (reach + row * 28 * g.displayScale), 20, g.W - 20)
+    m.ty = clamp(g.pos.y + side * (8 + row * 7) * g.displayScale - 4 * g.displayScale + Math.sin(drift * 0.06 + i * 1.3) * 4, 20, g.H - 20)
     if (flyAgent(g, m) || teamBehaviour(g, m)) continue
     const px = m.x, k = 0.085 - i * 0.008
     m.x += (m.tx - m.x) * k; m.y += (m.ty - m.y) * k
@@ -272,11 +272,11 @@ function restartGame(g: Game): void {
   m.learned = m.learned.filter(s => s !== 'team')
   g.boss = null; g.flyby = 0; g.team.length = 0; g.carry = null; g.peeks.length = 0; g.confetti.length = 0; g.hides = {}
   saveMemory(g); pickHides(g); syncQuest(g)
-  speak(g, pick(restartLines))
+  speak(g, pick(RESTART_LINES))
   track('game_restart')
 }
 
-// The toggle event does not bubble, so it is caught on the way down.
+// The details toggle event does not bubble, so bindQuest listens for it in the capture phase.
 export function bindQuest(g: Game): () => void {
   kbd = true; lastNow = performance.now()
   const onToggle = (e: Event) => { if (e.target instanceof HTMLDetailsElement) rowToggled(g, e.target) }

@@ -42,7 +42,6 @@ export const useGoogleAnalytics = () => {
       gtag('js', new Date());
 
       gtag('config', '${GA_ID}', {
-        anonymize_ip: true,
         cookie_flags: 'max-age=7200;secure;samesite=strict'
       });
     `

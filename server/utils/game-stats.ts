@@ -4,11 +4,11 @@ import { BOARD_SIZE } from '~~/shared/utils/game-stats'
 import { getGameDb } from './firebase-admin'
 
 const GAME_STATS_DOC = 'ivebotunac/stats'
-// One doc per boss fight, from its entry; the id is the visitor's claim on the time.
+// One doc per boss fight, created at its start; knowing the doc id is what lets a visitor finish or sign it.
 const RUNS = 'ivebotunac/stats/bossRuns'
-// One doc per initials at their best time: the top ten is one ordered query and a name appears once.
+// One doc per set of initials at its best time, so the top ten is one ordered query and each name shows once.
 const BOARD = 'ivebotunac/stats/bossBoard'
-// Entry, at least 300 hp at the fastest tap rate, then the death throes: no real fight is shorter.
+// No real fight is shorter: the entry, at least 300 hp at the fastest tap rate, then the death throes.
 const BOSS_MIN_MS = 9_000
 const BUCKET_MS = 30_000
 // 120 buckets of 30 s cover the first hour; everything slower shares one.
@@ -26,9 +26,9 @@ function bucketOrder(key: string): number {
   return Number.isInteger(i) && i >= 0 && i < BUCKET_COUNT ? i : -1
 }
 
-const count = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0)
+const nonNegative = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0)
 
-// Share of earlier completions slower than ms; a tie in the same bucket counts half.
+// Percent of earlier finishes slower than ms; a finish in the same 30 s bucket counts as half slower.
 function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestMs: number | null): number {
   if (prevBestMs === null || ms < prevBestMs) return 100
   const mine = bucketOrder(bucketKey(ms))
@@ -37,7 +37,7 @@ function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestM
   let same = 0
   for (const [key, raw] of Object.entries(teamTimes)) {
     const order = bucketOrder(key)
-    const n = count(raw)
+    const n = nonNegative(raw)
     if (order < 0 || n === 0) continue
     total += n
     if (order > mine) slower += n
@@ -47,10 +47,12 @@ function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestM
   return Math.max(0, Math.min(100, Math.round((100 * (slower + same / 2)) / total)))
 }
 
-function toStats(data: Record<string, unknown> | undefined): GameStats {
+type Data = Record<string, unknown> | undefined
+
+function toStats(data: Data): GameStats {
   const best = data?.bestMs
   return {
-    teams: count(data?.teams),
+    teams: nonNegative(data?.teams),
     bestMs: typeof best === 'number' && Number.isFinite(best) ? best : null,
     fasterThanPct: null,
     rank: null,
@@ -59,11 +61,10 @@ function toStats(data: Record<string, unknown> | undefined): GameStats {
   }
 }
 
-type Data = Record<string, unknown> | undefined
 const runMs = (data: Data): number | null => (typeof data?.ms === 'number' ? data.ms : null)
 const runInitials = (data: Data): string | null => (typeof data?.initials === 'string' ? data.initials : null)
 
-// The top ten, and the visitor's fight: its time, or once signed its initials' best, with its place.
+// Adds the top ten and the visitor's fight, placed by its initials' best once signed, else by its own time.
 async function withBoard(stats: GameStats, run: Data): Promise<GameStats> {
   const db = getGameDb(), initials = runInitials(run), ms = runMs(run)
   const [top, held] = await Promise.all([
@@ -114,8 +115,8 @@ export async function recordTeam(ms: number, run: string | null): Promise<GameSt
   return withBoard(stats, await runData(run))
 }
 
-// The server's own clock times the fight; null means an unknown run or a time no fight can reach.
-// A finished run repeats its answer.
+// The server's own clock times the fight; null means an unknown run or a time no real fight can reach.
+// Calling it again for a finished run returns the same answer without retiming it.
 export async function recordBoss(run: string): Promise<GameStats | null> {
   const db = getGameDb()
   const runRef = db.collection(RUNS).doc(run)
@@ -133,7 +134,7 @@ export async function recordBoss(run: string): Promise<GameStats | null> {
   return withBoard(toStats((await db.doc(GAME_STATS_DOC).get()).data()), data)
 }
 
-// Once per fight. One row per initials at their best, so a slower signature leaves the board as is.
+// Signs a fight once; each set of initials keeps one board row at its best, so a slower run leaves it alone.
 // Null means the fight is unknown, unfinished or already signed.
 export async function nameRun(run: string, initials: string): Promise<GameStats | null> {
   const db = getGameDb()

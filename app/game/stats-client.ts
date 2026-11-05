@@ -1,8 +1,6 @@
-// Counters and the board from /api/game; failures and the 4 s timeout resolve null so the game never hangs.
-// postName alone returns the failed HTTP status instead.
+// Client for /api/game, the team totals and boss board; failures and the 4 s timeout give null, never a hang.
+// postName alone returns the HTTP status of a failure instead, or 0 when nothing answered.
 import type { GameStats } from '~~/shared/types/game-stats'
-
-export type { BoardEntry, GameStats, MyRun } from '~~/shared/types/game-stats'
 
 const TIMEOUT_MS = 4000
 
@@ -32,26 +30,26 @@ async function request<T>(path: string, ok: (v: unknown) => v is T, init?: Reque
   return typeof r !== 'number' && ok(r.data) ? r.data : null
 }
 
-const event = (body: object): RequestInit => ({
+const jsonPost = (body: object): RequestInit => ({
   method: 'POST',
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify(body),
 })
 
-const post = <T>(body: object, ok: (v: unknown) => v is T) => request('/api/game/event', ok, event(body))
+const post = <T>(body: object, ok: (v: unknown) => v is T) => request('/api/game/event', ok, jsonPost(body))
 
-// run: the visitor's boss fight, to show its place on the board.
+// Passing the visitor's boss run id also returns that fight's place on the board.
 export function getGameStats(run: string | null): Promise<GameStats | null> {
   return request(run ? `/api/game/stats?run=${encodeURIComponent(run)}` : '/api/game/stats', isStats)
 }
 
-// The server notes a boss fight's start; its id is this visitor's claim on the finished time.
+// Asks the server to start timing a boss fight; only the returned id can later finish or sign that run.
 export async function startRun(): Promise<string | null> {
   const r = await post({ kind: 'run' }, (v): v is { run: string } => typeof (v as { run?: unknown } | null)?.run === 'string')
   return r?.run ?? null
 }
 
-// A finished team adds to the totals; run is the visitor's boss fight, so the answer carries its place.
+// A finished team adds to the shared totals; passing the boss run id also returns that fight's place.
 export function postTeam(ms: number, run: string | null): Promise<GameStats | null> {
   return post({ kind: 'team', ms, ...(run ? { run } : {}) }, isStats)
 }
@@ -61,7 +59,7 @@ export function postBoss(run: string): Promise<GameStats | null> {
 }
 
 export async function postName(run: string, initials: string): Promise<GameStats | number> {
-  const r = await send('/api/game/event', event({ kind: 'name', run, initials }))
+  const r = await send('/api/game/event', jsonPost({ kind: 'name', run, initials }))
   if (typeof r === 'number') return r
   return isStats(r.data) ? r.data : 0
 }

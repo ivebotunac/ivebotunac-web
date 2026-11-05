@@ -1,11 +1,11 @@
 // Particle factories plus the per-frame sparkle and fx-layer render passes.
-import { BRAND, CX, CY, MONO, col, hitLines, pick } from './config'
+import { BRAND, CX, CY, CYAN, DEEP_BLUE, HIT_LINES, INK, MONO, ORANGE, ROBOT_PALETTE, VIOLET, WHITE, pick } from './config'
 import { scorchBusy } from './scorch'
 import type { Game } from './core'
 
 export function emit(g: Game, n: number, spread: number): void {
   if (g.sparks.length > 120) return
-  const spark = col.spark
+  const spark = ROBOT_PALETTE.spark
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2, s = 0.3 + Math.random() * 1.2
     g.sparks.push({ x: CX + (Math.random() - 0.5) * spread, y: CY + (Math.random() - 0.5) * spread, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 0.3, life: 0, max: 22 + Math.random() * 20, c: pick(spark) })
@@ -13,14 +13,14 @@ export function emit(g: Game, n: number, spread: number): void {
 }
 
 export function fireBeam(g: Game, x1: number, y1: number, x2: number, y2: number, c?: string): void {
-  if (g.fxc) g.beams.push({ x1, y1, x2, y2, life: 0, max: 10, c: c || '#ff5a1f' })
+  if (g.fxc) g.beams.push({ x1, y1, x2, y2, life: 0, max: 10, c: c || ORANGE })
 }
 
 export function fxBurst(g: Game, x: number, y: number, n: number, c?: string): void {
   if (!g.fxc) return
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2, s = 1 + Math.random() * 3
-    g.fxp.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0, max: 20 + Math.random() * 20, c: c || pick(col.spark) })
+    g.fxp.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0, max: 20 + Math.random() * 20, c: c || pick(ROBOT_PALETTE.spark) })
   }
 }
 
@@ -31,10 +31,10 @@ export function feedback(g: Game, x: number, y: number, text: string, c: string)
   g.popups.push({ x, y, text, life: 0, max: 60, c })
 }
 
-// The AI lands a hit on the cursor.
+// One of the robot's attacks lands on the cursor: a taunt plus the hit feedback.
 export function cursorHit(g: Game, x: number, y: number, text?: string): void {
-  g.say(pick(hitLines))
-  feedback(g, x, y, text || 'HIT!', '#ff5a1f')
+  g.say(pick(HIT_LINES))
+  feedback(g, x, y, text || 'HIT!', ORANGE)
 }
 
 export function explode(g: Game, x: number, y: number): void {
@@ -48,11 +48,11 @@ export function explode(g: Game, x: number, y: number): void {
 export function magic(g: Game): void {
   emit(g, 30, 30)
   if (!g.fxc) return
-  fxBurst(g, g.pos.x, g.pos.y, 24, '#9b6bff')
-  fxBurst(g, g.pos.x, g.pos.y, 16, '#36c6e0')
-  fxBurst(g, g.pos.x, g.pos.y, 10, '#ffffff')
-  g.rings.push({ x: g.pos.x, y: g.pos.y, life: 0, max: 30, c: '#9b6bff' })
-  g.rings.push({ x: g.pos.x, y: g.pos.y, life: 0, max: 22, c: '#ffffff' })
+  fxBurst(g, g.pos.x, g.pos.y, 24, VIOLET)
+  fxBurst(g, g.pos.x, g.pos.y, 16, CYAN)
+  fxBurst(g, g.pos.x, g.pos.y, 10, WHITE)
+  g.rings.push({ x: g.pos.x, y: g.pos.y, life: 0, max: 30, c: VIOLET })
+  g.rings.push({ x: g.pos.x, y: g.pos.y, life: 0, max: 22, c: WHITE })
 }
 
 // Drawn on the robot's own canvas, not the fx layer.
@@ -69,14 +69,9 @@ export function renderSparks(g: Game): void {
   ctx.globalAlpha = 1
 }
 
-// Screen-space layer: lasers, bursts, bullets, balls, debris, rings, popups; quest, team, boss draw after.
-export function renderFx(g: Game, recent: boolean): void {
-  const fxc = g.fxc; if (!fxc) return
-  const W = g.W, H = g.H
-  const anyFx = g.beams.length || g.fxp.length || g.bullets.length || g.balls.length || g.debris.length || g.rings.length || g.popups.length
-    || g.team.length || g.peeks.length || g.confetti.length || g.boss || g.crew.shots.length || g.crew.rockets.length || g.crew.glyphs.length || scorchBusy()
-  if (anyFx || g.fxActive) fxc.clearRect(0, 0, W, H)
-  g.fxActive = !!anyFx
+type Ctx = CanvasRenderingContext2D
+
+function drawBeams(g: Game, fxc: Ctx): void {
   for (let b = g.beams.length - 1; b >= 0; b--) {
     const bm = g.beams[b]!
     bm.life++
@@ -87,33 +82,42 @@ export function renderFx(g: Game, recent: boolean): void {
     fxc.globalAlpha = al * 0.5; fxc.lineWidth = 1; fxc.stroke()
   }
   fxc.globalAlpha = 1
+}
+
+function drawBullets(g: Game, fxc: Ctx): void {
   for (let m = 0; m < g.bullets.length; m++) {
     const bb = g.bullets[m]!
     if (bb.glyph) {
       fxc.font = '700 14px ' + MONO; fxc.textAlign = 'center'; fxc.textBaseline = 'middle'
-      fxc.fillStyle = bb.c ?? '#ff5a1f'; fxc.fillText(bb.glyph, Math.round(bb.x), Math.round(bb.y))
+      fxc.fillStyle = bb.c ?? ORANGE; fxc.fillText(bb.glyph, Math.round(bb.x), Math.round(bb.y))
       fxc.textBaseline = 'alphabetic'
       continue
     }
-    fxc.fillStyle = '#ff5a1f'; fxc.fillRect(Math.round(bb.x) - 2, Math.round(bb.y) - 2, 4, 4)
+    fxc.fillStyle = ORANGE; fxc.fillRect(Math.round(bb.x) - 2, Math.round(bb.y) - 2, 4, 4)
     fxc.globalAlpha = 0.4; fxc.fillStyle = '#ffd9c7'; fxc.fillRect(Math.round(bb.x - bb.vx) - 1, Math.round(bb.y - bb.vy) - 1, 2, 2)
     fxc.globalAlpha = 1
   }
-  // Thrown balls arc under gravity, spin, and catch the cursor on contact.
+}
+
+// Thrown balls arc under gravity, spin, and catch the cursor on contact.
+function drawBalls(g: Game, fxc: Ctx, recent: boolean): void {
   for (let z = g.balls.length - 1; z >= 0; z--) {
     const ba = g.balls[z]!
     ba.vy += 0.12; ba.x += ba.vx; ba.y += ba.vy; ba.spin += ba.dspin; ba.life++
-    if (recent && Math.hypot(ba.x - g.mouseX, ba.y - g.mouseY) < 42) { cursorHit(g, g.mouseX, g.mouseY, 'GOTCHA!'); fxBurst(g, ba.x, ba.y, 18, '#ffffff'); g.balls.splice(z, 1); continue }
-    if (ba.life > ba.max || ba.x < -28 || ba.x > W + 28 || ba.y > H + 28) { fxBurst(g, ba.x, ba.y, 6, '#ff5a1f'); g.balls.splice(z, 1); continue }
+    if (recent && Math.hypot(ba.x - g.mouseX, ba.y - g.mouseY) < 42) { cursorHit(g, g.mouseX, g.mouseY, 'GOTCHA!'); fxBurst(g, ba.x, ba.y, 18, WHITE); g.balls.splice(z, 1); continue }
+    if (ba.life > ba.max || ba.x < -28 || ba.x > g.W + 28 || ba.y > g.H + 28) { fxBurst(g, ba.x, ba.y, 6, ORANGE); g.balls.splice(z, 1); continue }
     // A data orb in the site palette: navy shell, orange ring, cyan core, a notch that shows the spin.
     fxc.save(); fxc.translate(Math.round(ba.x), Math.round(ba.y)); fxc.rotate(ba.spin)
     const R = 15
-    fxc.fillStyle = '#0c2236'; fxc.beginPath(); fxc.arc(0, 0, R, 0, Math.PI * 2); fxc.fill()
-    fxc.strokeStyle = '#ff5a1f'; fxc.lineWidth = 3; fxc.beginPath(); fxc.arc(0, 0, R - 4, 0, Math.PI * 2); fxc.stroke()
-    fxc.fillStyle = '#36c6e0'; fxc.beginPath(); fxc.arc(0, 0, 5, 0, Math.PI * 2); fxc.fill()
-    fxc.fillStyle = '#ffffff'; fxc.fillRect(-2, -R + 1, 4, 5)
+    fxc.fillStyle = INK; fxc.beginPath(); fxc.arc(0, 0, R, 0, Math.PI * 2); fxc.fill()
+    fxc.strokeStyle = ORANGE; fxc.lineWidth = 3; fxc.beginPath(); fxc.arc(0, 0, R - 4, 0, Math.PI * 2); fxc.stroke()
+    fxc.fillStyle = CYAN; fxc.beginPath(); fxc.arc(0, 0, 5, 0, Math.PI * 2); fxc.fill()
+    fxc.fillStyle = WHITE; fxc.fillRect(-2, -R + 1, 4, 5)
     fxc.restore()
   }
+}
+
+function drawBursts(g: Game, fxc: Ctx): void {
   for (let f = g.fxp.length - 1; f >= 0; f--) {
     const q = g.fxp[f]!
     q.life++; q.x += q.vx; q.y += q.vy; q.vy += 0.04
@@ -122,7 +126,11 @@ export function renderFx(g: Game, recent: boolean): void {
     const qs = q.life > q.max * 0.6 ? 2 : 3
     fxc.fillRect(Math.round(q.x), Math.round(q.y), qs, qs)
   }
-  // Debris bursts out, falls, piles at the bottom, then fades.
+}
+
+// Debris bursts out, falls, piles at the bottom, then fades.
+function drawDebris(g: Game, fxc: Ctx): void {
+  const H = g.H
   for (let d = g.debris.length - 1; d >= 0; d--) {
     const dd = g.debris[d]!
     dd.life++
@@ -134,13 +142,19 @@ export function renderFx(g: Game, recent: boolean): void {
     fxc.globalAlpha = dd.life > dd.max - 45 ? (dd.max - dd.life) / 45 : 1
     fxc.fillStyle = dd.c; fxc.fillRect(Math.round(dd.x), Math.round(dd.y), dd.sz, dd.sz)
   }
+}
+
+function drawRings(g: Game, fxc: Ctx): void {
   for (let gg = g.rings.length - 1; gg >= 0; gg--) {
     const rg = g.rings[gg]!
     rg.life++
     if (rg.life >= rg.max) { g.rings.splice(gg, 1); continue }
-    fxc.globalAlpha = (1 - rg.life / rg.max) * 0.85; fxc.strokeStyle = rg.c || '#0b6bcb'; fxc.lineWidth = 2
+    fxc.globalAlpha = (1 - rg.life / rg.max) * 0.85; fxc.strokeStyle = rg.c || DEEP_BLUE; fxc.lineWidth = 2
     fxc.beginPath(); fxc.arc(rg.x, rg.y, 8 + rg.life * 2.4, 0, Math.PI * 2); fxc.stroke()
   }
+}
+
+function drawPopups(g: Game, fxc: Ctx): void {
   fxc.textAlign = 'center'
   for (let u = g.popups.length - 1; u >= 0; u--) {
     const pu = g.popups[u]!
@@ -148,7 +162,24 @@ export function renderFx(g: Game, recent: boolean): void {
     if (pu.life >= pu.max) { g.popups.splice(u, 1); continue }
     fxc.font = '700 ' + (pu.size || 15) + 'px ' + MONO
     fxc.globalAlpha = pu.life > pu.max - 26 ? (pu.max - pu.life) / 26 : 1
-    fxc.fillStyle = pu.c || '#0b6bcb'; fxc.fillText(pu.text, pu.x, pu.y)
+    fxc.fillStyle = pu.c || DEEP_BLUE; fxc.fillText(pu.text, pu.x, pu.y)
   }
   fxc.globalAlpha = 1
+}
+
+// The screen-space fx layer: lasers, bullets, balls, bursts, debris, rings, popups; drawQuest draws after.
+// Order matters: a ball that hits the cursor spawns bursts, rings and a popup that animate this same frame.
+export function renderFx(g: Game, recent: boolean): void {
+  const fxc = g.fxc; if (!fxc) return
+  const anyFx = g.beams.length || g.fxp.length || g.bullets.length || g.balls.length || g.debris.length || g.rings.length || g.popups.length
+    || g.team.length || g.peeks.length || g.confetti.length || g.boss || g.crew.shots.length || g.crew.rockets.length || g.crew.glyphs.length || scorchBusy()
+  if (anyFx || g.fxActive) fxc.clearRect(0, 0, g.W, g.H)
+  g.fxActive = !!anyFx
+  drawBeams(g, fxc)
+  drawBullets(g, fxc)
+  drawBalls(g, fxc, recent)
+  drawBursts(g, fxc)
+  drawDebris(g, fxc)
+  drawRings(g, fxc)
+  drawPopups(g, fxc)
 }

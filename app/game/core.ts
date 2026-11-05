@@ -1,6 +1,5 @@
 // The orchestrator: one Game owns all state and element refs; tick.ts steps it at 60 ticks a second.
-import { MAX_SIZE, MORPH, ROBOT_LINES, U, dispScale, pick, vary, wakeLines } from './config'
-import type { FormName, Mood } from './config'
+import { MAX_SIZE, MORPH, ROBOT_LINES, U, dispScale, pick, vary, WAKE_LINES } from './config'
 import { linesFor } from './critters'
 import type { Act } from './critters'
 import { magic } from './effects'
@@ -10,7 +9,7 @@ import { bindQuest, initQuest, noteForm } from './quest'
 import { bindBoss } from './boss'
 import { frame } from './tick'
 import type { Memory, Skill } from './guide'
-import type { AttackKind, AttackPhase, Ball, Beam, Boss, Bullet, Carry, Confetti, Crew, Debris, GameRefs, Peek, Point, Popup, Press, Pxl, QuestBridge, Ring, AgentRole, Spark, TeamMember, Trend } from './types'
+import type { AttackKind, AttackPhase, Ball, Beam, Boss, Bullet, Carry, Confetti, Crew, Debris, GameRefs, Peek, Point, Popup, Press, Pxl, QuestBridge, Ring, AgentRole, Spark, TeamMember, Trend, FormName, Mood } from './types'
 
 export class Game {
   // element refs
@@ -36,7 +35,7 @@ export class Game {
   // viewport
   W = innerWidth
   H = innerHeight
-  DS = dispScale(this.W)
+  displayScale = dispScale(this.W)
   // touch gets bigger tap targets
   coarse = !!(typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
   tapPad = this.coarse ? 18 : 8
@@ -50,9 +49,9 @@ export class Game {
   mouseX = -999
   mouseY = -999
   lastMove = -999
-  pmX = -999
-  pmY = -999
-  pmMs = 0
+  prevMouseX = -999
+  prevMouseY = -999
+  prevMouseMs = 0
   // cursor speed over the last mousemove, in px per ms
   mouseV = 0
   // the cursor is over a link or a row toggle, which takes the click
@@ -104,19 +103,19 @@ export class Game {
   atkTimer = 0
   fired = false
   // knock / anger
-  krot = 0
-  kvx = 0
-  kvy = 0
+  knockRot = 0
+  knockVx = 0
+  knockVy = 0
   knockT = 0
   hitCD = 0
-  jugCD = 0
+  juggleCD = 0
   angryT = 0
-  // hit juice: hit-stop ticks, white flash, shake, squash spring
+  // hit feedback: hit-stop ticks, white flash, shake, squash spring
   freeze = 0
   flash = 0
   shake = 0
-  sq = 0
-  sqv = 0
+  squash = 0
+  squashV = 0
   // combo and inflation; at puff 1 it pops and is gone for `gone` ticks
   combo = 0
   comboT = 0
@@ -153,11 +152,11 @@ export class Game {
   partCD = 0
   shyT = 0
   // last pose, redrawn unchanged during hit-stop
-  st: Mood = 'idle'
+  mood: Mood = 'idle'
   bob = 0
   lean = 0
   moving = false
-  closed = false
+  eyesClosed = false
   // team quest (quest.ts): recruited agents in formation order, agents waiting in opened rows, the fly-by
   bridge: QuestBridge | null
   team: TeamMember[] = []
@@ -224,11 +223,11 @@ export class Game {
 
   // About the sprite's own half-width, so presses beside it reach the page underneath.
   hitR(): number {
-    return 16 * this.size() * this.DS + this.tapPad
+    return 16 * this.size() * this.displayScale + this.tapPad
   }
 
   kick(amt: number): void {
-    this.sqv += amt
+    this.squashV += amt
   }
 
   // Haptics on touch devices; iOS Safari has no vibrate and ignores it.
@@ -241,7 +240,7 @@ export class Game {
   wake(): void {
     this.lastInput = this.t
     if (this.idleTO !== undefined) { clearTimeout(this.idleTO); this.idleTO = undefined; this.raf = requestAnimationFrame(now => frame(this, now)) }
-    if (this.asleep) { this.asleep = false; this.say(pick(wakeLines), 180) }
+    if (this.asleep) { this.asleep = false; this.say(pick(WAKE_LINES), 180) }
   }
 
   // Peak-anger flash: an orange tint and faint blur over the viewport; `brand` mixes in cyan and blue.

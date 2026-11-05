@@ -1,14 +1,14 @@
 // Critter forms: sprites from ./critters baked per mood, plus each one's gait, particles, quirk and lines.
-// A critter's key and file name are its own name; the page shows its label and lines.
-import { col, pick, rand, vary } from './config'
-import type { Mood, Palette } from './config'
+// Each critter's key matches its JSON file name; visitors only ever see its label and lines.
+import { ROBOT_PALETTE, pick, rand, vary } from './config'
+import type { Mood, Palette } from './types'
 import { fxBurst } from './effects'
 import type { Game } from './core'
 
 type Move = 'walk' | 'hop' | 'float' | 'waddle' | 'slow' | 'dash'
 type Particle = 'spark' | 'ember' | 'bubble' | 'leaf' | 'heart' | 'shadow' | 'star' | 'psychic' | 'none'
 type Quirk = 'none' | 'nap' | 'copy' | 'daze' | 'vanish' | 'shy' | 'evolve' | 'proud'
-// How it flies when hit or thrown; floaters are light without saying so.
+// How it flies when hit or thrown; a floating critter with no weight set counts as light.
 type Weight = 'heavy' | 'light'
 export type LineKind = 'morph' | 'pet' | 'hit' | 'idle'
 
@@ -75,7 +75,7 @@ function bake(s: Sprite, frame: 'idle' | 'walk', eyes: Eyes): HTMLCanvasElement 
     const iris = () => { put(x, y, ec); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
     if (eyes === 'idle') { iris(); put(x, y, '#ffffff') } else if (eyes === 'blink') { put(x, y + 1, ec); put(x + 1, y + 1, ec) } else if (eyes === 'happy') { iris(); put(x, y - 1, '#ffffff'); put(x + 1, y - 1, ec) } else if (eyes === 'attack') { brow(); iris() } else if (eyes === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) } else {
       const o = x - 1
-      put(o, y - 1, col.dizzy); put(o + 2, y - 1, col.dizzy); put(o + 1, y, col.dizzy); put(o, y + 1, col.dizzy); put(o + 2, y + 1, col.dizzy)
+      put(o, y - 1, ROBOT_PALETTE.dizzy); put(o + 2, y - 1, ROBOT_PALETTE.dizzy); put(o + 1, y, ROBOT_PALETTE.dizzy); put(o, y + 1, ROBOT_PALETTE.dizzy); put(o + 2, y + 1, ROBOT_PALETTE.dizzy)
     }
   }
   return cv
@@ -84,10 +84,10 @@ function bake(s: Sprite, frame: 'idle' | 'walk', eyes: Eyes): HTMLCanvasElement 
 const baked = new Map<string, HTMLCanvasElement>()
 
 // Draws into the 48px box drawPet sets up; false when `form` is not a critter.
-export function drawCritter(c: CanvasRenderingContext2D, form: string, st: Mood, closed: boolean, moving: boolean, t: number): boolean {
+export function drawCritter(c: CanvasRenderingContext2D, form: string, mood: Mood, eyesClosed: boolean, moving: boolean, t: number): boolean {
   const s = SPRITES[form]
   if (!s) return false
-  const eyes: Eyes = st === 'knock' ? 'knock' : (closed ? 'blink' : st)
+  const eyes: Eyes = mood === 'knock' ? 'knock' : (eyesClosed ? 'blink' : mood)
   // floaters sway their tail or wisp all the time, walkers step only while moving
   const step = s.trait.move === 'float' ? Math.floor(t / 22) % 2 : (moving ? Math.floor(t / 7) % 2 : 0)
   const frame = step ? 'walk' : 'idle'
@@ -105,7 +105,7 @@ export function attackStyle(g: Game): { t: string[], c: string } | null {
   return p && p !== 'none' ? PARTICLES[p] : null
 }
 
-// Knock physics per tick and the share of a fling it takes: heavy forms drop, light ones drift.
+// Knocked: gravity and drag per tick, and the share of a throw's speed kept; heavy drops, light drifts.
 export function heft(g: Game): { grav: number, drag: number, fling: number, kind: Weight | 'normal' } {
   const t = SPRITES[g.curForm]?.trait
   const w = t?.weight ?? (t?.move === 'float' ? 'light' : undefined)
@@ -184,13 +184,13 @@ export function actTarget(g: Game): number | null {
 }
 
 // The mood and eyes a running quirk shows instead of the usual ones.
-export function actLook(g: Game, st: Mood, closed: boolean): { st: Mood, closed: boolean } {
+export function actLook(g: Game, mood: Mood, eyesClosed: boolean): { mood: Mood, eyesClosed: boolean } {
   const k = g.act?.kind
-  if (k === 'nap') return { st: 'idle', closed: true }
-  if (k === 'daze') return { st: 'knock', closed: false }
-  if (k === 'proud') return { st: 'happy', closed: false }
-  if (g.shyT > 0 && st === 'idle') return { st, closed: true }
-  return { st, closed }
+  if (k === 'nap') return { mood: 'idle', eyesClosed: true }
+  if (k === 'daze') return { mood: 'knock', eyesClosed: false }
+  if (k === 'proud') return { mood: 'happy', eyesClosed: false }
+  if (g.shyT > 0 && mood === 'idle') return { mood, eyesClosed: true }
+  return { mood, eyesClosed }
 }
 
 // Per tick while a critter is out: its particles, and now and then its quirk when nothing else is going on.
@@ -198,7 +198,7 @@ export function tickCritter(g: Game, calm: boolean): void {
   const s = SPRITES[g.curForm]
   if (g.shyT > 0) g.shyT--
   if (!s) { g.act = null; return }
-  const top = g.pos.y - 22 * g.size() * g.DS
+  const top = g.pos.y - 22 * g.size() * g.displayScale
   if (s.trait.particle !== 'none' && --g.partCD <= 0) {
     const p = PARTICLES[s.trait.particle]
     g.partCD = vary(36, 40)

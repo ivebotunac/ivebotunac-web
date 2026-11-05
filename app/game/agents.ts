@@ -1,5 +1,5 @@
 // The six sub-agents: who they are, where they hide, and their 16x16 sprites drawn onto the fx canvas.
-import { CYAN, INK, ORANGE, PAPER, YELLOW } from './config'
+import { CYAN, DEEP_BLUE, FAINT, INK, ORANGE, PAPER, SLATE, VIOLET, WHITE, YELLOW } from './config'
 import type { Pxl, AgentRole } from './types'
 
 export interface RoleInfo { label: string, section: string | null, where: string, c: string }
@@ -8,22 +8,22 @@ export const ROLES: readonly AgentRole[] = ['planner', 'researcher', 'analyst', 
 
 // `section` is the CV section id the agent hides in; the Deployer is earned by popping the robot.
 export const ROLE_INFO: Record<AgentRole, RoleInfo> = {
-  planner: { label: 'Planner', section: 'experience', where: 'Experience', c: '#36c6e0' },
-  researcher: { label: 'Researcher', section: 'publications', where: 'Publications', c: '#0b6bcb' },
-  analyst: { label: 'Analyst', section: 'education', where: 'Education', c: '#9b6bff' },
-  reviewer: { label: 'Reviewer', section: 'certifications', where: 'Certifications', c: '#ff5a1f' },
-  coder: { label: 'Coder', section: 'skills', where: 'Skills', c: '#213b54' },
-  deployer: { label: 'Deployer', section: null, where: 'a popped robot', c: '#ffd23b' }
+  planner: { label: 'Planner', section: 'experience', where: 'Experience', c: CYAN },
+  researcher: { label: 'Researcher', section: 'publications', where: 'Publications', c: DEEP_BLUE },
+  analyst: { label: 'Analyst', section: 'education', where: 'Education', c: VIOLET },
+  reviewer: { label: 'Reviewer', section: 'certifications', where: 'Certifications', c: ORANGE },
+  coder: { label: 'Coder', section: 'skills', where: 'Skills', c: SLATE },
+  deployer: { label: 'Deployer', section: null, where: 'a popped robot', c: YELLOW }
 }
 
 interface Look { body: string, dark: string, eye: string }
 
 const LOOK: Record<AgentRole, Look> = {
   planner: { body: CYAN, dark: '#1fa9c2', eye: PAPER },
-  researcher: { body: '#0b6bcb', dark: '#0a559e', eye: CYAN },
-  analyst: { body: '#9b6bff', dark: '#6f45d9', eye: PAPER },
+  researcher: { body: DEEP_BLUE, dark: '#0a559e', eye: CYAN },
+  analyst: { body: VIOLET, dark: '#6f45d9', eye: PAPER },
   reviewer: { body: ORANGE, dark: '#bf3f0b', eye: YELLOW },
-  coder: { body: '#213b54', dark: INK, eye: CYAN },
+  coder: { body: SLATE, dark: INK, eye: CYAN },
   deployer: { body: YELLOW, dark: '#c99a16', eye: ORANGE }
 }
 
@@ -41,7 +41,7 @@ function chassis(P: Pxl, k: Look, blink: boolean, jets: boolean, flick: boolean)
 function planner(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4)
   P(7, 0, 1, 3, k.dark); P(8, 0, 2, 1, ORANGE); P(8, 1, 1, 1, ORANGE)
-  P(12, 8, 3, 4, '#ffffff'); P(13, 8, 1, 1, INK); P(12, 9, 2, 1, '#93a8bc'); P(12, 10, 3, 1, '#93a8bc')
+  P(12, 8, 3, 4, WHITE); P(13, 8, 1, 1, INK); P(12, 9, 2, 1, FAINT); P(12, 10, 3, 1, FAINT)
 }
 
 // Researcher: a bulb antenna and a magnifying glass.
@@ -57,14 +57,14 @@ function analyst(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4)
   P(3, 4, 1, 3, k.dark); P(12, 4, 1, 3, k.dark)
   if (blink) { P(5, 5, 2, 1, PAPER); P(9, 5, 2, 1, PAPER) } else { P(5, 4, 2, 2, PAPER); P(9, 4, 2, 2, PAPER); P(7, 4, 2, 1, PAPER); P(6, 5, 1, 1, INK); P(10, 5, 1, 1, INK) }
-  P(6, 9, 4, 3, PAPER); P(6, 11, 1, 1, CYAN); P(7, 10, 1, 2, ORANGE); P(8, 11, 1, 1, CYAN); P(9, 9, 1, 3, '#0b6bcb')
+  P(6, 9, 4, 3, PAPER); P(6, 11, 1, 1, CYAN); P(7, 10, 1, 2, ORANGE); P(8, 11, 1, 1, CYAN); P(9, 9, 1, 3, DEEP_BLUE)
 }
 
 // Reviewer: a check mark on the chest and a pen in hand.
 function reviewer(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, true, t % 8 < 4)
-  P(8, 1, 1, 2, k.dark); P(8, 0, 1, 1, '#ffffff')
-  P(6, 10, 1, 1, '#ffffff'); P(7, 11, 1, 1, '#ffffff'); P(8, 10, 1, 1, '#ffffff'); P(9, 9, 1, 1, '#ffffff')
+  P(8, 1, 1, 2, k.dark); P(8, 0, 1, 1, WHITE)
+  P(6, 10, 1, 1, WHITE); P(7, 11, 1, 1, WHITE); P(8, 10, 1, 1, WHITE); P(9, 9, 1, 1, WHITE)
   P(12, 7, 1, 1, PAPER); P(12, 8, 1, 4, YELLOW); P(12, 12, 1, 1, INK)
 }
 
@@ -81,7 +81,7 @@ function deployer(P: Pxl, k: Look, blink: boolean, t: number): void {
   chassis(P, k, blink, false, false)
   P(4, 3, 8, 1, ORANGE); P(8, 1, 1, 2, k.dark); P(7, 0, 3, 1, ORANGE)
   P(3, 9, 1, 3, ORANGE); P(12, 9, 1, 3, ORANGE)
-  P(6, 13, 4, 1, ORANGE); P(7, 14, 2, 1, t % 6 < 3 ? '#ffffff' : YELLOW)
+  P(6, 13, 4, 1, ORANGE); P(7, 14, 2, 1, t % 6 < 3 ? WHITE : YELLOW)
   if (t % 6 < 3) P(7, 15, 2, 1, ORANGE)
 }
 

@@ -8,6 +8,20 @@ export interface GameRefs {
   rage: HTMLElement
 }
 
+// 'robot', or the key of a critter sprite in critters/.
+export type FormName = string
+
+export type Mood = 'idle' | 'happy' | 'attack' | 'mad' | 'knock'
+
+export interface Palette {
+  body: string
+  body2: string
+  screen: string
+  eye: string
+  dizzy: string
+  spark: string[]
+}
+
 export type Mode = 'held' | 'knock' | 'chase' | 'attack' | 'idle'
 export type AttackKind = 'bullets' | 'beam' | 'melee' | 'ball'
 export type AttackPhase = 'approach' | 'return'
@@ -31,13 +45,13 @@ export interface Press { sx: number, sy: number, x: number, y: number, ox: numbe
 // An agent or trend tag in hand: `ox`/`oy` keep the grab point, `hist` gives the throw, `moved` a drag.
 export interface Carry { kind: 'agent' | 'trend', m: TeamMember | null, sx: number, sy: number, ox: number, oy: number, moved: boolean, hist: { x: number, y: number, ms: number }[] }
 
-// The "Assemble the team" quest
 // Window events between the Vue UI and the game loop.
 export const GAME_EVENTS = { fight: 'game:fight-agi', endFight: 'game:end-fight', restart: 'game:restart' } as const
 
+// The "Assemble the team" quest
 export type AgentRole = 'planner' | 'researcher' | 'analyst' | 'reviewer' | 'coder' | 'deployer'
 // A recruited sub-agent trailing the robot; `tx`/`ty`: its formation spot, `cd`: behaviour cooldown.
-// `note`/`noteT`: a speech popup; `held` while carried; `air`: throw ticks left at `vx`/`vy`; `rot`: spin.
+// `note`/`noteT`: a speech popup; `held` while carried; `air`: ticks of flight left at `vx`/`vy`; `rot`: spin.
 export interface TeamMember { role: AgentRole, x: number, y: number, tx: number, ty: number, dir: number, slot: number, cd: number, note: string, noteT: number, held: boolean, air: number, vx: number, vy: number, rot: number, struck: boolean }
 // An agent popped out of an opened CV row, waiting for a click; it follows the row as the page scrolls.
 export interface Peek { role: AgentRole, row: HTMLDetailsElement, x: number, y: number, ox: number, life: number, phase: 'out' | 'wait' | 'in' }
@@ -77,7 +91,8 @@ export interface Boss {
   orbs: BossOrb[], ms: number, last: number, fireCD: number
   // the server's id for this fight, which times it for the boss board
   run: string | null
-  // offX/offY: dash/teleport push off its sweep, drifting back; mv: move under way; mvCD/burstCD: cooldowns
+  // offX/offY: how far a dash or teleport pushed it off its sweep, easing back; mv: the move under way
+  // mvCD/burstCD: ticks until the next dash or teleport, and until the next barrage
   offX: number, offY: number, mv: BossMove | null, mvCD: number, burstCD: number
 }
 // A dash glides fast to a new spot; a teleport flickers, vanishes, and lands somewhere else.

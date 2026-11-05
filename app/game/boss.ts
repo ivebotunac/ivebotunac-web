@@ -1,5 +1,5 @@
 // The AGI boss: a glitchy core that drops in, takes clicks, taps and team fire, and fires slow orbs.
-import { BRAND, bossBurnLines, bossHalfLines, bossLeaveLines, bossStartLines, bossWinLines, clamp, pick, rand, vary } from './config'
+import { BOSS_BURN_LINES, BOSS_HALF_LINES, BOSS_LEAVE_LINES, BOSS_START_LINES, BOSS_WIN_LINES, BRAND, CYAN, DEEP_BLUE, INK, ORANGE, VIOLET, WHITE, clamp, pick, rand, vary } from './config'
 import { explode, feedback, fireBeam, fxBurst } from './effects'
 import { clearTrend } from './actions'
 import { confetti, speak, syncQuest } from './quest'
@@ -8,6 +8,7 @@ import { repairAll, scorch, textTarget } from './scorch'
 import { saveMemory } from './guide'
 import { track } from '~/utils/track'
 import { startRun } from './stats-client'
+import { DIE, ENTER, TP_GONE, TP_OUT, bossPx, vanished } from './boss-shared'
 import type { Game } from './core'
 import { GAME_EVENTS } from './types'
 import type { Boss, BossMove } from './types'
@@ -16,20 +17,14 @@ import type { Boss, BossMove } from './types'
 const HP = 300
 const TAP = 2
 const CRIT = 6
-// Ticks: the entry, the death throes, a visitor who stops hitting for this long sends it away.
-export const ENTER = 100
-export const DIE = 100
+// Ticks without a hit before the boss gives up and leaves; shorter on touch.
 const IDLE = 2400
 const IDLE_TOUCH = 900
-// Ticks: a dash, a teleport's flicker before it goes, and how long it stays gone.
+// Ticks a dash takes.
 const DASH = 26
-export const TP_OUT = 24
-export const TP_GONE = 22
-// Once a fight, when its first shot burns letters.
+// Set when a fight's first shot burns letters, so the robot's burn line is said once a fight.
 let burnSaid = false
-// Screen pixels per sprite cell; the sprite is 24 cells wide.
-export const cell = (g: Game) => (g.W < 520 ? 3 : 4)
-export const bossR = (g: Game) => 12 * cell(g) + 6 + g.tapPad
+export const bossR = (g: Game) => 12 * bossPx(g) + 6 + g.tapPad
 export const bossFighting = (g: Game) => !!g.boss && (g.boss.phase === 'enter' || g.boss.phase === 'fight')
 
 function fmtMs(ms: number): string {
@@ -45,7 +40,7 @@ function startBoss(g: Game): void {
   // the HUD offers a new fight as soon as the old one ends, so a boss still flying off is replaced
   if ((g.boss && g.boss.phase !== 'leave') || g.printing) return
   g.boss = {
-    phase: 'enter', x: g.W / 2, y: -14 * cell(g), t: 0, hp: HP, max: HP, shown: HP, flash: 0, shake: 0,
+    phase: 'enter', x: g.W / 2, y: -14 * bossPx(g), t: 0, hp: HP, max: HP, shown: HP, flash: 0, shake: 0,
     combo: 0, comboT: 0, lastHit: g.t, quarter: 4, atkCD: 60, tele: null, orbs: [], ms: 0, last: performance.now(), fireCD: 90, run: null,
     offX: 0, offY: 0, mv: null, mvCD: 300, burstCD: 520
   }
@@ -56,7 +51,7 @@ function startBoss(g: Game): void {
   burnSaid = false
   for (const m of g.team) m.cd = vary(60, 90)
   track('boss_start')
-  speak(g, pick(bossStartLines))
+  speak(g, pick(BOSS_START_LINES))
   g.bridge?.announce('AGI boss incoming. ' + (g.coarse ? 'Tap' : 'Click') + ' it to fight.')
   syncQuest(g)
 }
@@ -76,9 +71,6 @@ export function bossAt(g: Game, x: number, y: number): boolean {
   return !!b && b.phase !== 'leave' && !vanished(b) && Math.hypot(x - b.x, y - b.y) < bossR(g)
 }
 
-// Mid-teleport, between the flicker and the landing, nothing can hit it.
-export const vanished = (b: Boss) => b.mv?.kind === 'tp' && b.mv.t >= TP_OUT
-
 // Checked in pointerDown before the robot; true when the press landed on the boss.
 export function hitBoss(g: Game, x: number, y: number): boolean {
   const b = g.boss
@@ -88,9 +80,9 @@ export function hitBoss(g: Game, x: number, y: number): boolean {
   b.lastHit = g.t; b.combo++; b.comboT = 90
   const big = b.combo % 8 === 0
   g.freeze = big ? 5 : 2; g.buzz(big ? [20, 20, 40] : 12)
-  fxBurst(g, x, y, big ? 16 : 8, pick(BRAND)); fxBurst(g, x, y, 6, '#ffffff')
-  g.rings.push({ x, y, life: 0, max: big ? 26 : 16, c: big ? '#ff5a1f' : '#0b6bcb' })
-  if (big) g.popups.push({ x: b.x, y: b.y - 13 * cell(g), text: b.combo + 'x CRIT!', life: 0, max: 60, c: '#ff5a1f', size: 18 })
+  fxBurst(g, x, y, big ? 16 : 8, pick(BRAND)); fxBurst(g, x, y, 6, WHITE)
+  g.rings.push({ x, y, life: 0, max: big ? 26 : 16, c: big ? ORANGE : DEEP_BLUE })
+  if (big) g.popups.push({ x: b.x, y: b.y - 13 * bossPx(g), text: b.combo + 'x CRIT!', life: 0, max: 60, c: ORANGE, size: 18 })
   hurtBoss(g, big ? CRIT : TAP, big)
   return true
 }
@@ -106,20 +98,20 @@ export function hurtBoss(g: Game, dmg: number, big: boolean): void {
   if (q < b.quarter && q > 0) {
     b.quarter = q
     g.bridge?.announce('AGI at ' + q * 25 + '% health.')
-    if (q === 2) speak(g, pick(bossHalfLines))
+    if (q === 2) speak(g, pick(BOSS_HALF_LINES))
     deployRocket(g, true)
   }
   if (b.hp <= 0) { b.phase = 'dying'; b.t = 0; b.tele = null; b.orbs.length = 0; syncQuest(g) }
 }
 
-// The robot fights from beside the boss with its cyan laser. Returns lerp.
+// The robot fights from beside the boss with its cyan laser; returns the lerp rate toward that spot.
 export function bossRobotTarget(g: Game): number {
   const b = g.boss!, side = g.pos.x >= b.x ? 1 : -1
   g.tgt.x = clamp(b.x + side * (bossR(g) + 90), 40, g.W - 40)
   g.tgt.y = clamp(b.y + 100 + Math.sin(g.t * 0.03) * 16, 60, g.H - 60)
   g.attackT = 0; g.beamAt = 0
   if (b.phase === 'fight' && !vanished(b) && --b.fireCD <= 0) {
-    fireBeam(g, g.pos.x, g.pos.y - 6, b.x, b.y, '#36c6e0'); fxBurst(g, b.x + rand(-10, 10), b.y + rand(-10, 10), 6, '#36c6e0')
+    fireBeam(g, g.pos.x, g.pos.y - 6, b.x, b.y, CYAN); fxBurst(g, b.x + rand(-10, 10), b.y + rand(-10, 10), 6, CYAN)
     hurtBoss(g, 1.2, false)
     b.fireCD = vary(70, 30)
   }
@@ -132,13 +124,13 @@ function cursorNear(g: Game, x: number, y: number, r: number): boolean {
 }
 
 function landHit(g: Game, b: Boss): void {
-  feedback(g, g.mouseX, g.mouseY, 'HIT!', '#ff5a1f')
+  feedback(g, g.mouseX, g.mouseY, 'HIT!', ORANGE)
   b.combo = 0; b.comboT = 0; g.buzz(30)
 }
 
 // A spot on screen the boss can sit at, clear of the edges and the health bar.
 function spot(g: Game): { x: number, y: number } {
-  const m = 12 * cell(g) + 24
+  const m = 12 * bossPx(g) + 24
   return { x: rand(m, Math.max(m, g.W - m)), y: rand(Math.max(110, m + 40), Math.max(m + 60, g.H * 0.62)) }
 }
 
@@ -158,15 +150,15 @@ function move(g: Game, b: Boss, baseX: number, baseY: number): void {
   if (mv.kind === 'dash') {
     const k = Math.min(1, mv.t / DASH), e = 1 - Math.pow(1 - k, 3)
     b.offX = mv.sx + (mv.tx - mv.sx) * e; b.offY = mv.sy + (mv.ty - mv.sy) * e
-    if (mv.t % 3 === 0) fxBurst(g, b.x, b.y, 3, pick(['#36c6e0', '#9b6bff']))
+    if (mv.t % 3 === 0) fxBurst(g, b.x, b.y, 3, pick([CYAN, VIOLET]))
     if (k >= 1) b.mv = null
     return
   }
-  if (mv.t === TP_OUT) { fxBurst(g, b.x, b.y, 22, '#9b6bff'); fxBurst(g, b.x, b.y, 12, '#36c6e0'); g.rings.push({ x: b.x, y: b.y, life: 0, max: 24, c: '#9b6bff' }); b.tele = null }
+  if (mv.t === TP_OUT) { fxBurst(g, b.x, b.y, 22, VIOLET); fxBurst(g, b.x, b.y, 12, CYAN); g.rings.push({ x: b.x, y: b.y, life: 0, max: 24, c: VIOLET }); b.tele = null }
   if (mv.t >= TP_OUT + TP_GONE) {
     b.offX = mv.tx; b.offY = mv.ty; b.mv = null; b.flash = 4
     const x = baseX + mv.tx, y = baseY + mv.ty
-    fxBurst(g, x, y, 24, '#9b6bff'); fxBurst(g, x, y, 14, '#ffffff'); g.rings.push({ x, y, life: 0, max: 26, c: '#36c6e0' })
+    fxBurst(g, x, y, 24, VIOLET); fxBurst(g, x, y, 14, WHITE); g.rings.push({ x, y, life: 0, max: 26, c: CYAN })
   }
 }
 
@@ -174,7 +166,7 @@ function move(g: Game, b: Boss, baseX: number, baseY: number): void {
 function barrage(g: Game, b: Boss): void {
   if (--b.burstCD > 0 || b.tele || b.mv || b.t < 240) return
   const low = b.hp < b.max / 2, n = (low ? 6 : 5) + ((Math.random() * 3) | 0)
-  const sx = b.x, sy = b.y + 6 * cell(g)
+  const sx = b.x, sy = b.y + 6 * bossPx(g)
   for (let i = 0; i < n; i++) {
     const page = i % 2 === 0 ? textTarget(g) : null
     const near = g.mouseX > -900 && g.t - g.lastMove < 600 && i % 3 === 1
@@ -191,7 +183,7 @@ function attack(g: Game, b: Boss): void {
   const tl = b.tele
   if (tl) {
     if (++tl.life < tl.max) return
-    const sx = b.x, sy = b.y + 6 * cell(g)
+    const sx = b.x, sy = b.y + 6 * bossPx(g)
     if (tl.kind === 'lock') b.orbs.push({ kind: 'lock', x: sx, y: sy, sx, sy, tx: tl.x, ty: tl.y, vx: 0, vy: 0, life: 0, max: 54 })
     else {
       const ang = Math.atan2(g.mouseY - sy, g.mouseX - sx)
@@ -222,9 +214,9 @@ function tickOrbs(g: Game, b: Boss): void {
       const k = o.life / o.max, e = k * k * (3 - 2 * k)
       o.x = o.sx + (o.tx - o.sx) * e; o.y = o.sy + (o.ty - o.sy) * e - Math.sin(k * Math.PI) * 40
       if (o.life >= o.max) {
-        fxBurst(g, o.tx, o.ty, 14, '#ff5a1f'); g.rings.push({ x: o.tx, y: o.ty, life: 0, max: 22, c: '#ff5a1f' })
+        fxBurst(g, o.tx, o.ty, 14, ORANGE); g.rings.push({ x: o.tx, y: o.ty, life: 0, max: 22, c: ORANGE })
         if (cursorNear(g, o.tx, o.ty, 40)) landHit(g, b)
-        if (scorch(g, o.tx, o.ty) && !burnSaid) { burnSaid = true; speak(g, pick(bossBurnLines)) }
+        if (scorch(g, o.tx, o.ty) && !burnSaid) { burnSaid = true; speak(g, pick(BOSS_BURN_LINES)) }
         b.orbs.splice(i, 1)
       }
       continue
@@ -232,7 +224,7 @@ function tickOrbs(g: Game, b: Boss): void {
     o.x += o.vx; o.y += o.vy
     // a spread orb burns a trail through the text it crosses
     if (o.life % 8 === 0) scorch(g, o.x, o.y, 14, 4)
-    if (!g.coarse && cursorNear(g, o.x, o.y, 18)) { landHit(g, b); fxBurst(g, o.x, o.y, 10, '#ff5a1f'); b.orbs.splice(i, 1); continue }
+    if (!g.coarse && cursorNear(g, o.x, o.y, 18)) { landHit(g, b); fxBurst(g, o.x, o.y, 10, ORANGE); b.orbs.splice(i, 1); continue }
     // a spread orb that runs out on screen lands where it is
     if (o.life >= o.max) scorch(g, o.x, o.y)
     if (o.life >= o.max || o.x < -20 || o.x > g.W + 20 || o.y < -20 || o.y > g.H + 20) b.orbs.splice(i, 1)
@@ -242,8 +234,8 @@ function tickOrbs(g: Game, b: Boss): void {
 function defeat(g: Game, b: Boss): void {
   const x = b.x, y = b.y, ms = Math.round(b.ms), best = g.mem.bossMs, record = best === null || ms < best
   explode(g, x, y); explode(g, x, y); explode(g, x, y)
-  fxBurst(g, x, y, 30, '#ff5a1f'); fxBurst(g, x, y, 24, '#36c6e0'); fxBurst(g, x, y, 20, '#ffffff')
-  g.rings.push({ x, y, life: 0, max: 40, c: '#ff5a1f' }, { x, y, life: 0, max: 32, c: '#36c6e0' }, { x, y, life: 0, max: 24, c: '#0c2236' })
+  fxBurst(g, x, y, 30, ORANGE); fxBurst(g, x, y, 24, CYAN); fxBurst(g, x, y, 20, WHITE)
+  g.rings.push({ x, y, life: 0, max: 40, c: ORANGE }, { x, y, life: 0, max: 32, c: CYAN }, { x, y, life: 0, max: 24, c: INK })
   confetti(g, 60, x, y)
   g.rage(true); g.buzz([40, 30, 80, 30, 120])
   repairAll(g)
@@ -252,10 +244,10 @@ function defeat(g: Game, b: Boss): void {
   if (b.run && (g.mem.bossRunMs === null || ms < g.mem.bossRunMs)) { g.mem.bossRun = b.run; g.mem.bossRunMs = ms }
   saveMemory(g)
   const py = Math.max(140, g.H * 0.46)
-  g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + fmtMs(ms), life: 0, max: 220, c: '#ff5a1f', size: g.W < 520 ? 20 : 26 })
-  if (record && best !== null) g.popups.push({ x: g.W / 2, y: py + 30, text: 'new best!', life: 0, max: 200, c: '#0b6bcb', size: 15 })
+  g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + fmtMs(ms), life: 0, max: 220, c: ORANGE, size: g.W < 520 ? 20 : 26 })
+  if (record && best !== null) g.popups.push({ x: g.W / 2, y: py + 30, text: 'new best!', life: 0, max: 200, c: DEEP_BLUE, size: 15 })
   track('boss_defeated', { ms })
-  speak(g, pick(bossWinLines))
+  speak(g, pick(BOSS_WIN_LINES))
   g.bridge?.announce('AGI defeated in ' + fmtMs(ms) + '.' + (best === null ? '' : record ? ' New best.' : ' Best ' + fmtMs(best) + '.'))
   g.boss = null; g.angryT = 0
   syncQuest(g)
@@ -265,7 +257,7 @@ function defeat(g: Game, b: Boss): void {
 function leave(g: Game, b: Boss): void {
   b.phase = 'leave'; b.t = 0; b.tele = null; b.orbs.length = 0
   repairAll(g)
-  speak(g, pick(bossLeaveLines))
+  speak(g, pick(BOSS_LEAVE_LINES))
   g.bridge?.announce('AGI left. Fight it again from the team button.')
   syncQuest(g)
 }
@@ -275,7 +267,7 @@ export function tickBoss(g: Game): void {
   const b = g.boss
   if (!b) return
   const now = performance.now()
-  // capped, so a hidden tab does not count
+  // each tick adds at most 100 ms, so time in a hidden tab does not count
   if (b.phase === 'fight') b.ms += Math.min(100, now - b.last)
   b.last = now
   b.t++
@@ -283,11 +275,11 @@ export function tickBoss(g: Game): void {
   if (b.shake > 0) b.shake--
   b.shown = b.shown > b.hp ? Math.max(b.hp, b.shown - b.max * 0.004) : b.hp
   if (b.comboT > 0 && --b.comboT === 0) b.combo = 0
-  const P = cell(g), hy = homeY(g)
+  const P = bossPx(g), hy = homeY(g)
   if (b.phase === 'enter') {
     const k = Math.min(1, b.t / ENTER), e = 1 - Math.pow(1 - k, 3)
     b.x = g.W / 2; b.y = -14 * P + (hy + 14 * P) * e
-    if (b.t % 10 === 0) fxBurst(g, b.x + rand(-30, 30), b.y - 10 * P, 4, pick(['#36c6e0', '#9b6bff']))
+    if (b.t % 10 === 0) fxBurst(g, b.x + rand(-30, 30), b.y - 10 * P, 4, pick([CYAN, VIOLET]))
     if (k >= 1) { b.phase = 'fight'; b.t = 0; b.lastHit = g.t; b.last = now }
   } else if (b.phase === 'fight') {
     const amp = Math.max(0, Math.min(g.W * 0.3, g.W / 2 - 12 * P - 24))
@@ -304,7 +296,7 @@ export function tickBoss(g: Game): void {
     b.shake = 8
     if (b.t % 7 === 0) {
       const px = b.x + rand(-12, 12) * P, py = b.y + rand(-12, 12) * P
-      fxBurst(g, px, py, 10, pick(BRAND)); g.rings.push({ x: px, y: py, life: 0, max: 18, c: pick(['#ff5a1f', '#36c6e0']) })
+      fxBurst(g, px, py, 10, pick(BRAND)); g.rings.push({ x: px, y: py, life: 0, max: 18, c: pick([ORANGE, CYAN]) })
     }
     if (b.t % 14 === 0) g.buzz(15)
     if (b.t >= DIE) { defeat(g, b); return }
