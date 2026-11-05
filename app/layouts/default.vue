@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '~/components/layout/AppHeader.vue'
 import AppFooter from '~/components/layout/AppFooter.vue'
-import PnToaster from '~/components/ui/PnToaster.vue'
 
 // No icon webfont: every glyph is inline SVG; a webfont fails into tofu.
 
@@ -21,8 +20,5 @@ const footerInPage = computed(() => route.path === '/')
     <div v-if="!footerInPage" class="container container--prose">
       <AppFooter />
     </div>
-
-    <!-- The single toast outlet; it teleports itself to <body>. -->
-    <PnToaster />
   </div>
 </template>

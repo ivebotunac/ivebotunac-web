@@ -2,13 +2,19 @@
   "name": "ivebotunac-web",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "author": "Ive Botunac",
+  "homepage": "https://ivebotunac.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivebotunac/ivebotunac-web.git"
+  },
   "engines": {
     "node": "22"
   },
   "scripts": {
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" nuxt build",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
     "postinstall": "nuxt prepare",
@@ -18,7 +24,6 @@
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@nuxt/fonts": "^0.14.0",
-    "@nuxt/image": "^1.11.0",
     "@nuxtjs/robots": "^5.7.1",
     "@nuxtjs/sitemap": "^7.6.0",
     "firebase-admin": "^14.2.0",

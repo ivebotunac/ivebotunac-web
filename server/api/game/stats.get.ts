@@ -1,6 +1,6 @@
-import { GLOBAL_READS_PER_MIN, LIMITS, LIMIT_MAX_KEYS, LIMIT_WINDOW_MS, clientKey, createGameLimiter, parseRun, readGameStats } from '../../utils/game-stats'
+import { GLOBAL_READS_PER_MIN, clientKey, createGameLimiter, parseRun, readGameStats } from '../../utils/game-stats'
 
-const limiter = createGameLimiter(LIMIT_WINDOW_MS, LIMITS, LIMIT_MAX_KEYS, GLOBAL_READS_PER_MIN)
+const limiter = createGameLimiter(GLOBAL_READS_PER_MIN)
 
 export default defineEventHandler(async (event) => {
   const run = parseRun(getQuery(event).run)

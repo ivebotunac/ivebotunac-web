@@ -11,7 +11,7 @@ export const toYearMonth = (date: Date): YearMonth =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` as YearMonth
 
 // Inclusive of both months, as LinkedIn counts: Dec 2020 to Nov 2021 is 1 yr.
-export const monthsBetween = (start: YearMonth, end: YearMonth): number => {
+const monthsBetween = (start: YearMonth, end: YearMonth): number => {
   const [sy, sm] = parse(start)
   const [ey, em] = parse(end)
   return Math.max(1, (ey - sy) * 12 + (em - sm) + 1)
@@ -29,7 +29,7 @@ export const formatDuration = (start: YearMonth, end: YearMonth | 'present', now
 }
 
 // "Jul 2025", or "Present".
-export const formatMonth = (ym: YearMonth | 'present'): string => {
+const formatMonth = (ym: YearMonth | 'present'): string => {
   if (ym === 'present') return 'Present'
   const [y, m] = parse(ym)
   return `${SHORT[m - 1]} ${y}`

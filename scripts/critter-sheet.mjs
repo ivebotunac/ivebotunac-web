@@ -6,14 +6,14 @@ import { deflateSync } from 'node:zlib'
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
-export const N = 24
+const N = 24
 const BG = [242, 246, 251]
 const DIZZY = '#9fb3c6'
 const MOODS = ['idle', 'blink', 'happy', 'attack', 'mad', 'knock', 'walk']
 
 const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255] }
 
-export function validate(s) {
+function validate(s) {
   const err = []
   if (!s.key || !/^[a-z]+$/.test(s.key)) err.push('key must be lowercase letters')
   if (!s.label || !/^[A-Z]{3,12}$/.test(s.label)) err.push('label must be 3-12 capital letters')
@@ -41,7 +41,7 @@ export function validate(s) {
 }
 
 // One 24x24 grid of colours (null = transparent): the frame, its auto outline, then the eyes for a mood.
-export function cells(s, mood) {
+function cells(s, mood) {
   const map = s.frames[mood === 'walk' ? 'walk' : 'idle']
   const g = Array.from({ length: N }, (_, y) => Array.from({ length: N }, (_, x) => {
     const ch = map[y][x]
@@ -65,7 +65,7 @@ export function cells(s, mood) {
     else if (m === 'attack') { brow(); put(x, y, ec); put(x + 1, y, ec); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
     else if (m === 'mad') { brow(); put(x, y + 1, ec); put(x + 1, y + 1, ec) }
     else if (m === 'knock') {
-      const o = side === 'l' ? x - 1 : x - 1
+      const o = x - 1
       put(o, y - 1, DIZZY); put(o + 2, y - 1, DIZZY); put(o + 1, y, DIZZY); put(o, y + 1, DIZZY); put(o + 2, y + 1, DIZZY)
     }
   }

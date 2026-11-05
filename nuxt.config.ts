@@ -13,7 +13,6 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
     '@nuxtjs/robots',
     'nuxt-vitalizer',
-    '@nuxt/image',
     'nuxt-schema-org',
     '@nuxt/fonts',
     '@nuxt/eslint',
@@ -56,11 +55,6 @@ export default defineNuxtConfig({
     sitemap: ['/sitemap.xml']
   },
 
-  image: {
-    quality: 80,
-    format: ['webp', 'jpg'],
-  },
-
   // Global head, a fallback only; pages set their own.
   app: {
     head: {
@@ -96,8 +90,6 @@ export default defineNuxtConfig({
     // Named, unhashed and occasionally replaced: a short max-age, then revalidate.
     '/robots.txt': { headers: { 'cache-control': 'public, max-age=86400' } },
     '/sitemap.xml': { headers: { 'cache-control': 'public, max-age=3600' } },
-    // Production ipx sends no cache-control, so every image was re-rendered on each visit.
-    '/_ipx/**': { headers: { 'cache-control': 'public, max-age=86400, s-maxage=2592000' } },
 
     // The old static site was served as /index.html.
     '/index.html': { redirect: { to: '/', statusCode: 301 }, prerender: false },

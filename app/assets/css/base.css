@@ -19,9 +19,6 @@ body,
 }
 .pn-layout { min-height: 100vh; min-height: 100dvh; }
 
-/* Background only, so a filled control keeps its foreground when selected. */
-::selection { background-color: var(--pn-cool-soft); }
-
 h1, h2, h3, h4 {
   font-family: var(--pn-font);
   font-weight: var(--pn-w-bold);
@@ -37,12 +34,7 @@ p  { text-wrap: pretty; }
 a { color: var(--pn-link); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 a:hover { color: var(--pn-link-hover); }
 
-img, svg, video { max-width: 100%; height: auto; display: block; }
-
-/* Anchors clear the fixed header; AppHeader.vue's scroll offset must match the token. */
-#how-it-works, #features, #testimonials, #faq, #resources, #download {
-  scroll-margin-top: var(--pn-header-offset);
-}
+img, svg { max-width: 100%; height: auto; display: block; }
 
 
 /* Containers */
@@ -52,7 +44,6 @@ img, svg, video { max-width: 100%; height: auto; display: block; }
   margin-inline: auto;
   padding-inline: var(--pn-gutter);
 }
-.container--wide  { max-width: var(--pn-container-wide); }
 .container--prose { max-width: var(--pn-container-prose); }
 
 
@@ -66,55 +57,8 @@ img, svg, video { max-width: 100%; height: auto; display: block; }
 }
 .pn-section > .container { position: relative; z-index: var(--pn-z-raised); }
 
-/* Density modifiers: no more than two adjacent sections may share a padding step. */
-/* --tight and --dense share a size on purpose: the names say why a section is short. */
-.pn-section--generous { padding-block: var(--pn-section-y-lg); }
-.pn-section--tight    { padding-block: var(--pn-section-y-sm); }
-.pn-section--dense    { padding-block: var(--pn-section-y-sm); }
-/* Content after a banner hero shares its canvas: one hero bottom is the whole gap. */
-.text-banner + .pn-section,
-.tool-hero + .ft-tool > .pn-section { padding-top: 0; }
-
-/* A closing CTA sits under the band it closes: one bottom padding is the whole gap. */
-.pn-section--closer { padding-top: 0; }
-
-/* Tones: three light grounds. Never a dark or full-bleed accent fill. */
-.pn-section--canvas { background-color: var(--pn-canvas);       background-image: none; }
-.pn-section--white  { background-color: var(--pn-surface);      background-image: none; }
-.pn-section--wash   { background-color: var(--pn-surface-wash); background-image: none; }
-
-/* The page's one atmospheric device, per design principles: one element per page wears it. */
-/* Px-sized, %-placed radials only read on a viewport-sized box: section-anchored, never on body. */
-.pn-section--mesh {
-  background-color: var(--pn-canvas);
-  background-image: var(--pn-mesh);
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-/* Light pools, the two section washes; their gradients are tokens. */
-.pn-section--pool-a,
-.pn-section--pool-b { background-color: var(--pn-canvas); background-repeat: no-repeat; }
-.pn-section--pool-a { background-image: var(--pn-pool-a); }
-.pn-section--pool-b { background-image: var(--pn-pool-b); }
-
 
 /* Section heading block */
-.pn-head { max-width: 46ch; margin-bottom: var(--pn-space-40); } /* one head-to-content gap */
-.pn-head--center { max-width: 52ch; margin-inline: auto; text-align: center; }
-/* Split: heading left, lede right. Stacks below 1024px. */
-.pn-head--split {
-  max-width: none;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--pn-space-16);
-  align-items: end;
-}
-@media (min-width: 1024px) {
-  .pn-head--split { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--pn-space-48); }
-  .pn-head--split .pn-lede { margin-bottom: var(--pn-space-4); }
-}
-
 .pn-eyebrow {
   display: block;
   font-size: var(--pn-size-sm);
@@ -124,24 +68,3 @@ img, svg, video { max-width: 100%; height: auto; display: block; }
   color: var(--pn-accent2-text);     /* eyebrows take the second accent */
   margin-bottom: var(--pn-space-12);
 }
-.pn-h2 { /* the section title. Always an <h2>. */
-  font-family: var(--pn-font-display);
-  font-size: var(--pn-size-2xl);
-  line-height: var(--pn-lh-2xl);
-  letter-spacing: var(--pn-ls-2xl);
-  font-weight: var(--pn-w-bold);
-  text-transform: var(--pn-case-display);
-}
-/* The only two-tone treatment: solid colour, no gradient. Used only inside h1/h2, 30px and up. */
-/* The display accent clears 3:1 only at 30px and up; under 30px use .pn-accent--text. */
-.pn-accent       { color: var(--pn-accent-display); }  /* 30px+ ONLY        */
-.pn-accent--text { color: var(--pn-accent-text); }     /* under 30px        */
-
-.pn-lede {
-  margin-top: var(--pn-space-16);
-  max-width: var(--pn-measure);
-  font-size: var(--pn-size-lg);
-  line-height: var(--pn-lh-lg);
-  color: var(--pn-text-secondary);
-}
-.pn-head--center .pn-lede { margin-inline: auto; }

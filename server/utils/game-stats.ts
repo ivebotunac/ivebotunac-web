@@ -38,21 +38,21 @@ export type GameEventKind = GameEvent['kind']
 // A board read is limited like an event, on a limiter of its own so reads never use up the write budget.
 export type LimitKind = GameEventKind | 'read'
 
-export const GAME_STATS_DOC = 'ivebotunac/stats'
+const GAME_STATS_DOC = 'ivebotunac/stats'
 // One doc per boss fight, from its entry; the id is the visitor's claim on the time.
-export const RUNS = 'ivebotunac/stats/bossRuns'
+const RUNS = 'ivebotunac/stats/bossRuns'
 // One doc per initials holding their best time, so the top ten is one ordered query and a name appears once.
-export const BOARD = 'ivebotunac/stats/bossBoard'
-export const BOARD_SIZE = 10
+const BOARD = 'ivebotunac/stats/bossBoard'
+const BOARD_SIZE = 10
 // Entry, at least 300 hp at the fastest tap rate, then the death throes: no real fight is shorter.
-export const BOSS_MIN_MS = 9_000
+const BOSS_MIN_MS = 9_000
 // The client reports the team's time itself, so anything faster than this was not played.
-export const TEAM_MIN_MS = 20_000
-export const TEAM_MAX_MS = 86_400_000
-export const BUCKET_MS = 30_000
+const TEAM_MIN_MS = 20_000
+const TEAM_MAX_MS = 86_400_000
+const BUCKET_MS = 30_000
 // 120 buckets of 30 s cover the first hour; everything slower shares one.
-export const BUCKET_COUNT = 120
-export const OVERFLOW_BUCKET = 'over'
+const BUCKET_COUNT = 120
+const OVERFLOW_BUCKET = 'over'
 
 // Arcade initials can still spell things; these never reach the board.
 const BLOCKED = new Set([
@@ -62,12 +62,12 @@ const BLOCKED = new Set([
   'KOK', 'RAP', 'RPE', 'PNS', 'SLT', 'WHR', 'HOR', 'BCH', 'TWT', 'DCK', 'KMS', 'KIL', 'HHH', 'NDH', 'PDR', 'GOV'
 ])
 
-export const LIMIT_WINDOW_MS = 10 * 60_000
-export const LIMITS: Record<LimitKind, number> = { run: 12, team: 2, boss: 10, name: 10, read: 30 }
+const LIMIT_WINDOW_MS = 10 * 60_000
+const LIMITS: Record<LimitKind, number> = { run: 12, team: 2, boss: 10, name: 10, read: 30 }
 // Bounds the map; when full, the oldest key makes room for the new one.
-export const LIMIT_MAX_KEYS = 50_000
+const LIMIT_MAX_KEYS = 50_000
 // Firestore writes per instance per minute across all keys, so cost and the hot document stay bounded.
-export const GLOBAL_LIMIT_PER_MIN = 120
+const GLOBAL_LIMIT_PER_MIN = 120
 // A board read costs about a dozen Firestore reads, so reads get their own cap per instance per minute.
 export const GLOBAL_READS_PER_MIN = 240
 
@@ -75,7 +75,7 @@ const RUN_ID = /^[A-Za-z0-9]{20}$/
 
 export const parseRun = (v: unknown): string | null => (typeof v === 'string' && RUN_ID.test(v) ? v : null)
 
-export function parseInitials(v: unknown): string | null {
+function parseInitials(v: unknown): string | null {
   if (typeof v !== 'string') return null
   const s = v.trim().toUpperCase()
   return /^[A-Z]{3}$/.test(s) && !BLOCKED.has(s) ? s : null
@@ -97,7 +97,7 @@ export function parseGameEvent(body: unknown): GameEvent | null {
   return { kind, ms: Math.min(ms, TEAM_MAX_MS), run }
 }
 
-export function bucketKey(ms: number): string {
+function bucketKey(ms: number): string {
   const i = Math.floor(ms / BUCKET_MS)
   return i >= BUCKET_COUNT ? OVERFLOW_BUCKET : String(i)
 }
@@ -111,7 +111,7 @@ function bucketOrder(key: string): number {
 const count = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0)
 
 // Share of earlier completions slower than ms; a tie in the same bucket counts half.
-export function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestMs: number | null): number {
+function fasterThanPct(teamTimes: Record<string, unknown>, ms: number, prevBestMs: number | null): number {
   if (prevBestMs === null || ms < prevBestMs) return 100
   const mine = bucketOrder(bucketKey(ms))
   let total = 0
@@ -136,7 +136,7 @@ export function clientKey(event: Parameters<typeof getRequestIP>[0]): string {
 }
 
 // A valid event is under 100 bytes; anything larger is refused before it is buffered or parsed.
-export const MAX_BODY_BYTES = 1024
+const MAX_BODY_BYTES = 1024
 
 export async function readEventBody(event: Parameters<typeof getRequestIP>[0]): Promise<unknown> {
   const tooLarge = () => createError({ statusCode: 413, statusMessage: 'Body too large' })
@@ -158,7 +158,7 @@ export async function readEventBody(event: Parameters<typeof getRequestIP>[0]): 
 }
 
 // Fixed window per key, in memory and per instance; the key never leaves this map.
-export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, maxKeys = LIMIT_MAX_KEYS, globalPerMin = GLOBAL_LIMIT_PER_MIN) {
+export function createGameLimiter(globalPerMin = GLOBAL_LIMIT_PER_MIN) {
   const hits = new Map<string, { start: number, n: Record<LimitKind, number> }>()
   let lastSweep = 0
   let minuteStart = 0
@@ -166,27 +166,27 @@ export function createGameLimiter(windowMs = LIMIT_WINDOW_MS, limits = LIMITS, m
 
   const sweep = (now: number) => {
     lastSweep = now
-    for (const [key, entry] of hits) if (now - entry.start >= windowMs) hits.delete(key)
+    for (const [key, entry] of hits) if (now - entry.start >= LIMIT_WINDOW_MS) hits.delete(key)
   }
   // The privacy policy promises the IP leaves memory with its window, even on an instance that gets no more requests.
   setInterval(() => sweep(Date.now()), 60_000).unref?.()
 
   return {
     allow(key: string, kind: LimitKind, now = Date.now()): boolean {
-      if (now - lastSweep >= windowMs) sweep(now)
+      if (now - lastSweep >= LIMIT_WINDOW_MS) sweep(now)
       if (now - minuteStart >= 60_000) { minuteStart = now; minuteCount = 0 }
       if (minuteCount >= globalPerMin) return false
       let entry = hits.get(key)
-      if (entry && now - entry.start >= windowMs) entry = undefined
+      if (entry && now - entry.start >= LIMIT_WINDOW_MS) entry = undefined
       if (!entry) {
-        if (hits.size >= maxKeys) sweep(now)
+        if (hits.size >= LIMIT_MAX_KEYS) sweep(now)
         // Map keeps insertion order, so the first key is the oldest window
-        if (hits.size >= maxKeys) { const oldest = hits.keys().next().value; if (oldest !== undefined) hits.delete(oldest) }
+        if (hits.size >= LIMIT_MAX_KEYS) { const oldest = hits.keys().next().value; if (oldest !== undefined) hits.delete(oldest) }
         entry = { start: now, n: { run: 0, team: 0, boss: 0, name: 0, read: 0 } }
         hits.delete(key)
         hits.set(key, entry)
       }
-      if (entry.n[kind] >= limits[kind]) return false
+      if (entry.n[kind] >= LIMITS[kind]) return false
       entry.n[kind]++
       minuteCount++
       return true

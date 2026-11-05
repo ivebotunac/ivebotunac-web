@@ -2,7 +2,7 @@
 import { computed, ref, useId, watch } from 'vue'
 import { postName } from '~/game/stats-client'
 import type { BoardEntry, GameStats, MyRun } from '~/game/stats-client'
-import { formatDuration as fmt } from '~/utils/duration'
+import { formatClock as fmt } from '~/utils/duration'
 import { track } from '~/utils/track'
 
 // The AGI top ten on the team card, five a page, with the three-letter signature for the visitor's fight. run: the fight to sign.

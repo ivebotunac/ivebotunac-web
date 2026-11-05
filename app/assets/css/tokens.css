@@ -6,13 +6,9 @@
 
   /* Primary ramp from #FF5A1F, hue held. Components consume the --pn-accent-* roles, not stops. */
   --pn-primary-50:  #FFF3EE;  /* tinted fill                                */
-  --pn-primary-100: #FFE3D6;  /* hairline on white                          */
   --pn-primary-200: #FFC4AA;  /* border on a tinted surface                 */
-  --pn-primary-300: #FF9A73;  /* decorative only                            */
-  --pn-primary-400: #FF7845;  /* decorative only                            */
   --pn-primary-500: #FF5A1F;  /* the brand: cursor, markers, dots, numbers, years, labels (2.95:1 paper) */
   --pn-primary-600: #BF3F0B;  /* deeper orange, kit text on tinted fills (5.05:1 paper) */
-  --pn-primary-700: #A63609;  /* pressed/hover state of 600 (6.30:1)         */
   --pn-primary-800: #852B07;  /* deepest orange (8.46:1)                     */
 
   /* Accent roles, one name per job. Components consume these. */
@@ -22,45 +18,24 @@
 
   /* Blue accent roles, picked by job like the orange trio. Components never write --pn-cool-*. */
   --pn-accent2-text: var(--pn-cool-deep);    /* #0B6BCB: links, card hover border; 4.99:1 paper */
-  --pn-accent2-ui:   var(--pn-cool-deep);    /* #0B6BCB: strokes */
-  --pn-accent2-fill: var(--pn-cool-deep);    /* blue fills, white 5.28:1; hover -cool-deeper */
   /* No --pn-accent2-display on purpose: blue is never a heading half. */
 
   /* Secondary: the flying trend tag's wing cyan. Ground only, never text (1.9:1). */
   --pn-secondary:      #36C6E0;
-  --pn-secondary-dark: #1FA9C2;
 
   /* Neutrals: a cool blueprint scale. */
   --pn-neutral-50:  #F5F9FD;   /* paper, the canvas                          */
-  --pn-neutral-100: #E9F1F9;   /* fills, recessed wells                      */
   --pn-neutral-200: #DDE8F3;   /* hairline rules                             */
   --pn-neutral-300: #C6D7E7;   /* card, logo and timeline strokes            */
   --pn-neutral-400: #93A8BC;   /* faint text: dates, issuers, index numbers, separators (2.32:1) */
-  --pn-neutral-500: #7C92A7;   /* 3.04:1 paper, non-text only                */
   --pn-neutral-600: #506A83;   /* 5.32:1 muted text, AA                      */
   --pn-neutral-700: #213B54;   /* body copy, 10.9:1                          */
-  --pn-neutral-800: #16304A;   /* deepest neutral                            */
   --pn-neutral-900: #0C2236;   /* ink: headings, strong, 15.3:1              */
 
   /* Surfaces: one paper ground; colour comes from the accent, never a tinted page. */
   --pn-canvas:       var(--pn-neutral-50);    /* #F5F9FD                    */
   --pn-surface:      #FFFFFF;                 /* cards, logo tiles          */
-  --pn-surface-sunk: var(--pn-neutral-100);   /* #E9F1F9, recessed wells    */
-  --pn-surface-wash: var(--pn-neutral-100);   /* #E9F1F9, alternating band  */
   /* No dark surface tokens: the only ink fill is the monogram tile, on --pn-text. */
-
-  /* Page mesh, radials only: a linear base stop would leave a hard edge at a seam. */
-  --pn-mesh:
-    radial-gradient(620px 340px at 88% -10%, rgba(233, 241, 249, 0.90) 0%, rgba(233, 241, 249, 0) 62%),
-    radial-gradient(520px 380px at -12% 34%, rgba(255, 227, 214, 0.45) 0%, rgba(255, 227, 214, 0) 58%);
-
-  /* Section light pools; centres sit 320px inside the edge so no pool is cut at a section seam. */
-  --pn-pool-a:
-    radial-gradient(640px 400px at -6% 320px, rgba(233, 241, 249, 0.85) 0%, rgba(233, 241, 249, 0) 60%),
-    radial-gradient(760px 420px at 104% calc(100% - 320px), rgba(221, 232, 243, 0.80) 0%, rgba(221, 232, 243, 0) 62%);
-  --pn-pool-b:
-    radial-gradient(720px 380px at 104% 320px, rgba(221, 232, 243, 0.80) 0%, rgba(221, 232, 243, 0) 62%),
-    radial-gradient(560px 380px at -8% calc(100% - 320px), rgba(233, 241, 249, 0.85) 0%, rgba(233, 241, 249, 0) 58%);
 
   /* Card treatment: retro print, white on paper, square corners, a hard offset shadow that grows on hover. */
   --pn-shadow-offset-rest:  #D3DEEE;   /* offset shadow at rest */
@@ -69,30 +44,12 @@
   /* Print: white paper, black ink, a grey card stroke. */
   --pn-print-paper: #FFFFFF;
   --pn-print-ink:   #000000;
-  --pn-print-rule:  #CCCCCC;
-  --pn-card-bg:     #FFFFFF;
-  --pn-card-border: var(--pn-neutral-300);
-  --pn-card-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
-  --pn-card-shadow-hover: 7px 7px 0 0 var(--pn-shadow-offset-hover);
-  --pn-card-radius: 0;
-
-  /* Liquid glass, only for chrome floating over scrolling content. The CV has none today. */
-  --pn-glass-bg:     rgba(255, 255, 255, 0.55);
-  --pn-glass-border: rgba(255, 255, 255, 0.70);
-  --pn-glass-blur:   blur(20px) saturate(180%);
-  --pn-glass-shadow: 0 4px 14px rgba(12, 34, 54, 0.10),
-                     inset 0 1px 0 rgba(255, 255, 255, 0.90);
-  --pn-glass-fallback:  #F5F9FD;                       /* opaque, always OK */
-  --pn-glass-bar:       rgba(255, 255, 255, 0.92);
-  --pn-glass-bar-blur:  blur(18px);
 
   /* Semantic text aliases */
   --pn-text:           var(--pn-neutral-900);  /* ink                        */
   --pn-text-secondary: var(--pn-neutral-700);  /* body copy                  */
   --pn-text-muted:     var(--pn-neutral-600);  /* honest: still passes AA    */
   --pn-text-faint:     var(--pn-neutral-400);  /* #93A8BC: dates, issuers, index numbers */
-  --pn-text-disabled:  var(--pn-neutral-400);
-  --pn-text-on-fill:   #FFFFFF;                /* on 600+ and blue deep 5.28:1+ */
   --pn-text-on-accent: #FFFFFF;                /* on the accent gradient, 5.34:1+ */
   --pn-text-on-ink:    var(--pn-neutral-50);   /* paper on ink: monogram tiles, skip link, 15.3:1 */
   --pn-link:           var(--pn-accent2-text); /* #0B6BCB, 4.99:1 paper      */
@@ -100,56 +57,22 @@
 
   /* Borders */
   --pn-border:        var(--pn-neutral-200);   /* hairline rules             */
-  --pn-border-strong: var(--pn-neutral-500);   /* inputs, 3:1 non-text AA    */
   --pn-border-brand:  var(--pn-neutral-300);   /* card, logo tile and timeline strokes */
 
   /* State washes */
   --pn-primary-rgb: 255, 90, 31;
-  --pn-canvas-rgb:  245, 249, 253;             /* for fades over the canvas */
-  --pn-hover:  rgba(255, 90, 31, 0.08);
-  --pn-active: rgba(255, 90, 31, 0.16);
-  --pn-hover-cool:  var(--pn-cool-zone);       /* ghost and chip hover wash */
-  --pn-active-cool: var(--pn-cool-soft);       /* selected option and chip wash */
-  /* Nav current-page marker: sunk pill with ink, never an accent wash. */
-  --pn-nav-active-bg: var(--pn-surface-sunk);
-  --pn-nav-active-fg: var(--pn-text);
 
   /* Semantic state */
-  --pn-success: #2F9E56;  --pn-success-text: #1F6B39;
   --pn-error:   #E0483F;  --pn-error-text:   #B3261E;
-  --pn-warning: #F4B400;  --pn-warning-text: #8A5A00;
-  --pn-info:    var(--pn-cool-deep);   --pn-info-text: var(--pn-cool-deeper);
   /* Accent, separate from primary, with its own gradient and tile. */
   --pn-accent:          #BF3F0B;   /* button ground: white on it 5.34:1 */
   --pn-accent-gradient: linear-gradient(150deg, #BF3F0B, #A63609);
-  --pn-accent-tile:     linear-gradient(155deg, #FFF3EE, #FFE3D6);   /* -accent-text on it 4.38:1, large text only */
-  --pn-accent-soft:     rgba(255, 227, 214, 0.80);
-  --pn-star:            #F5A623;   /* rating gold: decorative, the number beside it is the text */
 
   /* Blue accent, the link family. Consume the roles. */
-  --pn-cool:          #36C6E0;   /* ground only (1.9:1 paper): never text, glyph or state border */
-  --pn-cool-rgb:      11, 107, 203;
   --pn-cool-deep:     #0B6BCB;   /* feeds -text, -ui, -fill. 4.99:1 paper; white on it 5.28 */
   --pn-cool-deeper:   #0A559E;   /* feeds link hover, -fill hover. 7.07:1 paper; white on it 7.48 */
-  --pn-cool-50:       #EDF4FC;   /* selected fill. Decorative */
-  --pn-cool-100:      #D6E6F7;   /* hairline. Decorative */
-  --pn-cool-200:      rgba(var(--pn-cool-rgb), 0.28);
-                                 /* tint hairline, never state */
-  --pn-cool-deep-gradient: linear-gradient(150deg, #0B6BCB, #0A559E);
-                                 /* the one blue fill white may sit on, 5.28:1+ */
-  --pn-cool-gradient: linear-gradient(150deg, #6FD8EA, #36C6E0);
-                                 /* decorative only, never text on it */
-  --pn-cool-tile:     linear-gradient(155deg, #EDF4FC, #D6E6F7);
-                                 /* squircle behind an icon; glyph -accent2-ui */
-  --pn-cool-soft:     rgba(var(--pn-cool-rgb), 0.12);
-                                 /* chip fill, table head */
-  --pn-cool-zone:     rgba(var(--pn-cool-rgb), 0.07);
-                                 /* panel ground */
 
   /* --pn-accent-gradient is the only orange gradient. No text gradient, no full-bleed fill. */
-
-  /* <select> takes no pseudo-element, so its chevron is a data URI; stroke #506A83, 5.32:1 on paper. */
-  --pn-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23506A83' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   /* Paper grain: fractal noise, multiplied over the page at 4%. */
   --pn-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -162,7 +85,6 @@
   --pn-font-mono: var(--pn-font);
 
   --pn-w-regular:  400;
-  --pn-w-medium:   500;
   --pn-w-semibold: 600;
   --pn-w-bold:     700;
   --pn-w-display:  700;   /* Space Mono ships 400 and 700 only */
@@ -179,9 +101,6 @@
   --pn-size-md: 0.9375rem;                                    /* body, 15  */
   --pn-lh-md: 1.66;       --pn-ls-md: 0;
   --pn-size-sm: 0.875rem;                                     /* 14        */
-  --pn-lh-sm: 1.5;        --pn-ls-sm: 0.004em;
-
-  --pn-measure: 62ch;
 
   --pn-size-prose: 0.98rem;
   --pn-lh-prose: 1.68;
@@ -189,29 +108,21 @@
 
 
   /* 3. Space: 8px base, 4px half-step, named by px */
-  --pn-space-4:   0.25rem;
   --pn-space-8:   0.5rem;
   --pn-space-12:  0.75rem;
   --pn-space-16:  1rem;
   --pn-space-24:  1.5rem;
   --pn-space-32:  2rem;
-  --pn-space-40:  2.5rem;
   --pn-space-48:  3rem;
   --pn-space-64:  4rem;
   --pn-space-80:  5rem;
-  --pn-space-96:  6rem;
-  --pn-space-120: 7.5rem;
 
   /* Section vertical rhythm. Desktop first; stepped down in the queries below. */
   --pn-section-y:    var(--pn-space-80);   /* the default band             */
-  --pn-section-y-lg: var(--pn-space-96);   /* the ONE generous band        */
-  --pn-section-y-sm: var(--pn-space-64);   /* the ONE dense band           */
   --pn-hero-top:     var(--pn-space-80);   /* the masthead is static: no fixed nav to clear */
-  --pn-hero-bottom:  var(--pn-space-80);
 
   /* Containers */
   --pn-container:       1180px;
-  --pn-container-wide:  1360px;
   --pn-container-prose: 720px;             /* the CV's content column */
   --pn-gutter: 40px;                       /* page and masthead side padding: 32 from 1024, 22 from 860, 16 from 540 */
 
@@ -223,30 +134,12 @@
   /* 4. Radius: one root, everything derived */
   --pn-radius: 8px;
   --pn-radius-sm:  calc(var(--pn-radius) - 6px);   /*  2: photo, bubbles     */
-  --pn-radius-md:  var(--pn-radius);               /*  8: logo tiles         */
-  --pn-radius-lg:  calc(var(--pn-radius) + 1px);   /*  9: project icons      */
-  --pn-radius-xl:  calc(var(--pn-radius) + 8px);   /* 16: panels             */
-  --pn-radius-2xl: calc(var(--pn-radius) + 16px);  /* 24                     */
-  --pn-radius-pill: 999px;
-  --pn-radius-circle: 50%;
-
-
-  /* 5. Elevation: flat print; the offset card shadow above is the one depth cue */
-  --pn-shadow-hue: 12, 34, 54;
-  --pn-elev-0: 0 1px 2px -1px rgba(var(--pn-shadow-hue), 0.06);
-  --pn-elev-1: 0 2px 8px -2px rgba(var(--pn-shadow-hue), 0.09);
-  --pn-elev-2: 0 10px 24px -8px rgba(var(--pn-shadow-hue), 0.14);
-  --pn-elev-3: 0 22px 48px -16px rgba(var(--pn-shadow-hue), 0.20);
-  --pn-glow: 0 18px 48px -24px rgba(255, 90, 31, 0.30);
 
 
   /* 6. Motion */
   --pn-motion-fast: 140ms;   /* colour, opacity, border, focus, card lift  */
   --pn-motion-base: 240ms;   /* transform, elevation                       */
-  --pn-motion-reveal: 600ms; /* section reveal on scroll                   */
-  --pn-motion-rise: 700ms;   /* rail and lead on load                      */
   --pn-ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
-  --pn-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --pn-ease-rise:   cubic-bezier(0.2, 0.7, 0.3, 1);
   --pn-lift: -2px;           /* the only hover translate on the site       */
 
@@ -260,10 +153,6 @@
   /* 8. Z-index: six values, nothing else */
   --pn-z-base: 0;
   --pn-z-raised: 10;
-  --pn-z-sticky: 100;
-  --pn-z-header: 1000;
-  --pn-z-overlay: 2000;
-  --pn-z-toast: 3000;
 
   /* Anchor clearance: the masthead is static, so this is breathing room above a jumped-to section. */
   --pn-header-offset: 60px;
@@ -272,24 +161,9 @@
   /* 9. Brand hooks: the kit reads these with no fallback, so every site declares all eight. */
   /* Display face and case: .pn-h2, the banner title, the prompt and post CTA titles only. */
   --pn-font-display: 'Space Mono', 'IBM Plex Mono', ui-monospace, monospace;
-  --pn-case-display: none;
   --pn-btn-radius:    var(--pn-radius-sm);
   --pn-btn-font-size: 0.875rem;             /* 14px */
   --pn-btn-weight:    var(--pn-w-semibold);
-  --pn-cta-surface: linear-gradient(160deg, var(--pn-primary-50), var(--pn-primary-100));
-  --pn-panel-radius: var(--pn-radius-sm);
-  --pn-panel-shadow: var(--pn-card-shadow);
-
-
-  /* 10. Bento tiles: unused on the CV; declared because the kit names them. */
-  --pn-bento-radius:  var(--pn-radius-sm);
-  --pn-bento-gap:     18px;
-  --pn-bento-sky:     #E9F1F9;   /* --pn-accent-text on it 4.68:1 */
-  --pn-bento-ink:     #0C2236;
-  --pn-bento-on-ink:  #C6D7E7;   /* muted text on ink, 11.0:1 */
-  --pn-bento-pop:     #FF9A73;   /* eyebrow on ink, 7.8:1 */
-  --pn-bento-body:    #213B54;   /* body text on white and sky, 10.1:1 or more */
-  --pn-bento-icon-shadow: 4px 4px 0 0 var(--pn-shadow-offset-rest);
 
 
   /* 11. CV type: the mono label sizes the six steps cannot hold. */
@@ -321,10 +195,7 @@
 @media (max-width: 1024px) {
   :root {
     --pn-section-y:    var(--pn-space-64);
-    --pn-section-y-lg: var(--pn-space-80);
-    --pn-section-y-sm: var(--pn-space-48);
     --pn-hero-top:     var(--pn-space-64);
-    --pn-hero-bottom:  var(--pn-space-64);
   }
 }
 @media (max-width: 860px) {
@@ -332,10 +203,7 @@
     --pn-gutter:       22px;
     --pn-rail-gap:     0px;
     --pn-section-y:    var(--pn-space-48);
-    --pn-section-y-lg: var(--pn-space-64);
-    --pn-section-y-sm: var(--pn-space-40);
     --pn-hero-top:     var(--pn-space-48);
-    --pn-hero-bottom:  var(--pn-space-48);
   }
 }
 @media (max-width: 540px) {

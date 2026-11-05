@@ -1,8 +1,3 @@
-// Page links shared by the header bar and its mobile menu.
-export const NAV_LINKS = [
-  { to: '/', label: 'Home' }
-] as const
-
 // The CV's numbered index: the rail lists it, the page observes these ids.
 export const CV_SECTIONS = [
   { id: 'about', num: '01', label: 'About', title: 'About' },

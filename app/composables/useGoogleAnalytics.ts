@@ -22,8 +22,7 @@ export const useGoogleAnalytics = () => {
   }
 
   const loadGoogleAnalytics = () => {
-    // No property yet: load nothing rather than an empty-id gtag.
-    if (googleAnalyticsLoaded || !import.meta.client || !GA_ID) return
+    if (googleAnalyticsLoaded || !import.meta.client) return
     googleAnalyticsLoaded = true
 
     if (document.readyState === 'complete') whenIdle(injectGoogleAnalytics)
