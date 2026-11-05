@@ -1,5 +1,5 @@
 // The critter forms: JSON sprites from ./critters baked per mood, plus each one's gait, particles, quirk and lines.
-// Keys and file names carry the real creature names; only `label` and the lines ever reach the page.
+// A critter's key and file name are its own name; the page shows its label and lines.
 import { pick, rand } from './config'
 import type { Mood, Palette } from './config'
 import { fxBurst } from './effects'
@@ -32,8 +32,8 @@ const SPRITES: Record<string, Sprite> = Object.fromEntries(Object.values(files).
 export const CRITTERS: string[] = Object.keys(SPRITES)
 export const critter = (form: string): Sprite | undefined => SPRITES[form]
 
-// The flop fish's rare evolution instead of morphing back to the robot.
-const EVOLVES: Record<string, string> = { flopfish: 'tidewyrm' }
+// The baby neuron's rare evolution into the deep network instead of morphing back to the robot.
+const EVOLVES: Record<string, string> = { neurlet: 'deepnet' }
 
 const N = 24
 const DIZZY = '#9fb3c6'

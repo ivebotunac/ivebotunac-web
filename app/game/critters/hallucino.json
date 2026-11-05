@@ -1,0 +1,103 @@
+{
+  "key": "hallucino",
+  "label": "HALLUCINO",
+  "palette": {
+    "W": "#ffffff",
+    "w": "#ece4ff",
+    "l": "#c7b4f2",
+    "L": "#9b84d8",
+    "p": "#ff8fb8",
+    "m": "#5b3f99",
+    "q": "#9b6bff",
+    "Q": "#c9b0ff",
+    "y": "#ffd23b"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [8, 11],
+    "r": [14, 11]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "....................q...",
+      "...y................q...",
+      "..yWy.............qqWqq.",
+      "...y......WWWl......q...",
+      "........WWwwwlll....q...",
+      ".......Wwwwwwwwll.......",
+      ".......Wwwwwwwwwl.......",
+      "....Wl.Wwwwwwwwwl.ll....",
+      "...WwwWwwwwwwwwwlWwll...",
+      "..Wwwwwwwwwwwwwwwwwwll..",
+      "..lwwwwwwwwwwwwwwwwwwl..",
+      "..LwwwwwwwwwwwwwwwwwwL..",
+      "...Wppwwwwmwwmwwwwppl...",
+      "..Wwwwwwwwwmmwwwwwwwll..",
+      "..lwwwwwwwwwwwwwwwwwwl..",
+      "..LwwwwwwwwwwwwwwwwwwL..",
+      "...llwwwwwwwwwwwwwlll...",
+      "...LLlllllllllllllLLL...",
+      ".....LLLLLLLLLLLLL......",
+      "........................",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "...y....................",
+      "...y................q...",
+      ".yyWyy.............qWq..",
+      "...y.......WWll.....q...",
+      "...y....WWWwwwll........",
+      ".......Wwwwwwwwll.......",
+      ".......Wwwwwwwwwl.......",
+      "...WWl.Wwwwwwwwwl.lll...",
+      "...WwwWwwwwwwwwwlWwwl...",
+      "..lwwwwwwwwwwwwwwwwwll..",
+      "..LwwwwwwwwwwwwwwwwwwL..",
+      "...Wwwwwwwwwwwwwwwwwl...",
+      "..LwppwwwwmwwmwwwwpplL..",
+      "...Wwwwwwwwmmwwwwwwwl...",
+      "..lwwwwwwwwwwwwwwwwwll..",
+      "..LlwwwwwwwwwwwwwwwwwL..",
+      "...Lllwwwwwwwwwwwwwll...",
+      "....LLlllllllllllllLL...",
+      "......LLLLLLLLLLLLL.....",
+      "........................",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "float",
+    "particle": "psychic",
+    "quirk": "daze",
+    "weight": "light"
+  },
+  "lines": {
+    "morph": [
+      "HALLUCINO here. sources: trust me.",
+      "HALLUCINO online. confidence: 100%.",
+      "i read that paper. i also wrote it. maybe.",
+      "citation needed? i will make one up."
+    ],
+    "pet": [
+      "fluffy and grounded. well, fluffy.",
+      "pat logged. reward model says: nice.",
+      "softer than a reviewer two. barely."
+    ],
+    "hit": [
+      "ow. that never happened. i checked.",
+      "rain delay. retrying with more sky.",
+      "hit detected. retrieving a better past."
+    ],
+    "idle": [
+      "the capital of zadar is probably zadar.",
+      "temperature set to 2.0. feeling great.",
+      "drifting. the context window is huge."
+    ]
+  }
+}

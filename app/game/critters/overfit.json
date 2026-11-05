@@ -1,0 +1,108 @@
+{
+  "key": "overfit",
+  "label": "OVERFIT",
+  "palette": {
+    "L": "#e8eef5",
+    "S": "#b3bfcc",
+    "D": "#7a879a",
+    "g": "#a6e9f2",
+    "G": "#7fd0e0",
+    "w": "#ffffff",
+    "p": "#ff9db0",
+    "k": "#1d2433"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      7
+    ],
+    "r": [
+      14,
+      7
+    ],
+    "color": "#1d2433"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      ".........LLLLLL.........",
+      ".......LLSSSSSSLL.......",
+      "......LSSwwggggSSD......",
+      ".....LSgwwgggggggSD.....",
+      "....LSgwggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSgpggkggkggpgSD....",
+      "....LSgggggkkggggGSD....",
+      "....LSggggggggggwGSD....",
+      ".....LSggggggggwGSD.....",
+      "......DSSggggGGSSD......",
+      ".......DDSSSSSSDD.......",
+      ".........DDDDDD.........",
+      "..........LSSD..........",
+      ".........LLSSSD.........",
+      "..........LSSD..........",
+      "..........LSSD..........",
+      "..........LSSD..........",
+      "..........SDDD..........",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      ".........LLLLLL.........",
+      ".......LLSSSSSSLL.......",
+      "......LSSgwwgggSSD......",
+      ".....LSggwwggggggSD.....",
+      "....LSggwgggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSggggggggggggSD....",
+      "....LSgpggkggkggpgSD....",
+      "....LSgggggkkggggGSD....",
+      "....LSgggggggggwgGSD....",
+      ".....LSgggggggwgGSD.....",
+      "......DSSggggGGSSD......",
+      ".......DDSSSSSSDD.......",
+      ".........DDDDDD.........",
+      "...........LSSD.........",
+      "..........LLSSSD........",
+      "...........LSSD.........",
+      "...........LSSD.........",
+      "...........SDDD.........",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "slow",
+    "particle": "none",
+    "quirk": "copy"
+  },
+  "lines": {
+    "morph": [
+      "OVERFIT here. i have seen this before.",
+      "OVERFIT loaded. training loss: zero.",
+      "OVERFIT online. test set? never met it.",
+      "OVERFIT ready. 100 percent on train."
+    ],
+    "pet": [
+      "memorised. pet me the same way again.",
+      "new sample! i will remember it forever.",
+      "that felt great. generalises? no idea."
+    ],
+    "hit": [
+      "ow. that was not in my training data.",
+      "unseen input! accuracy dropping fast.",
+      "noted. i will copy that move later."
+    ],
+    "idle": [
+      "i reflect your data. only your data.",
+      "validation loss is going up. not my fault.",
+      "just add more parameters. it always helps."
+    ]
+  }
+}

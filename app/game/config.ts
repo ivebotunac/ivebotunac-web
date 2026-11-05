@@ -103,7 +103,7 @@ export const SECTION_LINES: Record<string, string[]> = {
   experience: ['he built me between all of these jobs.', 'yes, all of that is real.'],
   publications: ['I\'m cited in none of these. yet.', 'ten papers and not one about me.'],
   education: ['a PhD. I just have a lot of weights.', 'he studied. I just scraped.'],
-  certifications: ['he\'s certified. I\'m certifiable.', 'gotta collect them all.'],
+  certifications: ['he\'s certified. I\'m certifiable.', 'a certificate a quarter. like updates.'],
   skills: ['I\'m not on this list. rude.', 'skills: plenty. punching robots: please no.']
 }
 // The quest: `{r}` is a role, `{s}` a CV section.

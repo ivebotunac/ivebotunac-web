@@ -1,0 +1,115 @@
+{
+  "key": "deepnet",
+  "label": "DEEPNET",
+  "palette": {
+    "n": "#21416a",
+    "u": "#30609a",
+    "N": "#17325a",
+    "b": "#3d7cc4",
+    "c": "#36c6e0",
+    "k": "#d4fbff",
+    "o": "#ff6a2a",
+    "h": "#ffb070",
+    "y": "#ffd23b",
+    "m": "#7ff3ff",
+    "d": "#0b6bcb",
+    "D": "#4a9be8",
+    "w": "#9eeefa",
+    "O": "#c8461a"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      7,
+      4
+    ],
+    "r": [
+      15,
+      4
+    ],
+    "color": "#7ff3ff"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      ".......uuuunnnnnn.......",
+      ".....uuunnnnnnnnnnn.....",
+      "....uunnnnnnnnnnnnnn....",
+      "...unnnnnnnnnnnnnnnnN...",
+      "...unnnnnnnnnnnnnnnnN...",
+      "..unnnnnnnnmmnnnnnnnnN..",
+      "..unnnnnnnnnnnnnnnnnnN..",
+      "..unnnnnnboyyobnnnnnnN..",
+      "..uncnnbbbnOOnbbbnncnN..",
+      "..ucwcbnnbnnnnbnnbcwcN..",
+      "..uncnbbbnnnnnnbbbncnN..",
+      "..unnnnbnbohhobnbnnnnN..",
+      "..unnnbnbbnOOnbbnbnnnN..",
+      "..nncnbbbnnnnnnbbbncnN..",
+      "..nckcbbnbnnnnbnbbckcN..",
+      "..nncnnnbboyyobbnnncnN..",
+      "...nnnnnnnnOOnnnnnnnN...",
+      "....NNNNNNNNNNNNNNNN....",
+      ".....unnnn....nnnnN.....",
+      ".....unnnn....nnnnN.....",
+      "....Dddddd....dddddD....",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      ".......uuuunnnnnn.......",
+      ".....uuunnnnnnnnnnn.....",
+      "....uunnnnnnnnnnnnnn....",
+      "...unnnnnnnnnnnnnnnnN...",
+      "...unnnnnnnnnnnnnnnnN...",
+      "..unnnnnnnnmmnnnnnnnnN..",
+      "..unnnnnnnnnnnnnnnnnnN..",
+      "..unnnnnnbohhobnnnnnnN..",
+      "..uncnnbbbnOOnbbbnncnN..",
+      "..uckcbnnbnnnnbnnbckcN..",
+      "..uncnbbbnnnnnnbbbncnN..",
+      "..unnnnbnboyyobnbnnnnN..",
+      "..unnnbnbbnOOnbbnbnnnN..",
+      "..nncnbbbnnnnnnbbbncnN..",
+      "..ncwcbbnbnnnnbnbbcwcN..",
+      "..nncnnnbbohhobbnnncnN..",
+      "...nnnnnnnnOOnnnnnnnN...",
+      "....NNNNNNNNNNNNNNNN....",
+      ".....unnnn....nnnnN.....",
+      "...Dddddd......nnnnN....",
+      "...............dddddD...",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "walk",
+    "particle": "psychic",
+    "quirk": "proud",
+    "weight": "heavy"
+  },
+  "lines": {
+    "morph": [
+      "DEEPNET online. three layers, zero doubts.",
+      "DEEPNET deployed. please mind the weights.",
+      "DEEPNET here. grew from one neuron. mostly.",
+      "DEEPNET converged. you may applaud."
+    ],
+    "pet": [
+      "gentle. i took six weeks to train.",
+      "pet acknowledged. loss decreased 0.02.",
+      "yes, scale was all i needed. and this."
+    ],
+    "hit": [
+      "that was adversarial. noted.",
+      "ow. one of my layers went to nan.",
+      "careful, i am not checkpointed."
+    ],
+    "idle": [
+      "thinking. it costs a few gpus.",
+      "state of the art, per my own benchmark.",
+      "my reviewers asked for more ablations."
+    ]
+  }
+}

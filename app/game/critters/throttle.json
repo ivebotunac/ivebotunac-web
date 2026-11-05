@@ -1,0 +1,116 @@
+{
+  "key": "throttle",
+  "label": "THROTTLE",
+  "palette": {
+    "y": "#ffd23b",
+    "r": "#ff5a1f",
+    "R": "#b8381c",
+    "g": "#4a5361",
+    "G": "#343b47",
+    "h": "#6b7686",
+    "d": "#151c26",
+    "c": "#36c6e0",
+    "o": "#1b2129",
+    "O": "#2a313c",
+    "b": "#b4c0cf",
+    "p": "#2e9a5a",
+    "P": "#1f6e40",
+    "k": "#f0c040",
+    "f": "#2a313c"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      10
+    ],
+    "r": [
+      14,
+      10
+    ],
+    "color": "#36c6e0"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "..rryyyyyyyyyyyyyyyyrr..",
+      ".RrrrrrrrrrrrrrrrrrrrrR.",
+      ".GhhhhhhhhhhhhhhhhhhhhG.",
+      ".GggggddddddddddddggggG.",
+      ".GggggdddddccdddddggggG.",
+      ".GggggggggggggggggggggG.",
+      ".GgggoooggggggggooogggG.",
+      ".GggobbOoggggggobbOoggG.",
+      ".GgoOObOboggggoOObObogG.",
+      ".GgobbhbboggggobbhbbogG.",
+      ".GgobObOOoggggobObOOogG.",
+      ".GggoObboggggggoObboggG.",
+      ".GgggoooggggggggooogggG.",
+      ".PppppppppppppppppppppP.",
+      "..fff...kPkPkPkP...fff..",
+      "..fff..............fff..",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "..rryyyyyyyyyyyyyyyyrr..",
+      ".RrrrrrrrrrrrrrrrrrrrrR.",
+      ".GhhhhhhhhhhhhhhhhhhhhG.",
+      ".GggggddddddddddddggggG.",
+      ".GggggdddddccdddddggggG.",
+      ".GggggggggggggggggggggG.",
+      ".GgggoooggggggggooogggG.",
+      ".GggoOOboggggggoOOboggG.",
+      ".GgobbObOoggggobbObOogG.",
+      ".GgoOOhOOoggggoOOhOOogG.",
+      ".GgoObObboggggoObObbogG.",
+      ".GggobOOoggggggobOOoggG.",
+      ".GgggoooggggggggooogggG.",
+      ".PppppppppppppppppppppP.",
+      "...fff..kPkPkPkP...fff..",
+      "...................fff..",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "slow",
+    "particle": "ember",
+    "quirk": "nap",
+    "weight": "heavy"
+  },
+  "lines": {
+    "morph": [
+      "THROTTLE online. fans at 100 percent.",
+      "THROTTLE spun up. clock speed: vibes.",
+      "THROTTLE loaded. please mind the heat.",
+      "THROTTLE here. already out of memory."
+    ],
+    "pet": [
+      "warm, right? that is 300 watts of love.",
+      "gently. the fans have been up all night.",
+      "cooling down. keep going, it helps."
+    ],
+    "hit": [
+      "ow. that cost me a whole epoch.",
+      "careful, i hold the only checkpoint.",
+      "hit detected. downclocking in protest."
+    ],
+    "idle": [
+      "training run eta: next semester.",
+      "too hot to think. lowering clocks.",
+      "batch size one. it is all i can do."
+    ]
+  }
+}

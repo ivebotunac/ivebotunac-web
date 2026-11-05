@@ -1,0 +1,111 @@
+{
+  "key": "timeout",
+  "label": "TIMEOUT",
+  "palette": {
+    "L": "#c58a4e",
+    "W": "#9a6232",
+    "D": "#6a3f1e",
+    "g": "#c4e6f1",
+    "h": "#f2fbff",
+    "o": "#ffa040",
+    "O": "#ff5a1f",
+    "m": "#3b2a1e",
+    "c": "#36c6e0",
+    "k": "#a6e6f2",
+    "v": "#c7d6ea",
+    "V": "#e3ecf6"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      9
+    ],
+    "r": [
+      14,
+      9
+    ]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      ".......c..c..c..c.......",
+      "........................",
+      "....c..............c....",
+      "........................",
+      "......LWWWWWWWWWWD......",
+      "..k...DDDDDDDDDDDD...c..",
+      ".......WhgggggggD.......",
+      ".......WggggggggD.......",
+      "..k....WggggggggD...hc..",
+      ".......WgggmmgggD...cc..",
+      ".......W.ooOOoo.D.......",
+      "..k....W...oO...D.......",
+      ".......W..gOgg..D.......",
+      ".......W.ggOggg.D.......",
+      ".......WggooOoggD.......",
+      ".......WoOOOOOOoD.......",
+      "......LWWWWWWWWWWD......",
+      "......DDDDDDDDDDDD......",
+      "..........vvvv..........",
+      "............vv..........",
+      "..............V.........",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      ".......c..c..c..c.......",
+      "........................",
+      "....k..............c....",
+      "........................",
+      "......LWWWWWWWWWWD......",
+      "..k...DDDDDDDDDDDD...c..",
+      ".......WhgggggggD.......",
+      ".......WggggggggD.......",
+      "..k....WggggggggD....c..",
+      ".......WgggmmgggD.......",
+      ".......W.ooOOoo.D.......",
+      ".......W...Oo...D...hc..",
+      ".......W..gogg..D...cc..",
+      ".......W.ggOggg.D.......",
+      ".......WggoOooggD.......",
+      ".......WoOOOOOOoD.......",
+      "......LWWWWWWWWWWD......",
+      "......DDDDDDDDDDDD......",
+      "..........vvvv..........",
+      "..........vv............",
+      ".........V..............",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "float",
+    "particle": "shadow",
+    "quirk": "vanish"
+  },
+  "lines": {
+    "morph": [
+      "TIMEOUT. the request never came back.",
+      "TIMEOUT reached. the sand ran out at 30s.",
+      "TIMEOUT. still pending since you clicked.",
+      "TIMEOUT: upstream never answered. again."
+    ],
+    "pet": [
+      "keep-alive received. resetting my sand.",
+      "aw. one more retry, just for you.",
+      "that counts as a heartbeat. thank you."
+    ],
+    "hit": [
+      "ow. connection reset by peer.",
+      "backing off. try again in 2^n seconds.",
+      "that hit timed out before it landed."
+    ],
+    "idle": [
+      "awaiting a promise that never resolves.",
+      "the spinner spins. nothing is behind it.",
+      "flip me over. i will still be pending."
+    ]
+  }
+}

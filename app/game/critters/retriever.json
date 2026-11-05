@@ -1,0 +1,108 @@
+{
+  "key": "retriever",
+  "label": "RETRIEVER",
+  "palette": {
+    "y": "#e8a93a",
+    "Y": "#f8d58a",
+    "d": "#b8772a",
+    "e": "#9a5a22",
+    "n": "#3a2622",
+    "w": "#f5f9fd",
+    "g": "#b9c8d8",
+    "l": "#8aa6c4",
+    "o": "#ff5a1f"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      7,
+      7
+    ],
+    "r": [
+      15,
+      7
+    ]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      ".......yyyyyyyyyy.......",
+      "......yyyyyyyyyyyy......",
+      "...eeyyyyyyyyyyyyyyee...",
+      "..eeeeyyyyyyyyyyyyeeee..",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeyyyYYYnnYYYyyyeeee.",
+      ".eeeeyyYYYYYYYYYYyyeeee.",
+      "..eeeyyYYwwwwwwwwwwwgee.",
+      "..eeeyyYnwlllwllllwwgge.",
+      "..eeyyyYYwllwlllwwwwww..",
+      "...yyyyYYwwwwwwwwwwwww..",
+      ".....yyyYYYYYYYYyyy.....",
+      "......oooooooooooo...Y..",
+      "......yyyYYYYYYyyy..yy..",
+      ".....yyyyYYYYYYyyyyyy...",
+      ".....dyyyYYYYYYyyyd.....",
+      ".....dyyyyyyyyyyyyd.....",
+      "......YYY......YYY......",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      ".......yyyyyyyyyy.......",
+      "......yyyyyyyyyyyy......",
+      "...eeyyyyyyyyyyyyyyee...",
+      "..eeeeyyyyyyyyyyyyeeee..",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeeyyyyyyyyyyyyeeeee.",
+      ".eeeeyyyYYYnnYYYyyyeeee.",
+      ".eeeeyyYYYYYYYYYYyyeeee.",
+      "..eeeyyYYwwwwwwwwwwwgee.",
+      "..eeeyyYnwlllwllllwwgge.",
+      "..eeyyyYYwllwlllwwwwww..",
+      "...yyyyYYwwwwwwwwwwwww..",
+      ".....yyyYYYYYYYYyyy.....",
+      "......oooooooooooo......",
+      "......yyyYYYYYYyyy......",
+      ".....yyyyYYYYYYyyyyyy...",
+      ".....dyyyYYYYYYyyyddyY..",
+      ".....YYYyyyyyyyyyyd.....",
+      "...............YYY......",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "walk",
+    "particle": "star",
+    "quirk": "proud"
+  },
+  "lines": {
+    "morph": [
+      "RETRIEVER online. top-k treats, please.",
+      "RETRIEVER ready. i fetch, you cite.",
+      "now a RETRIEVER. grounded, unlike me.",
+      "RETRIEVER loaded. index warm, tail wagging."
+    ],
+    "pet": [
+      "good boy confirmed. relevance score: 1.0.",
+      "more pets, fewer hallucinations.",
+      "pet acknowledged. reranking you to top."
+    ],
+    "hit": [
+      "ow. dropped the document. no sources now.",
+      "context window bonked. chunk lost.",
+      "rude. that query had no embedding."
+    ],
+    "idle": [
+      "fetched a pdf. it was the wrong pdf.",
+      "sniffing the vector store. smells cosine.",
+      "who's a grounded boy? me. with citations."
+    ]
+  }
+}

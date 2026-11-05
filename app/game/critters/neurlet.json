@@ -1,0 +1,114 @@
+{
+  "key": "neurlet",
+  "label": "NEURLET",
+  "palette": {
+    "o": "#ff7a33",
+    "h": "#ffa866",
+    "O": "#d9541c",
+    "p": "#ffb08a",
+    "m": "#7a2a10",
+    "y": "#ffd23b",
+    "Y": "#e0a614",
+    "l": "#fff1a6",
+    "a": "#ffb347",
+    "A": "#d98a1c",
+    "w": "#f5f9fd",
+    "W": "#c9d6e3",
+    "c": "#36c6e0",
+    "C": "#1f95b3",
+    "k": "#b8f0fa"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      10
+    ],
+    "r": [
+      14,
+      10
+    ]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "......l.l......l.l......",
+      ".......y........y.......",
+      "........y......y........",
+      "........y......y........",
+      "..l......Y....Y......l..",
+      "..y......ohhooo......y..",
+      "...yy..ohhooooooO..yy...",
+      "..l..YohhooooooooOY..l..",
+      "......ohoooooooooO......",
+      "......ooooooooooOO......",
+      "......ooooooooooOO......",
+      "......opoooooooopO......",
+      ".......oooommooOO.......",
+      "........ooooooOO........",
+      "..........oOOO..........",
+      "...........aA...........",
+      "...........wW...........",
+      "...........aA...........",
+      "..........aaAA..........",
+      ".........aA..aA.........",
+      "........kc....kc........",
+      ".......kccC..kccC.......",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "......y.y......y.y......",
+      ".......y........y.......",
+      "........y......y........",
+      "........y......y........",
+      "..y......Y....Y......y..",
+      "..y......ohhooo......y..",
+      "...yy..ohhooooooO..yy...",
+      "..y..YohhooooooooOY..y..",
+      "......ohoooooooooO......",
+      "......ooooooooooOO......",
+      "......ooooooooooOO......",
+      "......opoooooooopO......",
+      ".......oooommooOO.......",
+      "........ooooooOO........",
+      "..........oOOO..........",
+      "...........aA...........",
+      "...........wW...........",
+      "...........aA...........",
+      "..........aaAA..........",
+      ".......kcaA..aA.........",
+      ".......cC.....kc........",
+      ".............kccC.......",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "hop",
+    "particle": "spark",
+    "quirk": "evolve"
+  },
+  "lines": {
+    "morph": [
+      "NEURLET online. one neuron, big plans.",
+      "NEURLET spawned. parameter count: one.",
+      "NEURLET here. activation function: vibes.",
+      "NEURLET loaded. still waiting on weights."
+    ],
+    "pet": [
+      "that tickles my dendrites. do it again.",
+      "positive feedback. learning rate up.",
+      "keep going, i'm growing a new synapse."
+    ],
+    "hit": [
+      "ow. that input was not normalized.",
+      "dropout! i felt that one.",
+      "gradient exploded. so did i."
+    ],
+    "idle": [
+      "fire. wait. fire. wait. that's the job.",
+      "one day i'll have layers of my own.",
+      "no backprop yet. just voltage and hope."
+    ]
+  }
+}

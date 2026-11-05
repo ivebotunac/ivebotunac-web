@@ -1,0 +1,105 @@
+{
+  "key": "promptling",
+  "label": "PROMPTLING",
+  "palette": {
+    "c": "#36c6e0",
+    "h": "#9be9f6",
+    "w": "#f5f9fd",
+    "d": "#1d9cc0",
+    "p": "#ff8fb8",
+    "k": "#0c2236"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      7,
+      8
+    ],
+    "r": [
+      15,
+      8
+    ]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "......chhhhccccccd......",
+      "....chwccccccccccccd....",
+      "...chwccccccccccccccd...",
+      "..chcccwwccccccwwcccdd..",
+      "..chccwwwwccccwwwwccdd..",
+      "..ccccwwwwccccwwwwccdd..",
+      "..cccccwwccccccwwcccdd..",
+      "..ccppccccckkcccccppdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "...cccccccckkccccdddd...",
+      "....ccdddddddddddddd....",
+      "....cccddddddddddd......",
+      "...ccd..................",
+      "..cc....................",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "......chhhhccccccd......",
+      "....chwccccccccccccd....",
+      "...chwccccccccccccccd...",
+      "..chcccwwccccccwwcccdd..",
+      "..chccwwwwccccwwwwccdd..",
+      "..ccccwwwwccccwwwwccdd..",
+      "..cccccwwccccccwwcccdd..",
+      "..ccppccccckkcccccppdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "..ccccccccckkcccccccdd..",
+      "...cccccccckkccccdddd...",
+      "....ccdddddddddddddd....",
+      "...ccccddddddddddd......",
+      ".cccd...................",
+      "........................",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "hop",
+    "particle": "heart",
+    "quirk": "shy"
+  },
+  "lines": {
+    "morph": [
+      "PROMPTLING online. awaiting your prompt.",
+      "PROMPTLING here. please be specific.",
+      "PROMPTLING loaded. context window: tiny.",
+      "a PROMPTLING appears. it was typing."
+    ],
+    "pet": [
+      "aw. that tokenizes as pure joy.",
+      "careful, i blush in hex.",
+      "pats logged. temperature rising."
+    ],
+    "hit": [
+      "ow. that was an adversarial prompt.",
+      "ouch. let me rephrase myself.",
+      "hey, i was mid-sentence."
+    ],
+    "idle": [
+      "blink. blink. still typing...",
+      "every thought ends in a cursor.",
+      "nobody prompts me on weekends."
+    ]
+  }
+}

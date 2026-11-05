@@ -1,0 +1,117 @@
+{
+  "key": "tokenpede",
+  "label": "TOKENPEDE",
+  "palette": {
+    "l": "#cdb9f5",
+    "L": "#9a83d8",
+    "q": "#e4d8fb",
+    "m": "#b4ebcf",
+    "M": "#66c398",
+    "n": "#d6f6e6",
+    "p": "#ffd1a6",
+    "P": "#ec9a5e",
+    "o": "#ffe6cf",
+    "k": "#b5ddf8",
+    "K": "#6eaedc",
+    "j": "#d8eefc",
+    "B": "#3b5a82",
+    "N": "#26405f",
+    "s": "#132a45",
+    "c": "#ff5a1f",
+    "f": "#2b3550"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      9,
+      5
+    ],
+    "r": [
+      13,
+      5
+    ],
+    "color": "#36c6e0"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "........................",
+      ".........BBBBBB.........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BsssccsN........",
+      ".........NNNNNN.........",
+      "............KKK.........",
+      "...........KjkkK........",
+      "...........KkkkKf.......",
+      "...........KkkkK........",
+      "..LLL.....PPKKK.f.......",
+      ".LqllLMMMPoppP..........",
+      ".LlllMnmmPpppP..........",
+      ".LlllMmmmPpppP..........",
+      "..LLLMmmmMPPP...........",
+      "..f.f.MMM.f.f...........",
+      "......f.f...............",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "........................",
+      ".........BBBBBB.........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BssssssN........",
+      "........BssssssN........",
+      ".........NNNNNN.........",
+      "............KKK.........",
+      "...........KjkkKf.......",
+      "...........KkkkK........",
+      "...........KkkkKf.......",
+      "......MMM.PPKKK.........",
+      "..LLLMnmmPoppP..........",
+      ".LqllMmmmPpppP..........",
+      ".LlllMmmmPpppP..........",
+      ".LlllLMMM.PPP...........",
+      "..LLL.f.f..f.f..........",
+      ".f.f....................",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "waddle",
+    "particle": "leaf",
+    "quirk": "nap"
+  },
+  "lines": {
+    "morph": [
+      "TOKENPEDE loaded. four segments, one word.",
+      "TOKENPEDE here. i bill by the leg.",
+      "TOKENPEDE online. context window: open.",
+      "you are now talking to TOKENPEDE. metered."
+    ],
+    "pet": [
+      "that pet cost me three tokens. worth it.",
+      "pet again. i will cache this one.",
+      "mmm. a whole embedding of happiness."
+    ],
+    "hit": [
+      "ow. you split me at the wrong byte.",
+      "unknown token. that hurt in utf-8.",
+      "segment fault. literally, my segment."
+    ],
+    "idle": [
+      "is \"caterpillar\" one token or three?",
+      "counting tokens. lost count. again.",
+      "max length reached. nap, then truncate."
+    ]
+  }
+}

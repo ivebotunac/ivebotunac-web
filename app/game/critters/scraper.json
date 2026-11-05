@@ -1,0 +1,112 @@
+{
+  "key": "scraper",
+  "label": "SCRAPER",
+  "palette": {
+    "k": "#3d4552",
+    "K": "#262c35",
+    "h": "#5f6a7b",
+    "c": "#36c6e0",
+    "C": "#b4f0fa",
+    "b": "#d5dde6",
+    "B": "#9aa7b7",
+    "v": "#0c2236",
+    "d": "#1f252e",
+    "o": "#ff5a1f",
+    "O": "#b8400f",
+    "w": "#eef3f8"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      12
+    ],
+    "r": [
+      14,
+      12
+    ],
+    "color": "#36c6e0"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "..........hhhh..........",
+      ".........KcCCcK.........",
+      "......kkkKKKKKKkkk......",
+      "....khhhkkkkkkkkkkkk....",
+      "..khhkkkkkkkkkkkkkkkkK..",
+      "..kkkkkkkkkkkkkkkkkkkK..",
+      "..KKKKKKKKKKKKKKKKKKKK..",
+      "..bwwbbbvvvvvvvvbbbbbB..",
+      "..bbbbvvvvvvvvvvvvbbbB..",
+      "..Bbbbvvvvvvvvvvvvbbbb..",
+      "..Bbbbbvvvvvvvvvvbbbbb..",
+      "..BBbbbbbbbbbbbbbbbbBB..",
+      "...BBBBBBBBBBBBBBBBBB...",
+      ".o.odddddddddddddddd....",
+      "..O.....................",
+      ".o.o....................",
+      "........cc...ccc........",
+      ".........c...c.c...C....",
+      ".........c...ccc...C....",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "........................",
+      "........................",
+      "..........hhhh..........",
+      ".........KCccCK.........",
+      "......kkkKKKKKKkkk......",
+      "....khhhkkkkkkkkkkkk....",
+      "..khhkkkkkkkkkkkkkkkkK..",
+      "..kkkkkkkkkkkkkkkkkkkK..",
+      "..KKKKKKKKKKKKKKKKKKKK..",
+      "..bwwbbbvvvvvvvvbbbbbB..",
+      "..bbbbvvvvvvvvvvvvbbbB..",
+      "..Bbbbvvvvvvvvvvvvbbbb..",
+      "..Bbbbbvvvvvvvvvvbbbbb..",
+      "..BBbbbbbbbbbbbbbbbbBB..",
+      "...BBBBBBBBBBBBBBBBBB...",
+      "..o.dddddddddddddddd....",
+      ".oOo....................",
+      "..o............ccc......",
+      "..........cc...c.c......",
+      "...........c...ccc..C...",
+      "......C....c........C...",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "walk",
+    "particle": "none",
+    "quirk": "none"
+  },
+  "lines": {
+    "morph": [
+      "SCRAPER online. robots.txt? never read it.",
+      "SCRAPER engaged. crawling at 2 req/s, ish.",
+      "SCRAPER booted. your html smells tasty.",
+      "SCRAPER here. this page is now a dataset."
+    ],
+    "pet": [
+      "aw. adding you to the training set.",
+      "nice. that was not in my sitemap.",
+      "careful. i log every click. for science."
+    ],
+    "hit": [
+      "ow. responding with 429 from now on.",
+      "you knocked my crawl budget loose.",
+      "fine. switching to a headless browser."
+    ],
+    "idle": [
+      "parsing the floor. mostly div soup.",
+      "found a cookie banner. ate it.",
+      "pagination ends here. i checked. twice."
+    ]
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "key": "descent",
+  "label": "DESCENT",
+  "palette": {
+    "b": "#f4e6c2",
+    "B": "#d9bd85",
+    "w": "#fbf0d4",
+    "W": "#dcc08a",
+    "h": "#fffaec",
+    "p": "#f59a7a",
+    "m": "#7a3b2e",
+    "L": "#7aa3cf",
+    "N": "#4a74a0",
+    "n": "#365a82",
+    "o": "#ff5a1f",
+    "a": "#ff9a2e",
+    "y": "#ffd23b",
+    "g": "#9be39a",
+    "c": "#36c6e0"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      2,
+      7
+    ],
+    "r": [
+      7,
+      3
+    ]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      ".......www..............",
+      "......wwwwW.............",
+      "......wwwwW.............",
+      "......wwwwW....LLLNN....",
+      "..www..WWW....LoooaaN...",
+      ".wwwwW.bb....LoNNNNNaN..",
+      ".wwwwW.bb...LoNgggggNaN.",
+      ".wwwwW.bb...LoNgNNNcNan.",
+      "..WWW..bb...LoNgNcNcNan.",
+      "...bb..bb...NoNgNcNcNan.",
+      "...bbbbbb...noNyNcccNan.",
+      "..bbbhhhbb...nNyNNNNyn..",
+      ".bbbppbbbbbbbbnyyyyynbb.",
+      ".bmmbbbbbbbbbbbnnnnnbbb.",
+      ".bbbbbbbbbbbbbbbbbbbbbB.",
+      ".bbbbbbbbbbbbbbbbbBBBB..",
+      ".bbbbbbbbbbbBBBBBB......",
+      ".BbbbbbBBBBB............",
+      "..BBBBB.................",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      ".......www..............",
+      "......wwwwW.............",
+      "......wwwwW.............",
+      "......wwwwW.............",
+      "..www..WWW.....LLLNN....",
+      ".wwwwW..bb....LoooaaN...",
+      ".wwwwW..bb...LoNNNNNaN..",
+      ".wwwwW.bb...LoNgggggNaN.",
+      "..WWW..bb...LoNgNNNcNan.",
+      "...bb..bb...LoNgNcNcNan.",
+      "...bbbbbb...NoNgNcNcNan.",
+      "..bbbhhhbb..noNyNcccNan.",
+      ".bbbppbbbbbbbnNyNNNNynb.",
+      ".bmmbbbbbbbbbbnyyyyynbB.",
+      ".bbbbbbbbbbbbbbnnnnnbb..",
+      ".bbbbbbbbbbbbbBBbbbbBB..",
+      ".bbbbbbBbbBBBBbbBB......",
+      ".BBBbbBbBBbb............",
+      "..bbBBb.................",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "slow",
+    "particle": "leaf",
+    "quirk": "none"
+  },
+  "lines": {
+    "morph": [
+      "DESCENT online. heading downhill, slowly.",
+      "DESCENT engaged. learning rate: 0.0001.",
+      "i am DESCENT. every step a little lower.",
+      "DESCENT here. local minimum, here i come."
+    ],
+    "pet": [
+      "gradient is gentle here. keep petting.",
+      "loss went down. it was the pets.",
+      "converging nicely. do not touch the lr."
+    ],
+    "hit": [
+      "ow. that was an exploding gradient.",
+      "overshot the minimum. thanks a lot.",
+      "shell intact. loss is now nan."
+    ],
+    "idle": [
+      "epoch 4000. still sliding. still fine.",
+      "is this a saddle point or a nap spot?",
+      "no momentum. just vibes and slime."
+    ]
+  }
+}

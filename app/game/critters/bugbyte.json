@@ -1,0 +1,107 @@
+{
+  "key": "bugbyte",
+  "label": "BUGBYTE",
+  "palette": {
+    "n": "#3a4866",
+    "m": "#56688c",
+    "a": "#6a7894",
+    "y": "#ffd23b",
+    "g": "#23a05a",
+    "G": "#14703d",
+    "l": "#45c27c"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [
+      8,
+      7
+    ],
+    "r": [
+      14,
+      7
+    ],
+    "color": "#ffd23b"
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "......aa........aa......",
+      ".....y..a......a..y.....",
+      ".........a....a.........",
+      ".........mmnnnn.........",
+      "........mmnnnnnn........",
+      ".......mnnnnnnnnn.......",
+      ".......nnnnnnnnnn.......",
+      ".......nnnnnnnnnn.......",
+      "..a...GGGGGGGGGGGG...a..",
+      "..a..lllgggGGgggggG..a..",
+      "..aallgggggGGgggggGGaa..",
+      "....lyyygggGGyyygggG....",
+      "....lgggyggGGgggyggG....",
+      ".aaalggggygGGggggygGaaa.",
+      ".a..gggggyyGGggggyyG..a.",
+      "....ggyggyyGGgyggyyG....",
+      "....gggggggGGggggggG....",
+      "...aaggggggGGgggggGaa...",
+      "...a..GGgggGGgggGG..a...",
+      "...a....GGGGGGGG....a...",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      ".....yaa........aay.....",
+      "........a......a........",
+      ".........a....a.........",
+      ".........mmnnnn.........",
+      "........mmnnnnnn........",
+      ".......mnnnnnnnnn.......",
+      ".......nnnnnnnnnn.......",
+      ".......nnnnnnnnnn.......",
+      "......GGGGGGGGGGGG......",
+      ".a...lllgggGGgggggG..a..",
+      ".aaallgggggGGgggggGGaa..",
+      "....lyyygggGGyyygggG....",
+      ".a..lgggyggGGgggyggG....",
+      ".aaalggggygGGggggygGaa..",
+      "....gggggyyGGggggyyG.a..",
+      "....ggyggyyGGgyggyyG.a..",
+      "....gggggggGGggggggG....",
+      "..aaaggggggGGgggggGaa...",
+      "..a...GGgggGGgggGG..a...",
+      "........GGGGGGGG........",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "dash",
+    "particle": "spark",
+    "quirk": "vanish"
+  },
+  "lines": {
+    "morph": [
+      "BUGBYTE spawned. works on my machine.",
+      "BUGBYTE found. filing it as a feature.",
+      "BUGBYTE merged. friday, 4:59 pm.",
+      "BUGBYTE: reproducible only in prod."
+    ],
+    "pet": [
+      "petting me will not close the ticket.",
+      "aw. marking you as wontfix, kindly.",
+      "keep going. i am a known issue."
+    ],
+    "hit": [
+      "can't squash me. i am load-bearing.",
+      "ow. stack trace incoming.",
+      "missed. i was a race condition."
+    ],
+    "idle": [
+      "hiding in an off-by-one. shh.",
+      "nobody reads the error log. i live there.",
+      "cannot reproduce. that is my cardio."
+    ]
+  }
+}
