@@ -127,11 +127,14 @@ function talk(g: Game, mode: Mode): void {
     if (!calmHint(g) && !g.trend) {
       if (g.pendingSection && g.t > 720) {
         const s = g.pendingSection; g.pendingSection = ''; g.seenSections.add(s); g.say(pick(SECTION_LINES[s]!), 260)
-      } else if (g.t > g.nextQuip && linesFor(g, 'idle')) {
-        g.say(pick(linesFor(g, 'idle')!))
       } else if (g.t > g.nextQuip) {
-        let j: number; do { j = (Math.random() * QUIPS.length) | 0 } while (j === g.lastQuip && QUIPS.length > 1)
-        g.lastQuip = j; g.say(QUIPS[j]!)
+        const idle = linesFor(g, 'idle')
+        if (idle) {
+          g.say(pick(idle))
+        } else {
+          let j: number; do { j = (Math.random() * QUIPS.length) | 0 } while (j === g.lastQuip && QUIPS.length > 1)
+          g.lastQuip = j; g.say(QUIPS[j]!)
+        }
       }
     }
   }

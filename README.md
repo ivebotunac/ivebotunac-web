@@ -142,7 +142,9 @@ A fork needs its own Firebase project with Firestore (`.firebaserc`, `firebase.j
 `server/utils/firebase-admin.ts`), its own domain (`site.url` in `nuxt.config.ts`, the www
 redirect, `SITE` in `app/pages/cv-print.vue`, the PDF footer in `scripts/cv-pdf.mjs`), its own
 Google Analytics ID (`app/composables/useGoogleAnalytics.ts`), its own privacy policy and IndexNow
-key, and its own content in place of everything the license section below reserves.
+key, and its own content in place of everything the license section below reserves: besides
+`app/data/cv.ts`, that is the Person schema and description in `app/app.vue` and `EMAIL` in
+`app/pages/cv-print.vue`.
 
 ## License
 

@@ -2,8 +2,6 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt({
-  ignores: ['context/**'],
-}, {
   // The game packs short statements per line on purpose; template whitespace is left as written.
   rules: {
     '@stylistic/max-statements-per-line': 'off',

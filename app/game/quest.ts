@@ -288,22 +288,17 @@ export function bindQuest(g: Game): () => void {
   const onBefore = () => { g.printing = true; healNow() }
   // the page closes its print-opened rows after printing, and their toggles land a moment later
   const onAfter = () => { setTimeout(() => { g.printing = false }, 400) }
-  document.addEventListener('toggle', onToggle, true)
-  window.addEventListener('keydown', onKey, true)
-  window.addEventListener('pointerdown', onPointer, true)
-  document.addEventListener('visibilitychange', onVisible)
-  window.addEventListener(GAME_EVENTS.restart, onRestart)
-  window.addEventListener('beforeprint', onBefore)
-  window.addEventListener('afterprint', onAfter)
+  const ac = new AbortController(), signal = ac.signal
+  document.addEventListener('toggle', onToggle, { capture: true, signal })
+  window.addEventListener('keydown', onKey, { capture: true, signal })
+  window.addEventListener('pointerdown', onPointer, { capture: true, signal })
+  document.addEventListener('visibilitychange', onVisible, { signal })
+  window.addEventListener(GAME_EVENTS.restart, onRestart, { signal })
+  window.addEventListener('beforeprint', onBefore, { signal })
+  window.addEventListener('afterprint', onAfter, { signal })
   return () => {
     healNow()
     saveMemory(g)
-    document.removeEventListener('toggle', onToggle, true)
-    window.removeEventListener('keydown', onKey, true)
-    window.removeEventListener('pointerdown', onPointer, true)
-    document.removeEventListener('visibilitychange', onVisible)
-    window.removeEventListener(GAME_EVENTS.restart, onRestart)
-    window.removeEventListener('beforeprint', onBefore)
-    window.removeEventListener('afterprint', onAfter)
+    ac.abort()
   }
 }

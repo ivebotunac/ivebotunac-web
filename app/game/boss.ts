@@ -7,6 +7,7 @@ import { deployRocket } from './team'
 import { repairAll, scorch, textTarget } from './scorch'
 import { saveMemory } from './guide'
 import { track } from '~/utils/track'
+import { formatClock } from '~/utils/duration'
 import { startRun } from './stats-client'
 import { DIE, ENTER, TP_GONE, TP_OUT, bossPx, vanished } from './boss-shared'
 import type { Game } from './core'
@@ -26,11 +27,6 @@ const DASH = 26
 let burnSaid = false
 export const bossR = (g: Game) => 12 * bossPx(g) + 6 + g.tapPad
 export const bossFighting = (g: Game) => !!g.boss && (g.boss.phase === 'enter' || g.boss.phase === 'fight')
-
-function fmtMs(ms: number): string {
-  const s = Math.round(ms / 1000)
-  return ((s / 60) | 0) + ':' + String(s % 60).padStart(2, '0')
-}
 
 function homeY(g: Game): number {
   return Math.max(110, g.H * 0.26)
@@ -244,11 +240,11 @@ function defeat(g: Game, b: Boss): void {
   if (b.run && (g.mem.bossRunMs === null || ms < g.mem.bossRunMs)) { g.mem.bossRun = b.run; g.mem.bossRunMs = ms }
   saveMemory(g)
   const py = Math.max(140, g.H * 0.46)
-  g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + fmtMs(ms), life: 0, max: 220, c: ORANGE, size: g.W < 520 ? 20 : 26 })
+  g.popups.push({ x: g.W / 2, y: py, text: 'AGI defeated in ' + formatClock(ms), life: 0, max: 220, c: ORANGE, size: g.W < 520 ? 20 : 26 })
   if (record && best !== null) g.popups.push({ x: g.W / 2, y: py + 30, text: 'new best!', life: 0, max: 200, c: DEEP_BLUE, size: 15 })
   track('boss_defeated', { ms })
   speak(g, pick(BOSS_WIN_LINES))
-  g.bridge?.announce('AGI defeated in ' + fmtMs(ms) + '.' + (best === null ? '' : record ? ' New best.' : ' Best ' + fmtMs(best) + '.'))
+  g.bridge?.announce('AGI defeated in ' + formatClock(ms) + '.' + (best === null ? '' : record ? ' New best.' : ' Best ' + formatClock(best) + '.'))
   g.boss = null; g.angryT = 0
   syncQuest(g)
   g.bridge?.bossDone(b.run, ms)

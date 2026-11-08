@@ -67,6 +67,7 @@ function shut() {
   opener = null
 }
 
+const confirming = ref(false)
 watch(() => props.open, (v) => { confirming.value = false; if (v) show(); else shut() }, { flush: 'post' })
 
 onBeforeUnmount(() => { if (dialogEl.value?.open) dialogEl.value.close() })
@@ -86,7 +87,6 @@ function fight() {
 }
 
 // Restart asks once more, then clears this device's game and closes the card.
-const confirming = ref(false)
 function restart() {
   confirming.value = false
   emit('close')

@@ -318,7 +318,7 @@ html.robot-point * {
   cursor: pointer !important;
 }
 
-/* A finger holding the robot or a teammate starts no text selection or callout (actions.ts). */
+/* A finger holding the robot or a teammate starts no text selection or callout (input.ts). */
 html.robot-hold,
 html.robot-hold * {
   -webkit-user-select: none;

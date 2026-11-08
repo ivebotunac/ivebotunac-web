@@ -128,6 +128,5 @@ export function createGameLimiter(globalPerMin = GLOBAL_LIMIT_PER_MIN) {
       minuteCount++
       return true
     },
-    size: () => hits.size,
   }
 }

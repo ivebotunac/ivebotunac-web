@@ -20,10 +20,10 @@ const links = cv.contacts.map(c => ({
 
 const years = (start: YearMonth, end: YearMonth | 'present') =>
   `${start.slice(0, 4)} – ${end === 'present' ? 'now' : end.slice(0, 4)}`
-const tenure = (roles: typeof cv.experience[number]['roles']) => {
-  const s = orgSpan(roles)
-  return { range: years(s.start, s.end), length: formatDuration(s.start, s.end, now.value) }
-}
+const experience = computed(() => cv.experience.map((org) => {
+  const s = orgSpan(org.roles)
+  return { ...org, range: years(s.start, s.end), length: formatDuration(s.start, s.end, now.value) }
+}))
 </script>
 
 <template>
@@ -59,14 +59,14 @@ const tenure = (roles: typeof cv.experience[number]['roles']) => {
 
         <section class="sec">
           <h2 class="shead"><span>02</span>Experience</h2>
-          <article v-for="org in cv.experience" :key="org.org" class="org">
+          <article v-for="org in experience" :key="org.org" class="org">
             <div class="org__head">
               <img v-if="org.logo" class="org__logo" :src="org.logo" alt="" width="30" height="30">
               <div class="org__name">
                 <a v-if="org.url" :href="org.url">{{ org.org }}</a><template v-else>{{ org.org }}</template>
                 <span class="meta">{{ [org.kind, org.location].filter(Boolean).join(' · ') }}</span>
               </div>
-              <span class="org__years">{{ tenure(org.roles).range }}<span class="meta">{{ tenure(org.roles).length }}</span></span>
+              <span class="org__years">{{ org.range }}<span class="meta">{{ org.length }}</span></span>
             </div>
             <div v-for="r in org.roles" :key="r.title + r.start" class="role">
               <p class="role__line"><strong>{{ r.title }}</strong><span class="meta">{{ formatRange(r.start, r.end) }}</span></p>
