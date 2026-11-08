@@ -4,10 +4,10 @@
 export default defineComponent({ render: () => null })
 </script>
 
-<style src="~/assets/css/tokens.css"></style>
+<style src="../../assets/css/tokens.css"></style>
 
-<style src="~/assets/css/base.css"></style>
+<style src="../../assets/css/base.css"></style>
 
-<style src="~/assets/css/components.css"></style>
+<style src="../../assets/css/components.css"></style>
 
-<style src="~/assets/css/site.css"></style>
+<style src="../../assets/css/site.css"></style>
