@@ -142,8 +142,13 @@ const caption = computed(() => {
   opacity: .45;
 }
 
+/* A fixed two-line height: a caption that grew under the pointer moved the bottom-anchored grid away from it. */
 .forms__caption {
-  min-height: 1.4em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  height: 2.8em;
+  overflow: hidden;
   margin: 6px 0 0;
   font: .68rem/1.4 var(--pn-font);
   color: var(--pn-text-muted);
