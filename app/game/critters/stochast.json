@@ -1,0 +1,103 @@
+{
+  "key": "stochast",
+  "label": "STOCHAST",
+  "palette": {
+    "G": "#6fd66f",
+    "g": "#3fae55",
+    "d": "#24804a",
+    "r": "#f2463a",
+    "o": "#ffa23a",
+    "y": "#ffe9a8",
+    "Y": "#c98f3a",
+    "n": "#4b4453",
+    "b": "#3aa6e8",
+    "f": "#8c95a6"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [5, 7],
+    "r": [13, 7]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........rrrr............",
+      "......rrrrrrrr..........",
+      ".....GorrrrrroGg........",
+      "....GGGGorroGGGGg.......",
+      "...GGGGGGooGGGGGg.......",
+      "...GGGGGGGGGGGGGGg......",
+      "...GGGGGGGGGGGGGGg......",
+      "...GGGGGyyyyGGGGGg......",
+      "...GooGyyyyyYGooGg......",
+      "....GGGyyyyYYGGGGg......",
+      "....ggGGyyYnnGGGGGg.....",
+      ".......GyYnGGGGGddddg...",
+      ".......GGYGGGGGGgddddd..",
+      ".......GGGGGGGGgdddddd..",
+      ".......GGGGGGGggdddddd..",
+      "........GGGGGGggddddd...",
+      "........gGGGGGgggdddb...",
+      ".........ggGGgggg..dbb..",
+      "..........gggggg....dbb.",
+      "..........f...f......bb.",
+      ".........fff.fff......b.",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........rrrr............",
+      "......rrrrrrrr..........",
+      ".....GorrrrrroGg........",
+      "....GGGGorroGGGGg.......",
+      "...GGGGGGooGGGGGg.......",
+      "...GGGGGGGGGGGGGGg......",
+      "...GGGGGGGGGGGGGGg......",
+      "...GGGGGyyyyGGGGGg......",
+      "...GooGyyyyyYGooGg......",
+      "....GGGyyyyYYGGGGg......",
+      "....ggGGyyYnnGGGGGg.....",
+      ".......GyYnGGGGGddddg...",
+      ".......GGYGGGGGGgddddd..",
+      ".......GGGGGGGGgdddddd..",
+      ".......GGGGGGGggdddddd..",
+      "........GGGGGGggddddd...",
+      "........gGGGGGgggdddb...",
+      ".........ggGGgggg..dbb..",
+      "........ffgggggg....dbb.",
+      "..............f......bb.",
+      ".............fff......b.",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "walk",
+    "particle": "heart",
+    "quirk": "shy"
+  },
+  "lines": {
+    "morph": [
+      "STOCHAST here. squawk, statistically.",
+      "STOCHAST online. next token please.",
+      "STOCHAST loaded. i only repeat what i read.",
+      "now a STOCHAST. meaning not included."
+    ],
+    "pet": [
+      "pet logged. predicting the next pet.",
+      "squawk. likeliest pet in the whole corpus.",
+      "polly wants a gradient. polly got a pat."
+    ],
+    "hit": [
+      "ow. ow. ow. repetition penalty applied.",
+      "squawk! that was not in my training data.",
+      "hit. top-p says crying is likely."
+    ],
+    "idle": [
+      "polly wants a cracker. probably.",
+      "i understand nothing. fluently.",
+      "the cat sat on the... mat. 87% sure."
+    ]
+  }
+}

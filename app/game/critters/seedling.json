@@ -1,0 +1,102 @@
+{
+  "key": "seedling",
+  "label": "SEEDLING",
+  "palette": {
+    "b": "#f59bb6",
+    "B": "#d4688d",
+    "h": "#b4e684",
+    "g": "#6cc04a",
+    "G": "#3e8f3a",
+    "r": "#f0a070",
+    "t": "#d9734a",
+    "T": "#a5502f",
+    "c": "#ffb3a1"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [7, 16],
+    "r": [15, 16]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "..........bbbb..........",
+      ".........bbbbbb.........",
+      ".........bbbbbB.........",
+      ".........BbbbBB.........",
+      "...hhg....gggG..........",
+      "..hhggg....gG....hhg....",
+      "..hgggggGGGgG...hhggg...",
+      "..gggggG...gGGGhggggG...",
+      "...GGG.....gG..ggggGG...",
+      "...........gG...GGGG....",
+      "...........gG...........",
+      "...rrrrrrrrrrrrrrrrrr...",
+      "...trrrrrrrrrrrrrrrrT...",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      ".....ccttttTTttttcc.....",
+      ".....ttttttttttttTT.....",
+      "......TTTTTTTTTTTT......",
+      "......TTT......TTT......",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "...........bbbb.........",
+      "..........bbbbbb........",
+      "..........bbbbbB........",
+      "...hhg....BbbbBB........",
+      "..hhggg....gggG.........",
+      "..hgggggGGGgG....hhg....",
+      "..gggggG...gG...hhggg...",
+      "...GGG.....gGGGhggggG...",
+      "...........gG..ggggGG...",
+      "...........gG...GGGG....",
+      "...........gG...........",
+      "...rrrrrrrrrrrrrrrrrr...",
+      "...trrrrrrrrrrrrrrrrT...",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      "....tttttttttttttttT....",
+      ".....ccttttTTttttcc.....",
+      ".....ttttttttttttTT.....",
+      "......TTTTTTTTTTTT......",
+      ".....TTT........TTT.....",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "slow",
+    "particle": "leaf",
+    "quirk": "shy"
+  },
+  "lines": {
+    "morph": [
+      "SEEDLING planted. seed 42, as is tradition.",
+      "SEEDLING here. same answer every time.",
+      "now a SEEDLING. deterministic, mostly.",
+      "SEEDLING online. set the seed, then pray."
+    ],
+    "pet": [
+      "pet logged. reproducible on request.",
+      "again? same seed, same happy.",
+      "that pat grew me one epoch taller."
+    ],
+    "hit": [
+      "ow. you reset my seed. who am i now?",
+      "nondeterminism detected. it was you.",
+      "rude. that broke my reproducibility."
+    ],
+    "idle": [
+      "ran it twice. got two answers. hm.",
+      "photosynthesis on cpu. it is slow.",
+      "seed 43 was a different plant entirely."
+    ]
+  }
+}

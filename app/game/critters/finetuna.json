@@ -1,0 +1,102 @@
+{
+  "key": "finetuna",
+  "label": "FINETUNA",
+  "palette": {
+    "B": "#3d6db0",
+    "b": "#6f9fdc",
+    "L": "#a9caf2",
+    "s": "#b9c9de",
+    "S": "#dbe5f0",
+    "W": "#f7fafd",
+    "f": "#ffcd3c",
+    "p": "#ff9fb8",
+    "m": "#24304a"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [12, 9],
+    "r": [18, 9]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "........................",
+      "..........BB............",
+      "..........BbbBB.........",
+      ".........fBBBBBBBB......",
+      ".......fBBBBBLLLBBBB....",
+      "Bb.....BbbbbbbLLbbbbB...",
+      "Bbb...BbbbbbbbbbbbbbbB..",
+      ".Bbb..bbbbbbbbbbbbbbbbb.",
+      "..Bbbbbbbbbbbbbbbbbbbbb.",
+      "...Bbsssssppsssssssppss.",
+      "...Bbsssssssssmssmsssss.",
+      "..BbbSSSbbBSSSSmmSSSSSS.",
+      ".Bbb.WWbbWWWWWWWWWWWWWW.",
+      "Bbb...WWWWWWWWWWWWWWWW..",
+      "Bb.....WWWWWWWWWWWWWW...",
+      ".......fSSSSSSSSSSSS....",
+      ".........fSSSSSSSS......",
+      "...........bbb..........",
+      "........................",
+      "........................",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "........................",
+      ".........BB.............",
+      ".........BbbbBB.........",
+      ".........fBBBBBBBB......",
+      "Bb.....fBBBBBLLLBBBB....",
+      "Bbb....BbbbbbbLLbbbbB...",
+      ".Bbb..BbbbbbbbbbbbbbbB..",
+      "..Bbbbbbbbbbbbbbbbbbbbb.",
+      "...Bbbbbbbbbbbbbbbbbbbb.",
+      "...Bbsssssppsssssssppss.",
+      "..Bbbsssssssssmssmsssss.",
+      ".Bbb.SSSSSSSSSSmmSSSSSS.",
+      "Bbb..WWWbbBWWWWWWWWWWWW.",
+      "Bb....WbbWWWWWWWWWWWWW..",
+      ".......WWWWWWWWWWWWWW...",
+      ".......fSSSSSSSSSSSS....",
+      ".........fSSSSSSSS......",
+      "...........bbb..........",
+      "........................",
+      "........................",
+      "........................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "float",
+    "particle": "bubble",
+    "quirk": "none"
+  },
+  "lines": {
+    "morph": [
+      "FINETUNA online. trained on your data, lightly.",
+      "FINETUNA here. learning rate: very small.",
+      "now a FINETUNA. base model, plus vibes.",
+      "FINETUNA loaded. three epochs, no regrets."
+    ],
+    "pet": [
+      "pat absorbed. updating one weight. gently.",
+      "more of that and i will overfit on you.",
+      "nice. adding this to my training set."
+    ],
+    "hit": [
+      "ow. catastrophic forgetting. who am i?",
+      "that gradient was way too big.",
+      "hit logged. rolling back to the checkpoint."
+    ],
+    "idle": [
+      "forgot how to swim. learned your emails.",
+      "low-rank adapter fitted. fins still mine.",
+      "still a base model underneath. mostly."
+    ]
+  }
+}

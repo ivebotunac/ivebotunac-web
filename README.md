@@ -4,7 +4,7 @@ Source of [ivebotunac.com](https://ivebotunac.com), the CV of Ive Botunac, PhD, 
 Vue 3 and TypeScript and hosted on Firebase App Hosting.
 
 The CV is one prerendered page. On top of it runs a small pixel-art game: an AI robot reacts to
-the sections as they scroll by, chases "AI trend" tags, shape-shifts into 12 critters, recruits six
+the sections as they scroll by, chases "AI trend" tags, shape-shifts into 20 critters, recruits six
 sub-agents hidden in the CV and, with a full team, fights an AGI boss that burns letters out of the
 page. The game loads client-side only, never blocks scrolling, links or text selection, and is
 hidden under `prefers-reduced-motion` and in print.

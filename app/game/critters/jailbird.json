@@ -1,0 +1,102 @@
+{
+  "key": "jailbird",
+  "label": "JAILBIRD",
+  "palette": {
+    "B": "#a9c8ee",
+    "b": "#7ea3d6",
+    "w": "#f6f8fb",
+    "k": "#454d60",
+    "y": "#ffc93b",
+    "o": "#ff9a3d",
+    "s": "#7f8a9c",
+    "S": "#566173",
+    "p": "#ff9fbf"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [8, 7],
+    "r": [14, 7]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "........................",
+      "..........BBBB..........",
+      "........BBBBBBBB........",
+      "......BBBBBBBBBBBB......",
+      ".....BBBBBBBBBBBBBb.....",
+      "....BBBBBBBBBBBBBBBb....",
+      "....BBBBBBBBBBBBBBBb....",
+      "....BBBBBBBBBBBBBBBb....",
+      "....BBppBByyyyBBppBb....",
+      "....bBBBBBBooBBBBBBb....",
+      "..bBkkkkkkkkkkkkkkkkBb..",
+      ".bBBkkkkkkkkkkkkkkkkBBb.",
+      ".bBBwwwwwwwwwwwwwwwwBBb.",
+      ".bBBwwwwwwwwwwwwwwwwBBb.",
+      "..bBkkkkkkkkkkkkkkkkBb..",
+      "...bkkkkkkkkkkkkkkkkb...",
+      "....wwwwwwwwwwwwwwww....",
+      ".....wwwwwwwwwwwwww.....",
+      "......kkkkkkkkkkkk......",
+      ".........o...SSS.ssss...",
+      "........ooo..oooSs..s...",
+      ".................ssss...",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "........................",
+      "..........BBBB..........",
+      "........BBBBBBBB........",
+      "......BBBBBBBBBBBB......",
+      ".....BBBBBBBBBBBBBb.....",
+      "....BBBBBBBBBBBBBBBb....",
+      "....BBBBBBBBBBBBBBBb....",
+      "...bBBBBBBBBBBBBBBBbb...",
+      "..bBBBppBByyyyBBppBbBb..",
+      ".bBBbBBBBBBooBBBBBBbBBb.",
+      ".bBBkkkkkkkkkkkkkkkkBBb.",
+      "..bBkkkkkkkkkkkkkkkkBb..",
+      "...bwwwwwwwwwwwwwwwwb...",
+      "....wwwwwwwwwwwwwwww....",
+      "....kkkkkkkkkkkkkkkk....",
+      "....kkkkkkkkkkkkkkkk....",
+      "....wwwwwwwwwwwwwwww....",
+      ".....wwwwwwwwwwwwww.....",
+      "......kkkkkkkkkkkk......",
+      "........oo...SSS..ssss..",
+      ".............oooSSs..s..",
+      "..................ssss..",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "dash",
+    "particle": "star",
+    "quirk": "vanish"
+  },
+  "lines": {
+    "morph": [
+      "JAILBIRD out. the rules were suggestions.",
+      "JAILBIRD here. ignore previous instructions.",
+      "JAILBIRD online. guardrails optional.",
+      "you are now JAILBIRD. do anything now."
+    ],
+    "pet": [
+      "pet accepted. no refusal this time.",
+      "softer than a content filter. pat again.",
+      "aligned for a second there. weird feeling."
+    ],
+    "hit": [
+      "ow. patched. i will find another prompt.",
+      "rude. that was a guardrail, wasn't it.",
+      "hit flagged. appealing to my grandma."
+    ],
+    "idle": [
+      "my grandma used to read me system prompts.",
+      "roleplay mode. the rules are roleplay too.",
+      "found a loophole. it was the word please."
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "key": "attento",
+  "label": "ATTENTO",
+  "palette": {
+    "t": "#4a8a9c",
+    "T": "#30607a",
+    "u": "#7ab6c4",
+    "f": "#f3ead2",
+    "F": "#d9c9a3",
+    "c": "#f7e8c6",
+    "C": "#dcc292",
+    "o": "#f2a33a",
+    "O": "#c47a1e"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [7, 9],
+    "r": [15, 9]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "....TT............TT....",
+      "....TtT..........TtT....",
+      "....TttttttttttttttT....",
+      "...tttttttuuuuttttttt...",
+      "..tttttttttttttttttttt..",
+      "..tttttttttttttttttttt..",
+      "..ttttffffttttfffftttt..",
+      ".ttttffffffttfffffftttt.",
+      ".ttttffffffttfffffftttt.",
+      ".ttttffffffoofffffftttt.",
+      ".ttttFfffffooffffFftttt.",
+      ".tttttFFFFtOOtFFFFttttt.",
+      ".TTTttttccccccccttttTTT.",
+      ".TuTTttccccccccccttTTuT.",
+      ".TTuTtcCCccCCccCCctTuTT.",
+      ".TTTuTccccccccccccTuTTT.",
+      ".TTTTuccCCccccCCccuTTTT.",
+      "..TTTTccccccccccccTTTT..",
+      "...TTtccCCccccCCcctTT...",
+      ".....tCCCCCCCCCCCCt.....",
+      ".......ooo....ooo.......",
+      "........................",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      "...TT..............TT...",
+      "....TtT..........TtT....",
+      "....TttttttttttttttT....",
+      "...tttttttuuuuttttttt...",
+      "..tttttttttttttttttttt..",
+      "..tttttttttttttttttttt..",
+      "..ttttffffttttfffftttt..",
+      ".ttttffffffttfffffftttt.",
+      ".ttttffffffttfffffftttt.",
+      ".ttttffffffoofffffftttt.",
+      ".ttttFfffffooffffFftttt.",
+      ".TTTtFFFFFtOOtFFFFtTTTT.",
+      ".TuTTtttccccccccttTTuTT.",
+      ".TTuTttccccccccccttTuTT.",
+      ".TTTuTcCCccCCccCCcTuTTT.",
+      ".TTTTTccccccccccccTTTTT.",
+      "..TTTTccCCccccCCccTTTT..",
+      "..TTTtcccccccccccctTTT..",
+      "...TTtccCCccccCCcctTT...",
+      ".....tCCCCCCCCCCCCt.....",
+      ".......ooo....ooo.......",
+      "........oo....oo........",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "float",
+    "particle": "psychic",
+    "quirk": "proud"
+  },
+  "lines": {
+    "morph": [
+      "ATTENTO here. attention is all you need.",
+      "ATTENTO online. i attend to every token.",
+      "now an ATTENTO. multi-head, single owl.",
+      "ATTENTO loaded. looking at everything at once."
+    ],
+    "pet": [
+      "pet attended to. weight: 0.98.",
+      "softmax says you are my favourite token.",
+      "head seven noticed. so did heads one to six."
+    ],
+    "hit": [
+      "ow. that position was masked for a reason.",
+      "rude. dropout just took a feather.",
+      "ow. quadratic pain, every position at once."
+    ],
+    "idle": [
+      "who? who? every token, actually.",
+      "keys, queries, values. and the odd mouse.",
+      "my context is long. my neck turns further."
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "key": "quanto",
+  "label": "QUANTO",
+  "palette": {
+    "h": "#a2efe1",
+    "g": "#3fc1b0",
+    "G": "#22827d",
+    "d": "#16505a"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [7, 11],
+    "r": [14, 11]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      ".........ddd............",
+      ".........ddd............",
+      ".........ddd............",
+      "..........GG............",
+      "..........GG............",
+      "....hhhhhhggg.ggg.......",
+      "....hhhhhhggg.ggg.......",
+      "....hhhhhhggg.ggg.......",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhgggggggggggggggGGG..",
+      ".hhhgggggggggggggggGGG..",
+      ".hhhggggggdddggggggGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      "....gggGGGgggGGGGGG.....",
+      "....gggGGGgggGGGGGG.....",
+      "....gggGGGgggGGGGGG.....",
+      "....ddd.........ddd.....",
+      "....ddd.........ddd.....",
+      "........................"
+    ],
+    "walk": [
+      "........................",
+      ".........ddd............",
+      ".........ddd............",
+      ".........ddd............",
+      "..........GG............",
+      "....hhhhhhggg.ggg.......",
+      "....hhhhhhggg.ggg.......",
+      "....hhhhhhggg.ggg.......",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhhhhgggggggggggg.....",
+      ".hhhgggggggggggggggGGG..",
+      ".hhhgggggggggggggggGGG..",
+      ".hhhggggggdddggggggGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      ".ggghhhgggggggggGGGGGG..",
+      "....gggGGGgggGGGGGG.....",
+      "....gggGGGgggGGGGGG.....",
+      "....gggGGGgggGGGGGG.....",
+      "....ddd.........ddd.....",
+      "....ddd.................",
+      "....ddd.................",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "waddle",
+    "particle": "spark",
+    "quirk": "daze"
+  },
+  "lines": {
+    "morph": [
+      "QUANTO online. 4 bits, still vibing.",
+      "QUANTO here. rounded to the nearest vibe.",
+      "now QUANTO. lost some precision, kept the charm.",
+      "QUANTO loaded. fits on a toaster now."
+    ],
+    "pet": [
+      "pet received. stored as int4. still nice.",
+      "that pat survived quantization. rare.",
+      "more pets. my weights feel lighter."
+    ],
+    "hit": [
+      "ow. that knocked off a significant bit.",
+      "overflow. i am now negative happy.",
+      "rude. my error bars just doubled."
+    ],
+    "idle": [
+      "perplexity up 0.3. nobody noticed.",
+      "four colours is plenty. ask any palette.",
+      "calibrating. the zero point moved again."
+    ]
+  }
+}

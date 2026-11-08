@@ -1,0 +1,102 @@
+{
+  "key": "kernel",
+  "label": "KERNEL",
+  "palette": {
+    "W": "#fffdf6",
+    "c": "#fbefd0",
+    "C": "#e3c68c",
+    "y": "#d9832a",
+    "d": "#a8571c",
+    "e": "#6e3412",
+    "p": "#ff9fb0",
+    "u": "#f6d47a",
+    "m": "#6a3418"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [8, 11],
+    "r": [14, 11]
+  },
+  "frames": {
+    "idle": [
+      "........................",
+      "..............Wc........",
+      "............WWccc.......",
+      "...........WWccydcWcc...",
+      "...........WccccWWcccc..",
+      ".............cccWcccccc.",
+      "...........Wc...ccccccC.",
+      ".........WWcccc..ccccCC.",
+      ".......WWWccccccc.ccCC..",
+      "...Wcc.WWcccccccc.cCCC..",
+      "..Wcc.WWcccccccccc.C....",
+      ".Wccc.WccccccccccC......",
+      ".cccc.ccccccccccCC......",
+      ".cccc.ppcccccccCpp......",
+      "..ccC.cccccmmcCCCC......",
+      "....C..ccccccCCCC.......",
+      ".......cccuuuuCCC.......",
+      ".........yuuyuuy........",
+      ".........yyuyy.y........",
+      ".........yydddee........",
+      "..........yddde.........",
+      ".........e.eee.e........",
+      "........ee.....ee.......",
+      "........................"
+    ],
+    "walk": [
+      "..............Wc........",
+      "............WWccc.......",
+      "...........WWccydcWcc...",
+      "...........WccccWWcccc..",
+      "...........cccccWcccccc.",
+      ".............ccWccccccC.",
+      "...........Wc...cccccCC.",
+      ".........WWcccc..cccCC..",
+      "...Wcc.WWWccccccc.cCCC..",
+      "..Wccc.WWcccccccc.CC....",
+      ".Wccc.WWcccccccccc......",
+      ".cccc.WccccccccccC......",
+      ".cccc.ccccccccccCC......",
+      "..ccc.ppcccccccCpp......",
+      "...cC.cccccmmcCCCC......",
+      ".......ccccccCCCC.......",
+      ".......cccuuuuCCC.......",
+      ".........yuuyuuy........",
+      ".........yyuyy.y........",
+      ".........yydddee........",
+      ".......ee.yddde.........",
+      "...........eee.e........",
+      "...............ee.......",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "hop",
+    "particle": "ember",
+    "quirk": "daze"
+  },
+  "lines": {
+    "morph": [
+      "KERNEL loaded. launching 1024 threads.",
+      "KERNEL here. compiling. please hold.",
+      "now a KERNEL. about to pop. any second.",
+      "KERNEL online. fused, warm, lightly buttered."
+    ],
+    "pet": [
+      "warm hands. occupancy at 100%.",
+      "pat received. no race condition detected.",
+      "careful. one more and i pop."
+    ],
+    "hit": [
+      "kernel panic. please reboot me gently.",
+      "ow. segfault in the hull.",
+      "out of shared memory. and dignity."
+    ],
+    "idle": [
+      "waiting on a cuda sync. any minute now.",
+      "popped one thread. 1023 to go.",
+      "recompiling for your gpu. again."
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "key": "cachemunk",
+  "label": "CACHEMUNK",
+  "palette": {
+    "b": "#c47a3c",
+    "B": "#8f5228",
+    "h": "#e8a865",
+    "c": "#fbe8c8",
+    "C": "#e6c393",
+    "s": "#4a2c1c",
+    "p": "#f29a9a",
+    "n": "#e0a43a",
+    "k": "#5a361c"
+  },
+  "outline": "#1d2433",
+  "eyes": {
+    "l": [6, 10],
+    "r": [14, 10]
+  },
+  "frames": {
+    "idle": [
+      "...............hbBBh....",
+      ".............hbBBBBBBh..",
+      "............hbBBhh.BBBh.",
+      "............bBBh....BBb.",
+      "....BB......bBh.BB.BBBh.",
+      "....Bp..........pB.BBBb.",
+      ".....bbbbhsshbbbb..hBBB.",
+      "....bbbbbhsshbbbbb.BBBh.",
+      "...bbhhhbhsshbhhhbbBBBb.",
+      "...bbbbbbbssbbbbbbbhBBB.",
+      "...bbbbbbbbbbbbbbbbBBBh.",
+      "...bbbbbbbppbbbbbbbBBBb.",
+      "..hhhhhbbbBBbbbhhhhhBBB.",
+      ".hcchhhhbbccbbhhhhcchBh.",
+      ".hcchhhhbbbbbbhhhhcchBB.",
+      ".hhhhhhhhbbkbhhhhhhhhBb.",
+      ".bhhhhhhbkkkkbhhhhhhbBB.",
+      "..bbbbbbcnnnncbbbbbbBBh.",
+      "....BshbcnnnncbhsB.BBB..",
+      "....BshbccnnccbhsB.BBBh.",
+      "....BbbccccccccbbBBBB...",
+      ".....BbCCCCCCCCbBBB.....",
+      ".....BhhB....BhhB.......",
+      "........................"
+    ],
+    "walk": [
+      "..............hbBBh.....",
+      "............hbBBBBBBh...",
+      "...........hbBBhh.BBBBh.",
+      "...........bBBh.....BBb.",
+      "....BB.....bBh..BB.BBBh.",
+      "....Bp..........pB.BBBb.",
+      ".....bbbbhsshbbbb..hBBB.",
+      "....bbbbbhsshbbbbb.BBBh.",
+      "...bbhhhbhsshbhhhbbBBBb.",
+      "...bbbbbbbssbbbbbbbhBBB.",
+      "...bbbbbbbbbbbbbbbbBBBh.",
+      "...bbbbbbbppbbbbbbbBBBb.",
+      "..hhhhhbbbBBbbbhhhhhBBB.",
+      ".hcchhhhbbccbbhhhhcchBh.",
+      ".hcchhhhbbbbbbhhhhcchBB.",
+      ".hhhhhhhhbbkbhhhhhhhhBb.",
+      ".bhhhhhhbkkkkbhhhhhhbBB.",
+      "..bbbbbbcnnnncbbbbbbBBh.",
+      "....BshbcnnnncbhsB.BBB..",
+      "....BshbccnnccbhsB.BBBh.",
+      "....BbbccccccccbbBBBB...",
+      "....BBbCCCCCCCCbBBB.....",
+      "...BhhB.......BhhB......",
+      "........................"
+    ]
+  },
+  "trait": {
+    "move": "hop",
+    "particle": "leaf",
+    "quirk": "nap"
+  },
+  "lines": {
+    "morph": [
+      "CACHEMUNK here. cache hit, every time.",
+      "CACHEMUNK online. saved it for later.",
+      "now a CACHEMUNK. eviction policy: never.",
+      "CACHEMUNK loaded. cheeks at full capacity."
+    ],
+    "pet": [
+      "pet stored. retrieving it all winter.",
+      "cache warm, cheeks warm. thank you.",
+      "pat saved locally. no network needed."
+    ],
+    "hit": [
+      "ow. that was a cache miss.",
+      "rude. you just flushed my cheeks.",
+      "invalidated. there were acorns in there."
+    ],
+    "idle": [
+      "stale but tasty. ttl is a suggestion.",
+      "memoized this acorn. it was hard to find.",
+      "cheeks full. evicting nothing. ever."
+    ]
+  }
+}
