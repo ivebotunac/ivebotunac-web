@@ -160,7 +160,7 @@ useSchemaOrg([
         <p>When this policy changes, we update this page and the date at the top.</p>
 
         <h2 id="contact">Contact</h2>
-        <p>Primo Technology Ltd. Email: <a href="mailto:info@techprimo.ai">info@techprimo.ai</a>.</p>
+        <p>Primo Technology Ltd. Email: <a href="mailto:support@techprimo.ai">support@techprimo.ai</a>.</p>
       </article>
     </div>
   </section>
