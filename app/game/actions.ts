@@ -1,5 +1,5 @@
 // What the robot does: attacks, trends and hit reactions; the visitor's pointer input is in input.ts.
-import { AGENT_TREND_LINES, CAUGHT_TPL, COMBO_LINES, CYAN, DEEP_BLUE, FETCH_BACK_LINES, INK, KNOCK_LINES, MISS_LINES, ORANGE, PET_LINES, PINK, PUFF_LINES, STEAL_LINES, TRENDS, WHITE, clamp, pick, rand, vary } from './config'
+import { AGENT_TREND_LINES, CAUGHT_TPL, COMBO_LINES, CYAN, DEEP_BLUE, FETCH_BACK_LINES, KNOCK_LINES, MISS_LINES, ORANGE, PET_LINES, PINK, PUFF_LINES, STEAL_LINES, TRENDS, WHITE, clamp, pageInk, pick, rand, vary } from './config'
 import { cursorHit, emit, explode, feedback, fireBeam, fxBurst } from './effects'
 import { learn, onJuggle, onKnock, onPop } from './guide'
 import { questPop } from './quest'
@@ -232,7 +232,7 @@ export function popRobot(g: Game): void {
   onPop(g)
   const x = g.pos.x, y = g.pos.y
   explode(g, x, y); explode(g, x, y); fxBurst(g, x, y, 30, ORANGE); fxBurst(g, x, y, 20, WHITE)
-  g.rings.push({ x, y, life: 0, max: 34, c: ORANGE }, { x, y, life: 0, max: 26, c: INK })
+  g.rings.push({ x, y, life: 0, max: 34, c: ORANGE }, { x, y, life: 0, max: 26, c: pageInk() })
   g.popups.push({ x, y, text: 'POP!', life: 0, max: 70, c: ORANGE, size: 28 })
   g.rage(); g.buzz([40, 30, 80])
   g.gone = 110; g.freeze = 0; g.puff = 0; g.puffSaid = false; g.combo = 0; g.comboT = 0

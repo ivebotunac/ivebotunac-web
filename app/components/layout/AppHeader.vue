@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogo from './AppLogo.vue'
+import ThemeToggle from './ThemeToggle.vue'
 
 // The CV marks its column #content; any other page falls back to <main>.
 const skipToContent = (event: MouseEvent) => {
@@ -17,7 +18,10 @@ const skipToContent = (event: MouseEvent) => {
     <a class="skip-link" href="#content" @click="skipToContent">Skip to content</a>
     <div class="masthead__inner">
       <AppLogo />
-      <span class="masthead__doc">CURRICULUM&nbsp;VITÆ · ZADAR, HR</span>
+      <div class="masthead__end">
+        <span class="masthead__doc">CURRICULUM&nbsp;VITÆ · ZADAR, HR</span>
+        <ThemeToggle />
+      </div>
     </div>
   </header>
 </template>
@@ -44,6 +48,12 @@ const skipToContent = (event: MouseEvent) => {
 }
 
 .masthead__doc { color: var(--pn-text-faint); }
+
+.masthead__end {
+  display: flex;
+  align-items: center;
+  gap: var(--pn-space-16);
+}
 
 .skip-link {
   position: absolute;

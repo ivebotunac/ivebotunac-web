@@ -24,6 +24,17 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en'
       },
+      // Sets the theme before first paint: the saved choice, else the system's; ThemeToggle saves it.
+      script: [
+        {
+          tagPosition: 'head',
+          innerHTML: '(function(){var d=document.documentElement;if(d.dataset.theme)return;var t;try{t=localStorage.getItem(\'theme\')}catch(e){}if(t!==\'light\'&&t!==\'dark\')t=matchMedia(\'(prefers-color-scheme: dark)\').matches?\'dark\':\'light\';d.dataset.theme=t})()',
+        },
+      ],
+      meta: [
+        { name: 'theme-color', content: '#F5F9FD', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#0C2236', media: '(prefers-color-scheme: dark)' },
+      ],
       link: [
         // Brand icons, declared once globally; a per-page icon link would fetch them twice.
         {

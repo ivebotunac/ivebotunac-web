@@ -1,5 +1,5 @@
 // The AGI boss: a glitchy core that drops in, takes clicks, taps and team fire, and fires slow orbs.
-import { BOSS_BURN_LINES, BOSS_HALF_LINES, BOSS_LEAVE_LINES, BOSS_START_LINES, BOSS_WIN_LINES, BRAND, CYAN, DEEP_BLUE, INK, ORANGE, VIOLET, WHITE, clamp, pick, rand, vary } from './config'
+import { BOSS_BURN_LINES, BOSS_HALF_LINES, BOSS_LEAVE_LINES, BOSS_START_LINES, BOSS_WIN_LINES, BRAND, CYAN, DEEP_BLUE, ORANGE, VIOLET, WHITE, clamp, pageInk, pick, rand, vary } from './config'
 import { explode, feedback, fireBeam, fxBurst } from './effects'
 import { clearTrend } from './actions'
 import { confetti, speak, syncQuest } from './quest'
@@ -231,7 +231,7 @@ function defeat(g: Game, b: Boss): void {
   const x = b.x, y = b.y, ms = Math.round(b.ms), best = g.mem.bossMs, record = best === null || ms < best
   explode(g, x, y); explode(g, x, y); explode(g, x, y)
   fxBurst(g, x, y, 30, ORANGE); fxBurst(g, x, y, 24, CYAN); fxBurst(g, x, y, 20, WHITE)
-  g.rings.push({ x, y, life: 0, max: 40, c: ORANGE }, { x, y, life: 0, max: 32, c: CYAN }, { x, y, life: 0, max: 24, c: INK })
+  g.rings.push({ x, y, life: 0, max: 40, c: ORANGE }, { x, y, life: 0, max: 32, c: CYAN }, { x, y, life: 0, max: 24, c: pageInk() })
   confetti(g, 60, x, y)
   g.rage(true); g.buzz([40, 30, 80, 30, 120])
   repairAll(g)

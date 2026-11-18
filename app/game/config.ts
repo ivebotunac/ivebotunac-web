@@ -29,6 +29,8 @@ export const SLATE = '#213b54'
 export const FAINT = '#93a8bc'
 export const VIOLET = '#9b6bff'
 export const PINK = '#ff6fa3'
+// Ink for effects drawn straight on the page; on the dark canvas ink would vanish, so it turns paper.
+export const pageInk = (): string => document.documentElement.dataset.theme === 'dark' ? PAPER : INK
 
 export const ROBOT_PALETTE: Palette = {
   body: BODY,

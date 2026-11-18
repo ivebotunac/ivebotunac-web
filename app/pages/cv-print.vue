@@ -6,7 +6,8 @@ import { formatDuration, formatRange, orgSpan, toYearMonth } from '~/utils/cv-da
 // The A4 layout scripts/cv-pdf.mjs prints to public/ive-botunac-cv.pdf; same data, never indexed.
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Ive Botunac, CV', robots: 'noindex, nofollow' })
-useHead({ bodyAttrs: { style: 'background:#fff' } })
+// The PDF source is always light; the theme script leaves a preset data-theme alone.
+useHead({ htmlAttrs: { 'data-theme': 'light' }, bodyAttrs: { style: 'background:#fff' } })
 
 const now = useState<YearMonth>('cv-print-now', () => toYearMonth(new Date()))
 

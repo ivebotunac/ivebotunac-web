@@ -15,7 +15,7 @@ body::before {
   pointer-events: none;
   background-image: var(--pn-grain);
   opacity: var(--pn-grain-opacity);
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--pn-grain-blend);
 }
 
 ::selection { background-color: var(--pn-accent-ui); color: var(--pn-text-on-ink); }

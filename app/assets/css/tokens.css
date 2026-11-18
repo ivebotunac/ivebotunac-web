@@ -188,6 +188,51 @@
 /* Dialog scrim. Declared on ::backdrop too: older engines let it inherit no custom properties. */
 :root, ::backdrop { --pn-scrim: rgba(12, 34, 54, 0.55); }
 
+:root { color-scheme: light; --pn-grain-blend: multiply; }
+
+/* Dark, the Nacrt Bura editor theme: ink as the canvas, raised navy cards, the same orange. */
+/* Roles only: the neutral scale stays light for cv-print. Ratios are on the canvas #0C2236. */
+/* The head script in nuxt.config.ts sets data-theme before first paint; print stays light. */
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --pn-canvas:  #0C2236;
+    --pn-surface: #122C45;
+
+    --pn-text:           #E3ECF5;   /* 13.6:1 */
+    --pn-text-secondary: #C6D7E7;   /* 11.0:1 */
+    --pn-text-muted:     #93A8BC;   /* 6.6:1  */
+    --pn-text-faint:     #587390;   /* 3.3:1, faint by design as on paper */
+    --pn-text-on-ink:    #0C2236;   /* ink fills invert to light chips with navy text */
+
+    --pn-accent2-text: #6FB7FF;     /* 7.6:1 */
+    --pn-link:         #6FB7FF;
+    --pn-link-hover:   #93C2F2;     /* 8.7:1 */
+    --pn-focus-ring:   #4C9BEA;     /* 5.5:1 */
+
+    --pn-border:       #1A3550;
+    --pn-border-brand: #2B4B69;
+
+    --pn-shadow-offset-rest:  #07172A;
+    --pn-shadow-offset-hover: #040C15;
+
+    /* Orange stops read as text on navy, so they lighten; the button keeps its deep ground. */
+    --pn-primary-50:  #33241F;
+    --pn-primary-200: #8A3D1E;
+    --pn-primary-600: #FF8A5C;      /* 7.0:1 */
+    --pn-primary-800: #FFC4AA;
+    --pn-accent:          #BF3F0B;
+    --pn-accent-gradient: linear-gradient(150deg, #BF3F0B, #A63609);
+
+    --pn-error-text: #FF7A70;       /* 6.4:1 */
+
+    --pn-grain-blend:   screen;
+    --pn-grain-opacity: 0.03;
+  }
+  :root[data-theme="dark"], :root[data-theme="dark"] ::backdrop { --pn-scrim: rgba(2, 8, 15, 0.7); }
+}
+
 /* Narrow rail band, 861 to 1024. */
 @media (max-width: 1024px) and (min-width: 861px) {
   :root {

@@ -1,6 +1,6 @@
 // Boss shots burn CV letters for a while: each flares, burns in pixel flame, then leaves soot.
 // Only the visitor's DOM changes, never the served HTML; letters heal on a timer, a win, or before print.
-import { BODY, CYAN, INK, ORANGE, SLATE, YELLOW } from './config'
+import { BODY, CYAN, INK, ORANGE, SLATE, YELLOW, pageInk } from './config'
 import { fxBurst } from './effects'
 import type { Game } from './core'
 
@@ -73,7 +73,7 @@ export function scorch(g: Game, x: number, y: number, r = 34, most = 22): number
   // from the end of each text node backwards, so a split never moves a letter still to burn
   hits.sort((a, b) => b.i - a.i)
   for (const h of hits) burnLetter(g, h.node, h.i)
-  if (hits.length) { fxBurst(g, x, y, 10, '#ffa51f'); fxBurst(g, x, y, 6, INK) }
+  if (hits.length) { fxBurst(g, x, y, 10, '#ffa51f'); fxBurst(g, x, y, 6, pageInk()) }
   return hits.length
 }
 
